@@ -15,9 +15,11 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+local sharedEnv = (type(getgenv) == "function" and getgenv()) or _G
+
 local CONFIG = {
     Name = "AURA EGG NOTIFIER",
-    WebhookURL = "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
+    WebhookURL = sharedEnv.AURA_EGG_WEBHOOK or "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
     DuplicateWindow = 10,
     ToastSeconds = 12,
 }
