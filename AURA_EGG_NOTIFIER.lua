@@ -24,6 +24,28 @@ local CONFIG = {
     MaxNotifications = 6,
     DuplicateWindow = 8,
     NotifyOnlyConfiguredRarities = true,
+    Keywords = {
+        "egg",
+        "huevo",
+        "spawned",
+        "appeared",
+        "aparecido",
+        "secret",
+        "divine",
+        "legendary",
+        "mythical",
+        "eternal",
+        "cosmic",
+    },
+    Blacklist = {
+        "[debug]",
+        "eggtooldisplay",
+        "placedeggrenderer",
+        "guard",
+        "trace",
+        "anticheat",
+        "jobid",
+    },
 }
 
 local ROLE_IDS = {
@@ -34,7 +56,7 @@ local ROLE_IDS = {
 
 local RARITIES = {
     Divine = {
-        emoji = "✨",
+        discordEmoji = "<:Divine:1548446386964406282>",
         badge = "D",
         color = 16766720,
         uiColor = Color3.fromRGB(255, 205, 76),
@@ -42,7 +64,7 @@ local RARITIES = {
         aliases = {"divine", "divino"},
     },
     Eternal = {
-        emoji = "🌌",
+        discordEmoji = "<:Eternal:1548446341699477525>",
         badge = "E",
         color = 6046719,
         uiColor = Color3.fromRGB(96, 214, 255),
@@ -50,7 +72,7 @@ local RARITIES = {
         aliases = {"eternal", "eterno"},
     },
     Secret = {
-        emoji = "🔮",
+        discordEmoji = "<:Secret:1548446274616041645>",
         badge = "S",
         color = 12315285,
         uiColor = Color3.fromRGB(203, 105, 255),
@@ -59,19 +81,222 @@ local RARITIES = {
     },
 }
 
--- Fallbacks basados en datos públicos consultados. Los datos del mensaje
--- del juego tienen prioridad y sustituyen estos valores automáticamente.
+-- Datos de Steal an Egg. Los datos vivos del mensaje del juego siempre
+-- tienen prioridad; estos valores solo se usan como fallback del embed.
 local EGG_DATABASE = {
     ["el maja"] = {
+        displayName = "El Maja",
+        discordEmoji = "<:El_Maja:1548441358493159474>",
         location = "Abyss Ocean",
         money = "$130M/s",
-        speed = "2.5M (observado)",
+        speed = "Not listed",
     },
     ["mosasaurus"] = {
+        displayName = "Mosasaurus",
+        discordEmoji = "<:Mosasaurus:1548441957016273036>",
         location = "Prehistoric",
         money = "$180M/s",
-        speed = "17M–18M (wiki est.)",
+        speed = "Not listed",
     },
+    ["nightflame"] = {
+        displayName = "Nightflame",
+        discordEmoji = "<:Nightflame:1548444116873121832>",
+        location = "Titan Temple",
+        money = "$3B/s",
+    },
+    ["unicorn"] = {
+        displayName = "Unicorn",
+        discordEmoji = "<:Unicorn:1548443051322646548>",
+        location = "Cosmic",
+        money = "$1B/s",
+    },
+    ["kitsune"] = {
+        displayName = "Kitsune",
+        discordEmoji = "<:Kitsune:1548443441170620547>",
+        location = "Cherry Blossom",
+        money = "$1.8B/s",
+    },
+    ["archangel"] = {
+        displayName = "ArchAngel",
+        discordEmoji = "<:ArchAngel:1548495435897770045>",
+        location = "Angels & Demons",
+        money = "$5B/s",
+    },
+    ["world burner"] = {
+        displayName = "World Burner",
+        discordEmoji = "<:World_Burner:1548494788158820483>",
+        location = "Angels & Demons",
+        money = "$5B/s",
+    },
+    ["phoenix"] = {
+        displayName = "Phoenix",
+        discordEmoji = "<:Phoenix:1548440843591880724>",
+        location = "Volcano",
+        money = "$85M/s",
+    },
+    ["ice dragon"] = {
+        displayName = "Ice Dragon",
+        discordEmoji = "<:Ice_Dragon:1548440110239064174>",
+        location = "Snow",
+        money = "$65M/s",
+    },
+    ["gorilla king"] = {
+        displayName = "Gorilla King",
+        discordEmoji = "<:Gorilla_King:1548443784084459531>",
+        location = "Titan Temple",
+        money = "$880M/s",
+    },
+    ["oni tiger"] = {
+        displayName = "Oni Tiger",
+        discordEmoji = "<:Oni_Tiger:1548443291773566977>",
+        location = "Cherry Blossom",
+        money = "$600M/s",
+    },
+    ["eternal lunar dragon"] = {
+        displayName = "Eternal Lunar Dragon",
+        discordEmoji = "<:Eternal_Lunar_Dragon:1548442744123293766>",
+        location = "Cosmic",
+        money = "$250M/s",
+    },
+    ["lava dragon"] = {
+        displayName = "Lava Dragon",
+        discordEmoji = "<:Lava_Dragon:1548441030783668234>",
+        location = "Volcano",
+        money = "$100M/s",
+    },
+    ["skeleton horse"] = {
+        displayName = "Skeleton Horse",
+        discordEmoji = "<:Skeleton_Horse:1548491359990579250>",
+        location = "Angels & Demons",
+        money = "$1.3B/s",
+    },
+    ["pegasus"] = {
+        displayName = "Pegasus",
+        discordEmoji = "<:Pegasus:1548490925796495452>",
+        location = "Angels & Demons",
+        money = "$1.3B/s",
+    },
+    ["trex"] = {
+        displayName = "TRex",
+        discordEmoji = "<:TRex:1548441514550632508>",
+        location = "Prehistoric",
+        money = "$25M/s",
+    },
+    ["t-rex"] = {
+        displayName = "TRex",
+        discordEmoji = "<:TRex:1548441514550632508>",
+        location = "Prehistoric",
+        money = "$25M/s",
+    },
+    ["yeti"] = {
+        displayName = "Yeti",
+        discordEmoji = "<:Yeti:1548439856785395772>",
+        location = "Snow",
+        money = "$5M/s",
+    },
+    ["pure jellyfish"] = {
+        displayName = "Pure Jellyfish",
+        discordEmoji = "<:Pure_Jellyfish:1548480251321909278>",
+        location = "Angels & Demons",
+        money = "$225M/s",
+    },
+    ["tralaledon"] = {
+        displayName = "Tralaledon",
+        discordEmoji = "<:Tralaledon:1548441688446603435>",
+        location = "Prehistoric",
+        money = "$32M/s",
+    },
+    ["gargoyle"] = {
+        displayName = "Gargoyle",
+        discordEmoji = "<:Gargoyle:1548480842786021436>",
+        location = "Angels & Demons",
+        money = "$225M/s",
+    },
+    ["cosmic skeleton boss"] = {
+        displayName = "Cosmic Skeleton Boss",
+        discordEmoji = "<:Cosmic_Skeleton_Boss:1548442180018770041>",
+        location = "Cosmic",
+        money = "$45M/s",
+    },
+    ["razorfang"] = {
+        displayName = "RazorFang",
+        discordEmoji = "<:RazorFang:1548481759320997928>",
+        location = "Angels & Demons",
+        money = "$350M/s",
+    },
+    ["mutant shark"] = {
+        displayName = "Mutant Shark",
+        discordEmoji = "<:MutantShark:1548443702035353631>",
+    },
+    ["cerberus"] = {
+        displayName = "Cerberus",
+        discordEmoji = "<:Cerberus:1548440419107348591>",
+        location = "Volcano",
+        money = "$8M/s",
+    },
+    ["centaur"] = {
+        displayName = "Centaur",
+        discordEmoji = "<:Centaur:1548493515841871935>",
+        location = "Angels & Demons",
+        money = "$350M/s",
+    },
+    ["stag"] = {
+        displayName = "Stag",
+        discordEmoji = "<:Stag:1548443172806459494>",
+        location = "Cherry Blossom",
+        money = "$145M/s",
+    },
+    ["cosmic dragon"] = {
+        displayName = "Cosmic Dragon",
+        discordEmoji = "<:Cosmic_Dragon:1548442406959976579>",
+        location = "Cosmic",
+        money = "$60M/s",
+    },
+    ["kraken"] = {
+        displayName = "Kraken",
+        discordEmoji = "<:Kraken:1548441236476788786>",
+        location = "Abyss Ocean",
+        money = "$15M/s",
+    },
+    ["king snake"] = {
+        displayName = "King Snake",
+        discordEmoji = "<:King_Snake:1548439645849919682>",
+        location = "Jungle",
+        money = "$3.5M/s",
+    },
+}
+
+local PET_RARITIES = {
+    ["nightflame"] = "Divine",
+    ["unicorn"] = "Divine",
+    ["kitsune"] = "Divine",
+    ["archangel"] = "Divine",
+    ["world burner"] = "Divine",
+    ["phoenix"] = "Eternal",
+    ["ice dragon"] = "Eternal",
+    ["mosasaurus"] = "Eternal",
+    ["gorilla king"] = "Eternal",
+    ["el maja"] = "Eternal",
+    ["oni tiger"] = "Eternal",
+    ["eternal lunar dragon"] = "Eternal",
+    ["lava dragon"] = "Eternal",
+    ["skeleton horse"] = "Eternal",
+    ["pegasus"] = "Eternal",
+    ["trex"] = "Secret",
+    ["t-rex"] = "Secret",
+    ["yeti"] = "Secret",
+    ["pure jellyfish"] = "Secret",
+    ["tralaledon"] = "Secret",
+    ["gargoyle"] = "Secret",
+    ["cosmic skeleton boss"] = "Secret",
+    ["razorfang"] = "Secret",
+    ["mutant shark"] = "Secret",
+    ["cerberus"] = "Secret",
+    ["centaur"] = "Secret",
+    ["stag"] = "Secret",
+    ["cosmic dragon"] = "Secret",
+    ["kraken"] = "Secret",
+    ["king snake"] = "Secret",
 }
 
 local Players = game:GetService("Players")
@@ -207,6 +432,30 @@ local function normalizeEggName(value)
     return trim(key)
 end
 
+local function findKnownPet(text)
+    local textLower = lower(text)
+    local names = {}
+
+    for name in pairs(EGG_DATABASE) do
+        table.insert(names, name)
+    end
+
+    -- Comprueba primero los nombres largos para no cortar "Cosmic Skeleton Boss"
+    -- como si fuera un nombre más corto.
+    table.sort(names, function(a, b)
+        return #a > #b
+    end)
+
+    for _, name in ipairs(names) do
+        if textLower:find(name, 1, true) then
+            local data = EGG_DATABASE[name]
+            return safeDiscordText(data.displayName or name)
+        end
+    end
+
+    return nil
+end
+
 local function findAfterLabel(text, labels)
     local original = tostring(text or "")
     local textLower = original:lower()
@@ -245,6 +494,11 @@ local function detectRarity(text)
 end
 
 local function extractEggName(text)
+    local knownPet = findKnownPet(text)
+    if knownPet then
+        return knownPet
+    end
+
     local eggName = findAfterLabel(text, {"egg"})
 
     if eggName then
@@ -340,8 +594,29 @@ local function buildEvent(rawText)
         return nil
     end
 
-    local rarityName = detectRarity(text)
-    if not rarityName and CONFIG.NotifyOnlyConfiguredRarities then
+    local textLower = text:lower()
+    for _, badWord in ipairs(CONFIG.Blacklist) do
+        if textLower:find(badWord, 1, true) then
+            return nil
+        end
+    end
+
+    local keywordHits = 0
+    for _, keyword in ipairs(CONFIG.Keywords) do
+        if textLower:find(keyword, 1, true) then
+            keywordHits = keywordHits + 1
+        end
+    end
+
+    local eggName = extractEggName(text)
+    local normalizedEggName = normalizeEggName(eggName)
+    local data = EGG_DATABASE[normalizedEggName] or {}
+    local rarityName = detectRarity(text) or PET_RARITIES[normalizedEggName]
+    local stableMatch = keywordHits >= 2
+        or (textLower:find("egg", 1, true) and textLower:find("spawn", 1, true))
+        or data.displayName ~= nil
+
+    if not stableMatch or (not rarityName and CONFIG.NotifyOnlyConfiguredRarities) then
         return nil
     end
 
@@ -350,8 +625,6 @@ local function buildEvent(rawText)
         return nil
     end
 
-    local eggName = extractEggName(text)
-    local data = EGG_DATABASE[normalizeEggName(eggName)] or {}
     local liveLocation = extractLocation(text)
     local liveMoney = extractMoney(text)
     local liveSpeed = extractSpeed(text)
@@ -366,7 +639,10 @@ local function buildEvent(rawText)
             or safeDiscordText(data.location or "Unknown location"),
         money = liveMoney ~= "" and liveMoney or safeDiscordText(data.money or "Not listed"),
         speed = liveSpeed ~= "" and liveSpeed or safeDiscordText(data.speed or "Not listed"),
-        source = (liveMoney ~= "" or liveSpeed ~= "") and "Live game data" or "Wiki fallback",
+        source = (liveMoney ~= "" or liveSpeed ~= "")
+            and "Live game data"
+            or "Steal an Egg wiki fallback",
+        petEmoji = data.discordEmoji or rarity.discordEmoji,
         joinUrl = getJoinUrl(),
         detectedAt = os.date("!%Y-%m-%dT%H:%M:%SZ"),
         shortTime = os.date("%H:%M:%S"),
@@ -391,13 +667,19 @@ screenGui.Parent = guiParent
 
 local root = Instance.new("Frame")
 root.Name = "Panel"
-root.AnchorPoint = Vector2.new(1, 0)
-root.Position = UDim2.new(1, -18, 0, 58)
-root.Size = UDim2.new(0, 380, 0, 450)
+root.AnchorPoint = Vector2.new(0.5, 0)
+root.Position = UDim2.new(0.5, 0, 0, 18)
+root.Size = UDim2.new(1, -24, 0, 450)
 root.BackgroundColor3 = Color3.fromRGB(13, 15, 29)
 root.BackgroundTransparency = 0.04
 root.BorderSizePixel = 0
+root.ClipsDescendants = true
 root.Parent = screenGui
+
+local rootConstraint = Instance.new("UISizeConstraint")
+rootConstraint.MinSize = Vector2.new(280, 360)
+rootConstraint.MaxSize = Vector2.new(380, 520)
+rootConstraint.Parent = root
 
 local rootCorner = Instance.new("UICorner")
 rootCorner.CornerRadius = UDim.new(0, 16)
@@ -526,7 +808,9 @@ local function createVisualCard(event)
     local card = Instance.new("Frame")
     card.Name = "SpawnCard"
     card.LayoutOrder = isSystemCard and 0 or -detectionCount
-    card.Size = UDim2.new(1, 0, 0, 148)
+    card.Size = UDim2.new(1, 0, 0, 0)
+    card.AutomaticSize = Enum.AutomaticSize.Y
+    card.ClipsDescendants = true
     card.BackgroundColor3 = Color3.fromRGB(30, 32, 60)
     card.BackgroundTransparency = 0.08
     card.BorderSizePixel = 0
@@ -587,7 +871,8 @@ local function createVisualCard(event)
     local cardBody = Instance.new("TextLabel")
     cardBody.BackgroundTransparency = 1
     cardBody.Position = UDim2.new(0, 23, 0, 38)
-    cardBody.Size = UDim2.new(1, -32, 0, 88)
+    cardBody.Size = UDim2.new(1, -32, 0, 0)
+    cardBody.AutomaticSize = Enum.AutomaticSize.Y
     cardBody.Font = Enum.Font.Gotham
     cardBody.Text = string.format(
         "[EGG]  %s\n[LOC]  %s\n[CASH]  %s\n[SPEED]  %s\n[TIME]  Spotted just now",
@@ -665,6 +950,7 @@ end
 
 local function buildWebhookPayload(event)
     local roleMention = "<@&" .. event.rarityData.roleId .. ">"
+    local petEmoji = event.petEmoji or event.rarityData.discordEmoji
     local joinValue = event.joinUrl
         and "[**Click here to join the server**](" .. event.joinUrl .. ")"
         or "`Join link unavailable`"
@@ -672,9 +958,9 @@ local function buildWebhookPayload(event)
     return {
         username = CONFIG.Name,
         content = string.format(
-            "%s\n**%s %s spawned in %s!**",
+            "%s %s\n**%s spawned in %s!**",
             roleMention,
-            event.rarity:upper(),
+            petEmoji,
             event.egg,
             event.location
         ),
@@ -684,21 +970,28 @@ local function buildWebhookPayload(event)
         },
         embeds = {{
             author = {
-                name = "AURA EGG NOTIFIER  •  LIVE SPAWN TRACKER",
+                name = "AURA EGG NOTIFIER  •  STEAL AN EGG TRACKER",
             },
-            title = event.rarityData.emoji .. "  " .. event.rarity .. " Egg Spotted!",
+            title = petEmoji .. "  " .. event.egg .. " spotted!",
             url = event.joinUrl,
             description = string.format(
-                "## %s\n> A high-value egg has been detected in **%s**.\n> This alert was routed automatically to the **%s** role.",
+                "## %s %s\n> A **%s** pet was detected in **%s**.\n> This alert was routed automatically to the **%s** role.",
+                petEmoji,
                 event.egg,
+                event.rarity,
                 event.location,
                 event.rarity
             ),
             color = event.rarityData.color,
             fields = {
                 {
-                    name = "🥚 Egg",
-                    value = "`" .. event.egg .. "`",
+                    name = petEmoji .. " Pet",
+                    value = "**" .. event.egg .. "**",
+                    inline = true,
+                },
+                {
+                    name = event.rarityData.discordEmoji .. " Rarity",
+                    value = "`" .. event.rarity .. "`",
                     inline = true,
                 },
                 {
