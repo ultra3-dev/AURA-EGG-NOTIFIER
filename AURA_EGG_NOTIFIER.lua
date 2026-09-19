@@ -35,6 +35,7 @@ local ROLE_IDS = {
 local RARITIES = {
     Divine = {
         emoji = "✨",
+        badge = "D",
         color = 16766720,
         uiColor = Color3.fromRGB(255, 205, 76),
         roleId = ROLE_IDS.Divine,
@@ -42,6 +43,7 @@ local RARITIES = {
     },
     Eternal = {
         emoji = "🌌",
+        badge = "E",
         color = 6046719,
         uiColor = Color3.fromRGB(96, 214, 255),
         roleId = ROLE_IDS.Eternal,
@@ -49,6 +51,7 @@ local RARITIES = {
     },
     Secret = {
         emoji = "🔮",
+        badge = "S",
         color = 12315285,
         uiColor = Color3.fromRGB(203, 105, 255),
         roleId = ROLE_IDS.Secret,
@@ -85,6 +88,16 @@ local httpRequest = (syn and syn.request)
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local guiParent = playerGui
+
+-- Algunos ejecutores ocultan los ScreenGui que se parentan directamente
+-- en PlayerGui. gethui() mantiene el HUD visible sin cambiar su comportamiento.
+if type(gethui) == "function" then
+    local ok, hiddenUi = pcall(gethui)
+    if ok and hiddenUi then
+        guiParent = hiddenUi
+    end
+end
 
 -- Permite ejecutar el script otra vez sin dejar conexiones antiguas activas.
 local runtimeEnv = (type(getgenv) == "function" and getgenv()) or _G
@@ -98,9 +111,11 @@ local recentEvents = {}
 local detectionCount = 0
 local shuttingDown = false
 
-local oldGui = playerGui:FindFirstChild("AuraEggNotifier")
-if oldGui then
-    oldGui:Destroy()
+for _, parent in ipairs({playerGui, guiParent}) do
+    local oldGui = parent:FindFirstChild("AuraEggNotifier")
+    if oldGui then
+        oldGui:Destroy()
+    end
 end
 
 local function connect(signal, callback)
@@ -135,9 +150,11 @@ local function shutdown()
     end
     table.clear(connections)
     destroyAllCards()
-    local gui = playerGui:FindFirstChild("AuraEggNotifier")
-    if gui then
-        gui:Destroy()
+    for _, parent in ipairs({playerGui, guiParent}) do
+        local gui = parent:FindFirstChild("AuraEggNotifier")
+        if gui then
+            gui:Destroy()
+        end
     end
     if runtimeEnv.AURA_EGG_NOTIFIER_STOP == shutdown then
         runtimeEnv.AURA_EGG_NOTIFIER_STOP = nil
@@ -368,7 +385,9 @@ screenGui.Name = "AuraEggNotifier"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.DisplayOrder = 9999
-screenGui.Parent = playerGui
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Enabled = true
+screenGui.Parent = guiParent
 
 local root = Instance.new("Frame")
 root.Name = "Panel"
@@ -446,7 +465,8 @@ list.Size = UDim2.new(1, -20, 1, -126)
 list.ScrollBarThickness = 3
 list.ScrollBarImageColor3 = Color3.fromRGB(113, 126, 200)
 list.CanvasSize = UDim2.new(0, 0, 0, 0)
-list.AutomaticCanvasSize = Enum.AutomaticSize.Y
+list.AutomaticCanvasSize = Enum.AutomaticSize.None
+list.ScrollingDirection = Enum.ScrollingDirection.Y
 list.Parent = root
 
 local listPadding = Instance.new("UIPadding")
@@ -460,6 +480,13 @@ local listLayout = Instance.new("UIListLayout")
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 listLayout.Padding = UDim.new(0, 8)
 listLayout.Parent = list
+
+local function updateListCanvas()
+    list.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 8)
+end
+
+connect(listLayout:GetPropertyChangedSignal("AbsoluteContentSize"), updateListCanvas)
+updateListCanvas()
 
 local footer = Instance.new("TextLabel")
 footer.Name = "Footer"
@@ -499,7 +526,7 @@ local function createVisualCard(event)
     local card = Instance.new("Frame")
     card.Name = "SpawnCard"
     card.LayoutOrder = isSystemCard and 0 or -detectionCount
-    card.Size = UDim2.new(1, 0, 0, 132)
+    card.Size = UDim2.new(1, 0, 0, 148)
     card.BackgroundColor3 = Color3.fromRGB(30, 32, 60)
     card.BackgroundTransparency = 0.08
     card.BorderSizePixel = 0
@@ -526,12 +553,32 @@ local function createVisualCard(event)
     accentCorner.CornerRadius = UDim.new(1, 0)
     accentCorner.Parent = accent
 
+    -- Las fuentes de Roblox no renderizan todos los emojis Unicode.
+    -- Un badge de texto evita cuadros vacíos y conserva la identidad visual.
+    local badge = Instance.new("TextLabel")
+    badge.Name = "RarityBadge"
+    badge.BackgroundColor3 = event.rarityData.uiColor
+    badge.BorderSizePixel = 0
+    badge.Position = UDim2.new(0, 18, 0, 10)
+    badge.Size = UDim2.new(0, 28, 0, 28)
+    badge.Font = Enum.Font.GothamBold
+    badge.Text = event.rarityData.badge or "!"
+    badge.TextColor3 = Color3.fromRGB(14, 16, 30)
+    badge.TextSize = 13
+    badge.TextXAlignment = Enum.TextXAlignment.Center
+    badge.TextYAlignment = Enum.TextYAlignment.Center
+    badge.Parent = card
+
+    local badgeCorner = Instance.new("UICorner")
+    badgeCorner.CornerRadius = UDim.new(1, 0)
+    badgeCorner.Parent = badge
+
     local cardTitle = Instance.new("TextLabel")
     cardTitle.BackgroundTransparency = 1
-    cardTitle.Position = UDim2.new(0, 23, 0, 10)
-    cardTitle.Size = UDim2.new(1, -32, 0, 21)
+    cardTitle.Position = UDim2.new(0, 54, 0, 10)
+    cardTitle.Size = UDim2.new(1, -63, 0, 21)
     cardTitle.Font = Enum.Font.GothamBold
-    cardTitle.Text = event.rarityData.emoji .. "  " .. event.rarity:upper() .. " EGG SPAWNED"
+    cardTitle.Text = event.rarity:upper() .. "  |  EGG SPAWNED"
     cardTitle.TextColor3 = event.rarityData.uiColor
     cardTitle.TextSize = 14
     cardTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -540,10 +587,10 @@ local function createVisualCard(event)
     local cardBody = Instance.new("TextLabel")
     cardBody.BackgroundTransparency = 1
     cardBody.Position = UDim2.new(0, 23, 0, 38)
-    cardBody.Size = UDim2.new(1, -32, 0, 76)
+    cardBody.Size = UDim2.new(1, -32, 0, 88)
     cardBody.Font = Enum.Font.Gotham
     cardBody.Text = string.format(
-        "🥚  %s\n📍  %s\n💰  %s\n⚡  %s\n🕒  Spotted just now",
+        "[EGG]  %s\n[LOC]  %s\n[CASH]  %s\n[SPEED]  %s\n[TIME]  Spotted just now",
         event.egg,
         event.location,
         event.money,
@@ -565,11 +612,16 @@ local function createVisualCard(event)
     end
 
     card.BackgroundTransparency = 1
+    badge.TextTransparency = 1
     cardTitle.TextTransparency = 1
     cardBody.TextTransparency = 1
 
     TweenService:Create(card, TweenInfo.new(0.22), {
         BackgroundTransparency = 0.08,
+    }):Play()
+    TweenService:Create(badge, TweenInfo.new(0.22), {
+        TextTransparency = 0,
+        BackgroundTransparency = 0,
     }):Play()
     TweenService:Create(cardTitle, TweenInfo.new(0.22), {
         TextTransparency = 0,
@@ -773,7 +825,7 @@ createVisualCard({
     isSystem = true,
     rarity = "SYSTEM",
     rarityData = {
-        emoji = "◈",
+        badge = "!",
         uiColor = Color3.fromRGB(117, 255, 183),
     },
     egg = "Monitoring active",
