@@ -1,302 +1,23 @@
 --[[
-    AURA EGG NOTIFIER
-    ==================
-    Detector de huevos Secret, Eternal y Divine para Steal an Egg.
-
-    IMPORTANTE:
-    1) El webhook del archivo original quedó expuesto. GENERA UNO NUEVO
-       en Discord y pégalo en CONFIG.WebhookURL.
-    2) No se hace ninguna petición a una wiki desde Roblox. Los valores
-       de la tabla son solo fallback; si el mensaje del juego trae Money
-       o Recommended Speed, esos valores vivos siempre tienen prioridad.
-    3) El script no usa batching ni :Disconnect() sobre task.delay:
-       cada evento se procesa una sola vez y con deduplicación segura.
+	🥚 EGG DETECTOR - ULTRA MEGA HYPER-VELOCITY ADVANCED EDITION
+	================================================================
+	✓ Inicio INSTANTÁNEO - Alerta inmediata al ejecutar
+	✓ Detección ULTRA-RÁPIDA - Sin latencia
+	✓ Envío DIRECTO - Webhook inmediato sin colas
 ]]
 
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
+if not game:IsLoaded() then game.Loaded:Wait() end
 
 local CONFIG = {
-    Name = "AURA EGG NOTIFIER",
-    WebhookURL = "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
-    DisplayTime = 28,
-    MaxNotifications = 6,
-    DuplicateWindow = 8,
-    NotifyOnlyConfiguredRarities = true,
-    Keywords = {
-        "egg",
-        "huevo",
-        "spawned",
-        "appeared",
-        "aparecido",
-        "secret",
-        "divine",
-        "legendary",
-        "mythical",
-        "eternal",
-        "cosmic",
-    },
-    Blacklist = {
-        "[debug]",
-        "eggtooldisplay",
-        "placedeggrenderer",
-        "guard",
-        "trace",
-        "anticheat",
-        "jobid",
-    },
-}
-
-local ROLE_IDS = {
-    Secret = "1544734376640782346",
-    Eternal = "1544734452054229173",
-    Divine = "1544734510665699389",
-}
-
-local RARITIES = {
-    Divine = {
-        discordEmoji = "<:Divine:1548446386964406282>",
-        badge = "D",
-        color = 16766720,
-        uiColor = Color3.fromRGB(255, 205, 76),
-        roleId = ROLE_IDS.Divine,
-        aliases = {"divine", "divino"},
-    },
-    Eternal = {
-        discordEmoji = "<:Eternal:1548446341699477525>",
-        badge = "E",
-        color = 6046719,
-        uiColor = Color3.fromRGB(96, 214, 255),
-        roleId = ROLE_IDS.Eternal,
-        aliases = {"eternal", "eterno"},
-    },
-    Secret = {
-        discordEmoji = "<:Secret:1548446274616041645>",
-        badge = "S",
-        color = 12315285,
-        uiColor = Color3.fromRGB(203, 105, 255),
-        roleId = ROLE_IDS.Secret,
-        aliases = {"secret", "secreto"},
-    },
-}
-
--- Datos de Steal an Egg. Los datos vivos del mensaje del juego siempre
--- tienen prioridad; estos valores solo se usan como fallback del embed.
-local EGG_DATABASE = {
-    ["el maja"] = {
-        displayName = "El Maja",
-        discordEmoji = "<:El_Maja:1548441358493159474>",
-        location = "Abyss Ocean",
-        money = "$130M/s",
-        speed = "Not listed",
-    },
-    ["mosasaurus"] = {
-        displayName = "Mosasaurus",
-        discordEmoji = "<:Mosasaurus:1548441957016273036>",
-        location = "Prehistoric",
-        money = "$180M/s",
-        speed = "Not listed",
-    },
-    ["nightflame"] = {
-        displayName = "Nightflame",
-        discordEmoji = "<:Nightflame:1548444116873121832>",
-        location = "Titan Temple",
-        money = "$3B/s",
-    },
-    ["unicorn"] = {
-        displayName = "Unicorn",
-        discordEmoji = "<:Unicorn:1548443051322646548>",
-        location = "Cosmic",
-        money = "$1B/s",
-    },
-    ["kitsune"] = {
-        displayName = "Kitsune",
-        discordEmoji = "<:Kitsune:1548443441170620547>",
-        location = "Cherry Blossom",
-        money = "$1.8B/s",
-    },
-    ["archangel"] = {
-        displayName = "ArchAngel",
-        discordEmoji = "<:ArchAngel:1548495435897770045>",
-        location = "Angels & Demons",
-        money = "$5B/s",
-    },
-    ["world burner"] = {
-        displayName = "World Burner",
-        discordEmoji = "<:World_Burner:1548494788158820483>",
-        location = "Angels & Demons",
-        money = "$5B/s",
-    },
-    ["phoenix"] = {
-        displayName = "Phoenix",
-        discordEmoji = "<:Phoenix:1548440843591880724>",
-        location = "Volcano",
-        money = "$85M/s",
-    },
-    ["ice dragon"] = {
-        displayName = "Ice Dragon",
-        discordEmoji = "<:Ice_Dragon:1548440110239064174>",
-        location = "Snow",
-        money = "$65M/s",
-    },
-    ["gorilla king"] = {
-        displayName = "Gorilla King",
-        discordEmoji = "<:Gorilla_King:1548443784084459531>",
-        location = "Titan Temple",
-        money = "$880M/s",
-    },
-    ["oni tiger"] = {
-        displayName = "Oni Tiger",
-        discordEmoji = "<:Oni_Tiger:1548443291773566977>",
-        location = "Cherry Blossom",
-        money = "$600M/s",
-    },
-    ["eternal lunar dragon"] = {
-        displayName = "Eternal Lunar Dragon",
-        discordEmoji = "<:Eternal_Lunar_Dragon:1548442744123293766>",
-        location = "Cosmic",
-        money = "$250M/s",
-    },
-    ["lava dragon"] = {
-        displayName = "Lava Dragon",
-        discordEmoji = "<:Lava_Dragon:1548441030783668234>",
-        location = "Volcano",
-        money = "$100M/s",
-    },
-    ["skeleton horse"] = {
-        displayName = "Skeleton Horse",
-        discordEmoji = "<:Skeleton_Horse:1548491359990579250>",
-        location = "Angels & Demons",
-        money = "$1.3B/s",
-    },
-    ["pegasus"] = {
-        displayName = "Pegasus",
-        discordEmoji = "<:Pegasus:1548490925796495452>",
-        location = "Angels & Demons",
-        money = "$1.3B/s",
-    },
-    ["trex"] = {
-        displayName = "TRex",
-        discordEmoji = "<:TRex:1548441514550632508>",
-        location = "Prehistoric",
-        money = "$25M/s",
-    },
-    ["t-rex"] = {
-        displayName = "TRex",
-        discordEmoji = "<:TRex:1548441514550632508>",
-        location = "Prehistoric",
-        money = "$25M/s",
-    },
-    ["yeti"] = {
-        displayName = "Yeti",
-        discordEmoji = "<:Yeti:1548439856785395772>",
-        location = "Snow",
-        money = "$5M/s",
-    },
-    ["pure jellyfish"] = {
-        displayName = "Pure Jellyfish",
-        discordEmoji = "<:Pure_Jellyfish:1548480251321909278>",
-        location = "Angels & Demons",
-        money = "$225M/s",
-    },
-    ["tralaledon"] = {
-        displayName = "Tralaledon",
-        discordEmoji = "<:Tralaledon:1548441688446603435>",
-        location = "Prehistoric",
-        money = "$32M/s",
-    },
-    ["gargoyle"] = {
-        displayName = "Gargoyle",
-        discordEmoji = "<:Gargoyle:1548480842786021436>",
-        location = "Angels & Demons",
-        money = "$225M/s",
-    },
-    ["cosmic skeleton boss"] = {
-        displayName = "Cosmic Skeleton Boss",
-        discordEmoji = "<:Cosmic_Skeleton_Boss:1548442180018770041>",
-        location = "Cosmic",
-        money = "$45M/s",
-    },
-    ["razorfang"] = {
-        displayName = "RazorFang",
-        discordEmoji = "<:RazorFang:1548481759320997928>",
-        location = "Angels & Demons",
-        money = "$350M/s",
-    },
-    ["mutant shark"] = {
-        displayName = "Mutant Shark",
-        discordEmoji = "<:MutantShark:1548443702035353631>",
-    },
-    ["cerberus"] = {
-        displayName = "Cerberus",
-        discordEmoji = "<:Cerberus:1548440419107348591>",
-        location = "Volcano",
-        money = "$8M/s",
-    },
-    ["centaur"] = {
-        displayName = "Centaur",
-        discordEmoji = "<:Centaur:1548493515841871935>",
-        location = "Angels & Demons",
-        money = "$350M/s",
-    },
-    ["stag"] = {
-        displayName = "Stag",
-        discordEmoji = "<:Stag:1548443172806459494>",
-        location = "Cherry Blossom",
-        money = "$145M/s",
-    },
-    ["cosmic dragon"] = {
-        displayName = "Cosmic Dragon",
-        discordEmoji = "<:Cosmic_Dragon:1548442406959976579>",
-        location = "Cosmic",
-        money = "$60M/s",
-    },
-    ["kraken"] = {
-        displayName = "Kraken",
-        discordEmoji = "<:Kraken:1548441236476788786>",
-        location = "Abyss Ocean",
-        money = "$15M/s",
-    },
-    ["king snake"] = {
-        displayName = "King Snake",
-        discordEmoji = "<:King_Snake:1548439645849919682>",
-        location = "Jungle",
-        money = "$3.5M/s",
-    },
-}
-
-local PET_RARITIES = {
-    ["nightflame"] = "Divine",
-    ["unicorn"] = "Divine",
-    ["kitsune"] = "Divine",
-    ["archangel"] = "Divine",
-    ["world burner"] = "Divine",
-    ["phoenix"] = "Eternal",
-    ["ice dragon"] = "Eternal",
-    ["mosasaurus"] = "Eternal",
-    ["gorilla king"] = "Eternal",
-    ["el maja"] = "Eternal",
-    ["oni tiger"] = "Eternal",
-    ["eternal lunar dragon"] = "Eternal",
-    ["lava dragon"] = "Eternal",
-    ["skeleton horse"] = "Eternal",
-    ["pegasus"] = "Eternal",
-    ["trex"] = "Secret",
-    ["t-rex"] = "Secret",
-    ["yeti"] = "Secret",
-    ["pure jellyfish"] = "Secret",
-    ["tralaledon"] = "Secret",
-    ["gargoyle"] = "Secret",
-    ["cosmic skeleton boss"] = "Secret",
-    ["razorfang"] = "Secret",
-    ["mutant shark"] = "Secret",
-    ["cerberus"] = "Secret",
-    ["centaur"] = "Secret",
-    ["stag"] = "Secret",
-    ["cosmic dragon"] = "Secret",
-    ["kraken"] = "Secret",
-    ["king snake"] = "Secret",
+	WebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_WEBHOOK)
+		or "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
+	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
+	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
+	DisplayTime = 120,
+	MaxNotifications = 6,
+	PriorityWindow = 0.12,
+	MaxPriorityQueue = 12,
+	Version = "WEBHOOK 1.0.0 BETA"
 }
 
 local Players = game:GetService("Players")
@@ -304,832 +25,1054 @@ local LogService = game:GetService("LogService")
 local TextChatService = game:GetService("TextChatService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
-local httpRequest = (syn and syn.request)
-    or (http and http.request)
-    or http_request
-    or (fluxus and fluxus.request)
-    or request
-
+local httpRequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local guiParent = playerGui
 
--- Algunos ejecutores ocultan los ScreenGui que se parentan directamente
--- en PlayerGui. gethui() mantiene el HUD visible sin cambiar su comportamiento.
-if type(gethui) == "function" then
-    local ok, hiddenUi = pcall(gethui)
-    if ok and hiddenUi then
-        guiParent = hiddenUi
-    end
+local eggSequence = 0
+local lastText, lastTime = nil, 0
+local unreadCount = 0
+local panelOpen = true
+local pendingEggs = {}
+local priorityTimer = nil
+local priorityVersion = 0
+
+if playerGui:FindFirstChild("EggDetectorStealth") then
+	playerGui.EggDetectorStealth:Destroy()
 end
-
--- Permite ejecutar el script otra vez sin dejar conexiones antiguas activas.
-local runtimeEnv = (type(getgenv) == "function" and getgenv()) or _G
-if runtimeEnv.AURA_EGG_NOTIFIER_STOP then
-    pcall(runtimeEnv.AURA_EGG_NOTIFIER_STOP)
-end
-
-local connections = {}
-local activeCards = {}
-local recentEvents = {}
-local detectionCount = 0
-local shuttingDown = false
-
-for _, parent in ipairs({playerGui, guiParent}) do
-    local oldGui = parent:FindFirstChild("AuraEggNotifier")
-    if oldGui then
-        oldGui:Destroy()
-    end
-end
-
-local function connect(signal, callback)
-    local ok, connection = pcall(function()
-        return signal:Connect(callback)
-    end)
-    if ok and connection then
-        table.insert(connections, connection)
-        return connection
-    end
-    return nil
-end
-
-local function destroyAllCards()
-    for _, card in ipairs(activeCards) do
-        if card and card.Parent then
-            card:Destroy()
-        end
-    end
-    table.clear(activeCards)
-end
-
-local function shutdown()
-    if shuttingDown then
-        return
-    end
-    shuttingDown = true
-    for _, connection in ipairs(connections) do
-        pcall(function()
-            connection:Disconnect()
-        end)
-    end
-    table.clear(connections)
-    destroyAllCards()
-    for _, parent in ipairs({playerGui, guiParent}) do
-        local gui = parent:FindFirstChild("AuraEggNotifier")
-        if gui then
-            gui:Destroy()
-        end
-    end
-    if runtimeEnv.AURA_EGG_NOTIFIER_STOP == shutdown then
-        runtimeEnv.AURA_EGG_NOTIFIER_STOP = nil
-    end
-end
-
-runtimeEnv.AURA_EGG_NOTIFIER_STOP = shutdown
-
-local function trim(value)
-    value = tostring(value or "")
-    return value:match("^%s*(.-)%s*$") or ""
-end
-
-local function cleanText(value)
-    value = tostring(value or "")
-    value = value:gsub("<[^>]+>", "")
-    value = value:gsub("[%c]", " ")
-    return trim(value)
-end
-
-local function lower(value)
-    return cleanText(value):lower()
-end
-
-local function safeDiscordText(value)
-    value = cleanText(value)
-    value = value:gsub("@", "＠")
-    value = value:gsub("\\", "\\\\")
-    value = value:gsub("%*", "\\*")
-    value = value:gsub("_", "\\_")
-    value = value:gsub("~", "\\~")
-    value = value:gsub("`", "\\`")
-    return value
-end
-
-local function removeTrailingPunctuation(value)
-    value = trim(value)
-    value = value:gsub("[!?,;%.]+$", "")
-    return trim(value)
-end
-
-local function normalizeEggName(value)
-    local key = lower(value)
-    key = key:gsub("^big%s+", "")
-    key = key:gsub("^huge%s+", "")
-    key = key:gsub("^secret%s+", "")
-    key = key:gsub("^eternal%s+", "")
-    key = key:gsub("^divine%s+", "")
-    key = key:gsub("%s+egg%s*$", "")
-    return trim(key)
-end
-
-local function findKnownPet(text)
-    local textLower = lower(text)
-    local names = {}
-
-    for name in pairs(EGG_DATABASE) do
-        table.insert(names, name)
-    end
-
-    -- Comprueba primero los nombres largos para no cortar "Cosmic Skeleton Boss"
-    -- como si fuera un nombre más corto.
-    table.sort(names, function(a, b)
-        return #a > #b
-    end)
-
-    for _, name in ipairs(names) do
-        if textLower:find(name, 1, true) then
-            local data = EGG_DATABASE[name]
-            return safeDiscordText(data.displayName or name)
-        end
-    end
-
-    return nil
-end
-
-local function findAfterLabel(text, labels)
-    local original = tostring(text or "")
-    local textLower = original:lower()
-
-    for _, label in ipairs(labels) do
-        local labelLower = label:lower()
-        local startIndex = textLower:find(labelLower, 1, true)
-        if startIndex then
-            local value = original:sub(startIndex + #label)
-            value = value:gsub("^%s*[:%-]?%s*", "")
-            value = value:match("^[^|\r\n]+") or value
-            value = removeTrailingPunctuation(value)
-            if value ~= "" then
-                return value
-            end
-        end
-    end
-
-    return nil
-end
-
-local function detectRarity(text)
-    local textLower = lower(text)
-    local order = {"Divine", "Eternal", "Secret"}
-
-    for _, rarityName in ipairs(order) do
-        local rarity = RARITIES[rarityName]
-        for _, alias in ipairs(rarity.aliases) do
-            if textLower:find(alias, 1, true) then
-                return rarityName
-            end
-        end
-    end
-
-    return nil
-end
-
-local function extractEggName(text)
-    local knownPet = findKnownPet(text)
-    if knownPet then
-        return knownPet
-    end
-
-    local eggName = findAfterLabel(text, {"egg"})
-
-    if eggName then
-        eggName = eggName:gsub("%s+[Ss][Pp][Aa][Ww][Nn][Ee][Dd].*$", "")
-    end
-
-    if not eggName or eggName == "" then
-        eggName = text:match("([^|\r\n]+)%s+[Ss][Pp][Aa][Ww][Nn][Ee][Dd]")
-    end
-
-    if eggName then
-        eggName = eggName:gsub("^%s*[Ee][Tt][Ee][Rr][Nn][Aa][Ll]%s+", "")
-        eggName = eggName:gsub("^%s*[Dd][Ii][Vv][Ii][Nn][Ee]%s+", "")
-        eggName = eggName:gsub("^%s*[Ss][Ee][Cc][Rr][Ee][Tt]%s+", "")
-        eggName = eggName:gsub("^%s*[Ee][Gg][Gg]%s*[:%-]?%s*", "")
-        eggName = eggName:gsub("%s+[Ee][Gg][Gg]%s*$", "")
-        eggName = removeTrailingPunctuation(eggName)
-    end
-
-    -- Si el texto no incluye el nombre completo, busca nombres conocidos.
-    if not eggName or #eggName < 2 then
-        local textLower = lower(text)
-        for name in pairs(EGG_DATABASE) do
-            if textLower:find(name, 1, true) then
-                eggName = name
-                break
-            end
-        end
-    end
-
-    return safeDiscordText(eggName or "Unknown Egg")
-end
-
-local function extractLocation(text)
-    local location = findAfterLabel(text, {"location", "biome", "zona"})
-    if location then
-        return safeDiscordText(location)
-    end
-
-    local textLower = tostring(text or ""):lower()
-    local inIndex = textLower:find(" in ", 1, true)
-    if inIndex then
-        local value = tostring(text):sub(inIndex + 4)
-        value = value:match("^[^!|\r\n]+") or value
-        value = removeTrailingPunctuation(value)
-        if value ~= "" then
-            return safeDiscordText(value)
-        end
-    end
-
-    return "Unknown location"
-end
-
-local function extractMoney(text)
-    return safeDiscordText(findAfterLabel(text, {
-        "money",
-        "mps",
-        "income",
-        "cash",
-    }) or "")
-end
-
-local function extractSpeed(text)
-    return safeDiscordText(findAfterLabel(text, {
-        "recommended speed",
-        "required speed",
-        "speed required",
-        "speed",
-    }) or "")
-end
-
-local function getJoinUrl()
-    local placeId = tostring(game.PlaceId or "")
-    local jobId = tostring(game.JobId or "")
-
-    if placeId == "" or placeId == "0" then
-        return nil
-    end
-
-    if jobId ~= "" then
-        return "https://www.roblox.com/games/start?placeId="
-            .. placeId
-            .. "&gameInstanceId="
-            .. jobId
-    end
-
-    return "https://www.roblox.com/games/start?placeId=" .. placeId
-end
-
-local function buildEvent(rawText)
-    local text = cleanText(rawText)
-    if text == "" then
-        return nil
-    end
-
-    local textLower = text:lower()
-    for _, badWord in ipairs(CONFIG.Blacklist) do
-        if textLower:find(badWord, 1, true) then
-            return nil
-        end
-    end
-
-    local keywordHits = 0
-    for _, keyword in ipairs(CONFIG.Keywords) do
-        if textLower:find(keyword, 1, true) then
-            keywordHits = keywordHits + 1
-        end
-    end
-
-    local eggName = extractEggName(text)
-    local normalizedEggName = normalizeEggName(eggName)
-    local data = EGG_DATABASE[normalizedEggName] or {}
-    local rarityName = detectRarity(text) or PET_RARITIES[normalizedEggName]
-    local stableMatch = keywordHits >= 2
-        or (textLower:find("egg", 1, true) and textLower:find("spawn", 1, true))
-        or data.displayName ~= nil
-
-    if not stableMatch or (not rarityName and CONFIG.NotifyOnlyConfiguredRarities) then
-        return nil
-    end
-
-    local rarity = RARITIES[rarityName]
-    if not rarity then
-        return nil
-    end
-
-    local liveLocation = extractLocation(text)
-    local liveMoney = extractMoney(text)
-    local liveSpeed = extractSpeed(text)
-
-    local event = {
-        raw = text,
-        rarity = rarityName,
-        rarityData = rarity,
-        egg = eggName,
-        location = liveLocation ~= "Unknown location"
-            and liveLocation
-            or safeDiscordText(data.location or "Unknown location"),
-        money = liveMoney ~= "" and liveMoney or safeDiscordText(data.money or "Not listed"),
-        speed = liveSpeed ~= "" and liveSpeed or safeDiscordText(data.speed or "Not listed"),
-        source = (liveMoney ~= "" or liveSpeed ~= "")
-            and "Live game data"
-            or "Steal an Egg wiki fallback",
-        petEmoji = data.discordEmoji or rarity.discordEmoji,
-        joinUrl = getJoinUrl(),
-        detectedAt = os.date("!%Y-%m-%dT%H:%M:%SZ"),
-        shortTime = os.date("%H:%M:%S"),
-    }
-
-    event.fingerprint = lower(event.rarity .. "|" .. event.egg .. "|" .. event.location)
-    return event
-end
-
--- =========================
--- UI LOCAL
--- =========================
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "AuraEggNotifier"
+screenGui.Name = "EggDetectorStealth"
 screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
 screenGui.DisplayOrder = 9999
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.Enabled = true
-screenGui.Parent = guiParent
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = playerGui
 
-local root = Instance.new("Frame")
-root.Name = "Panel"
-root.AnchorPoint = Vector2.new(0.5, 0)
-root.Position = UDim2.new(0.5, 0, 0, 18)
-root.Size = UDim2.new(1, -24, 0, 450)
-root.BackgroundColor3 = Color3.fromRGB(13, 15, 29)
-root.BackgroundTransparency = 0.04
-root.BorderSizePixel = 0
-root.ClipsDescendants = true
-root.Parent = screenGui
+local panel = Instance.new("Frame")
+panel.Name = "EggLogPanel"
+panel.AnchorPoint = Vector2.new(0.5, 0.5)
+panel.Position = UDim2.new(0.5, 0, 0.5, 0)
+panel.Size = UDim2.new(0, 350, 0, 340)
+panel.BackgroundColor3 = Color3.fromRGB(42, 25, 64)
+panel.BackgroundTransparency = 0.04
+panel.BorderSizePixel = 0
+panel.Parent = screenGui
 
-local rootConstraint = Instance.new("UISizeConstraint")
-rootConstraint.MinSize = Vector2.new(280, 360)
-rootConstraint.MaxSize = Vector2.new(380, 520)
-rootConstraint.Parent = root
+local panelScale = Instance.new("UIScale")
+panelScale.Scale = 1
+panelScale.Parent = panel
 
-local rootCorner = Instance.new("UICorner")
-rootCorner.CornerRadius = UDim.new(0, 16)
-rootCorner.Parent = root
+local panelCorner = Instance.new("UICorner")
+panelCorner.CornerRadius = UDim.new(0, 14)
+panelCorner.Parent = panel
 
-local rootStroke = Instance.new("UIStroke")
-rootStroke.Color = Color3.fromRGB(97, 108, 165)
-rootStroke.Transparency = 0.35
-rootStroke.Thickness = 1.5
-rootStroke.Parent = root
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = Color3.fromRGB(174, 85, 255)
+panelStroke.Thickness = 2
+panelStroke.Transparency = 0.08
+panelStroke.Parent = panel
 
-local rootGradient = Instance.new("UIGradient")
-rootGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(26, 29, 58)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(9, 11, 22)),
-})
-rootGradient.Rotation = 90
-rootGradient.Parent = root
+local topBar = Instance.new("Frame")
+topBar.Name = "TopBar"
+topBar.Size = UDim2.new(1, 0, 0, 62)
+topBar.BackgroundColor3 = Color3.fromRGB(60, 33, 91)
+topBar.BorderSizePixel = 0
+topBar.Parent = panel
 
-local header = Instance.new("Frame")
+local topBarCorner = Instance.new("UICorner")
+topBarCorner.CornerRadius = UDim.new(0, 14)
+topBarCorner.Parent = topBar
+
+local topBarMask = Instance.new("Frame")
+topBarMask.Size = UDim2.new(1, 0, 0, 16)
+topBarMask.Position = UDim2.new(0, 0, 1, -16)
+topBarMask.BackgroundColor3 = topBar.BackgroundColor3
+topBarMask.BorderSizePixel = 0
+topBarMask.Parent = topBar
+
+local header = Instance.new("TextLabel")
 header.Name = "Header"
+header.Position = UDim2.new(0, 18, 0, 10)
+header.Size = UDim2.new(1, -70, 0, 22)
 header.BackgroundTransparency = 1
-header.Size = UDim2.new(1, -24, 0, 68)
-header.Position = UDim2.new(0, 12, 0, 10)
-header.Parent = root
-
-local title = Instance.new("TextLabel")
-title.BackgroundTransparency = 1
-title.Size = UDim2.new(1, 0, 0, 26)
-title.Font = Enum.Font.GothamBold
-title.Text = "AURA EGG NOTIFIER"
-title.TextColor3 = Color3.fromRGB(245, 247, 255)
-title.TextSize = 19
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = header
+header.Text = "AURA EGG NOTIFIER ACTIVATED"
+header.TextColor3 = Color3.fromRGB(235, 204, 255)
+header.Font = Enum.Font.GothamBold
+header.TextSize = 16
+header.TextXAlignment = Enum.TextXAlignment.Left
+header.Parent = topBar
 
 local subtitle = Instance.new("TextLabel")
+subtitle.Position = UDim2.new(0, 19, 0, 34)
+subtitle.Size = UDim2.new(1, -70, 0, 16)
 subtitle.BackgroundTransparency = 1
-subtitle.Position = UDim2.new(0, 0, 0, 27)
-subtitle.Size = UDim2.new(1, 0, 0, 18)
-subtitle.Font = Enum.Font.Gotham
-subtitle.Text = "LIVE SPAWN INTELLIGENCE  •  SECURE MODE"
-subtitle.TextColor3 = Color3.fromRGB(150, 164, 210)
+subtitle.Text = "WEBHOOK 1.0.0 BETA  //  LIVE DETECTION"
+subtitle.TextColor3 = Color3.fromRGB(151, 255, 204)
+subtitle.Font = Enum.Font.Code
 subtitle.TextSize = 10
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
-subtitle.Parent = header
+subtitle.Parent = topBar
 
-local statusLabel = Instance.new("TextLabel")
-statusLabel.BackgroundTransparency = 1
-statusLabel.Position = UDim2.new(0, 0, 0, 48)
-statusLabel.Size = UDim2.new(1, 0, 0, 18)
-statusLabel.Font = Enum.Font.Code
-statusLabel.Text = "● STARTING  •  0 detections"
-statusLabel.TextColor3 = Color3.fromRGB(117, 255, 183)
-statusLabel.TextSize = 11
-statusLabel.TextXAlignment = Enum.TextXAlignment.Left
-statusLabel.Parent = header
+local panelClose = Instance.new("TextButton")
+panelClose.Name = "Close"
+panelClose.AnchorPoint = Vector2.new(1, 0)
+panelClose.Position = UDim2.new(1, -12, 0, 10)
+panelClose.Size = UDim2.new(0, 32, 0, 32)
+panelClose.BackgroundColor3 = Color3.fromRGB(82, 40, 108)
+panelClose.BackgroundTransparency = 0.1
+panelClose.BorderSizePixel = 0
+panelClose.Text = "×"
+panelClose.TextColor3 = Color3.fromRGB(255, 111, 151)
+panelClose.Font = Enum.Font.GothamBold
+panelClose.TextSize = 22
+panelClose.AutoButtonColor = false
+panelClose.Parent = topBar
 
-local list = Instance.new("ScrollingFrame")
-list.Name = "Notifications"
-list.BackgroundTransparency = 1
-list.BorderSizePixel = 0
-list.Position = UDim2.new(0, 10, 0, 84)
-list.Size = UDim2.new(1, -20, 1, -126)
-list.ScrollBarThickness = 3
-list.ScrollBarImageColor3 = Color3.fromRGB(113, 126, 200)
-list.CanvasSize = UDim2.new(0, 0, 0, 0)
-list.AutomaticCanvasSize = Enum.AutomaticSize.None
-list.ScrollingDirection = Enum.ScrollingDirection.Y
-list.Parent = root
+local panelCloseCorner = Instance.new("UICorner")
+panelCloseCorner.CornerRadius = UDim.new(0, 8)
+panelCloseCorner.Parent = panelClose
 
-local listPadding = Instance.new("UIPadding")
-listPadding.PaddingLeft = UDim.new(0, 2)
-listPadding.PaddingRight = UDim.new(0, 5)
-listPadding.PaddingTop = UDim.new(0, 2)
-listPadding.PaddingBottom = UDim.new(0, 4)
-listPadding.Parent = list
+local logPanel = Instance.new("ScrollingFrame")
+logPanel.Name = "Log"
+logPanel.Position = UDim2.new(0, 12, 0, 100)
+logPanel.Size = UDim2.new(1, -24, 1, -150)
+logPanel.BackgroundColor3 = Color3.fromRGB(29, 19, 45)
+logPanel.BackgroundTransparency = 0.05
+logPanel.BorderSizePixel = 0
+logPanel.CanvasSize = UDim2.new(0, 0, 0, 0)
+logPanel.AutomaticCanvasSize = Enum.AutomaticSize.None
+logPanel.ScrollBarThickness = 4
+logPanel.ScrollBarImageColor3 = Color3.fromRGB(170, 80, 255)
+logPanel.ScrollingDirection = Enum.ScrollingDirection.Y
+logPanel.ClipsDescendants = true
+logPanel.Parent = panel
 
-local listLayout = Instance.new("UIListLayout")
-listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Padding = UDim.new(0, 8)
-listLayout.Parent = list
+local logCorner = Instance.new("UICorner")
+logCorner.CornerRadius = UDim.new(0, 10)
+logCorner.Parent = logPanel
 
-local function updateListCanvas()
-    list.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 8)
+local logPadding = Instance.new("UIPadding")
+logPadding.PaddingTop = UDim.new(0, 10)
+logPadding.PaddingBottom = UDim.new(0, 10)
+logPadding.PaddingLeft = UDim.new(0, 8)
+logPadding.PaddingRight = UDim.new(0, 8)
+logPadding.Parent = logPanel
+
+local logLayout = Instance.new("UIListLayout")
+logLayout.SortOrder = Enum.SortOrder.LayoutOrder
+logLayout.Padding = UDim.new(0, 7)
+logLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+logLayout.Parent = logPanel
+
+local function refreshLogCanvas()
+	local contentHeight = logLayout.AbsoluteContentSize.Y + 20
+	logPanel.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
 end
 
-connect(listLayout:GetPropertyChangedSignal("AbsoluteContentSize"), updateListCanvas)
-updateListCanvas()
+logLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshLogCanvas)
 
-local footer = Instance.new("TextLabel")
-footer.Name = "Footer"
-footer.BackgroundTransparency = 1
-footer.Position = UDim2.new(0, 14, 1, -31)
-footer.Size = UDim2.new(1, -28, 0, 18)
-footer.Font = Enum.Font.Gotham
-footer.Text = "Role routing: SECRET  •  ETERNAL  •  DIVINE"
-footer.TextColor3 = Color3.fromRGB(119, 129, 169)
-footer.TextSize = 10
-footer.TextXAlignment = Enum.TextXAlignment.Left
-footer.Parent = root
+local navigation = Instance.new("Frame")
+navigation.Name = "Navigation"
+navigation.Position = UDim2.new(0.5, -120, 0, 64)
+navigation.Size = UDim2.new(0, 240, 0, 28)
+navigation.BackgroundTransparency = 1
+navigation.Parent = panel
 
-local function updateStatus(text, color)
-    statusLabel.Text = "● " .. tostring(text) .. "  •  " .. tostring(detectionCount) .. " detections"
-    if color then
-        statusLabel.TextColor3 = color
-    end
+local function styleTab(button, active)
+	button.BackgroundColor3 = active
+		and Color3.fromRGB(122, 57, 177)
+		or Color3.fromRGB(57, 34, 80)
+	button.TextColor3 = active
+		and Color3.fromRGB(255, 235, 255)
+		or Color3.fromRGB(171, 145, 198)
+end
+
+local logTab = Instance.new("TextButton")
+logTab.Name = "LogTab"
+logTab.Size = UDim2.new(0, 102, 1, 0)
+logTab.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
+logTab.BorderSizePixel = 0
+logTab.Text = "▣  LOG"
+logTab.TextColor3 = Color3.fromRGB(255, 235, 255)
+logTab.Font = Enum.Font.Code
+logTab.TextSize = 14
+logTab.TextXAlignment = Enum.TextXAlignment.Center
+logTab.TextYAlignment = Enum.TextYAlignment.Center
+logTab.AutoButtonColor = false
+logTab.Parent = navigation
+
+local logTabCorner = Instance.new("UICorner")
+logTabCorner.CornerRadius = UDim.new(0, 6)
+logTabCorner.Parent = logTab
+
+local announcerTab = Instance.new("TextButton")
+announcerTab.Name = "AnnouncerTab"
+announcerTab.Position = UDim2.new(0, 108, 0, 0)
+announcerTab.Size = UDim2.new(0, 132, 1, 0)
+announcerTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
+announcerTab.BorderSizePixel = 0
+announcerTab.Text = "✦  ANNOUNCER"
+announcerTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+announcerTab.Font = Enum.Font.Code
+announcerTab.TextSize = 14
+announcerTab.TextXAlignment = Enum.TextXAlignment.Center
+announcerTab.TextYAlignment = Enum.TextYAlignment.Center
+announcerTab.AutoButtonColor = false
+announcerTab.Parent = navigation
+
+local announcerTabCorner = Instance.new("UICorner")
+announcerTabCorner.CornerRadius = UDim.new(0, 6)
+announcerTabCorner.Parent = announcerTab
+
+local announcementPanel = Instance.new("Frame")
+announcementPanel.Name = "AnnouncementBuilder"
+announcementPanel.Position = UDim2.new(0, 12, 0, 100)
+announcementPanel.Size = UDim2.new(1, -24, 1, -150)
+announcementPanel.BackgroundColor3 = Color3.fromRGB(29, 19, 45)
+announcementPanel.BackgroundTransparency = 0.05
+announcementPanel.BorderSizePixel = 0
+announcementPanel.Visible = false
+announcementPanel.Parent = panel
+
+local announcementCorner = Instance.new("UICorner")
+announcementCorner.CornerRadius = UDim.new(0, 10)
+announcementCorner.Parent = announcementPanel
+
+local announcementHeader = Instance.new("TextLabel")
+announcementHeader.Position = UDim2.new(0, 12, 0, 10)
+announcementHeader.Size = UDim2.new(1, -24, 0, 18)
+announcementHeader.BackgroundTransparency = 1
+announcementHeader.Text = "EMBED BUILDER // ANNOUNCEMENT CHANNEL"
+announcementHeader.TextColor3 = Color3.fromRGB(214, 165, 255)
+announcementHeader.Font = Enum.Font.Code
+announcementHeader.TextSize = 10
+announcementHeader.TextXAlignment = Enum.TextXAlignment.Left
+announcementHeader.Parent = announcementPanel
+
+local announcementTitle = Instance.new("TextBox")
+announcementTitle.Name = "AnnouncementTitle"
+announcementTitle.Position = UDim2.new(0, 10, 0, 34)
+announcementTitle.Size = UDim2.new(1, -20, 0, 30)
+announcementTitle.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+announcementTitle.BorderSizePixel = 0
+announcementTitle.ClearTextOnFocus = false
+announcementTitle.PlaceholderText = "ANNOUNCEMENT"
+announcementTitle.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+announcementTitle.Text = ""
+announcementTitle.TextColor3 = Color3.fromRGB(245, 235, 255)
+announcementTitle.Font = Enum.Font.GothamBold
+announcementTitle.TextSize = 12
+announcementTitle.TextXAlignment = Enum.TextXAlignment.Left
+announcementTitle.Parent = announcementPanel
+
+local announcementTitleCorner = Instance.new("UICorner")
+announcementTitleCorner.CornerRadius = UDim.new(0, 6)
+announcementTitleCorner.Parent = announcementTitle
+
+local announcementTitlePadding = Instance.new("UIPadding")
+announcementTitlePadding.PaddingLeft = UDim.new(0, 8)
+announcementTitlePadding.PaddingRight = UDim.new(0, 8)
+announcementTitlePadding.Parent = announcementTitle
+
+local announcementBody = Instance.new("TextBox")
+announcementBody.Name = "AnnouncementBody"
+announcementBody.Position = UDim2.new(0, 10, 0, 68)
+announcementBody.Size = UDim2.new(1, -20, 0, 58)
+announcementBody.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+announcementBody.BorderSizePixel = 0
+announcementBody.ClearTextOnFocus = false
+announcementBody.MultiLine = true
+announcementBody.PlaceholderText = "Escribe aquí el mensaje del embed..."
+announcementBody.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+announcementBody.Text = ""
+announcementBody.TextColor3 = Color3.fromRGB(245, 235, 255)
+announcementBody.Font = Enum.Font.Gotham
+announcementBody.TextSize = 11
+announcementBody.TextWrapped = true
+announcementBody.TextXAlignment = Enum.TextXAlignment.Left
+announcementBody.TextYAlignment = Enum.TextYAlignment.Top
+announcementBody.Parent = announcementPanel
+
+local announcementBodyCorner = Instance.new("UICorner")
+announcementBodyCorner.CornerRadius = UDim.new(0, 6)
+announcementBodyCorner.Parent = announcementBody
+
+local announcementBodyPadding = Instance.new("UIPadding")
+announcementBodyPadding.PaddingTop = UDim.new(0, 6)
+announcementBodyPadding.PaddingLeft = UDim.new(0, 8)
+announcementBodyPadding.PaddingRight = UDim.new(0, 8)
+announcementBodyPadding.Parent = announcementBody
+
+local announcementHint = Instance.new("TextLabel")
+announcementHint.Position = UDim2.new(0, 12, 0, 132)
+announcementHint.Size = UDim2.new(1, -24, 0, 18)
+announcementHint.BackgroundTransparency = 1
+announcementHint.Text = "EMBED  //  PURPLE CHANNEL  //  READY TO DISPATCH"
+announcementHint.TextColor3 = Color3.fromRGB(151, 255, 204)
+announcementHint.Font = Enum.Font.Code
+announcementHint.TextSize = 8
+announcementHint.TextXAlignment = Enum.TextXAlignment.Left
+announcementHint.Parent = announcementPanel
+
+local sendAnnouncementButton = Instance.new("TextButton")
+sendAnnouncementButton.Name = "SendAnnouncement"
+sendAnnouncementButton.Position = UDim2.new(0, 10, 0, 153)
+sendAnnouncementButton.Size = UDim2.new(1, -20, 0, 28)
+sendAnnouncementButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
+sendAnnouncementButton.BorderSizePixel = 0
+sendAnnouncementButton.Text = "SEND EMBED  >  WEBHOOK"
+sendAnnouncementButton.TextColor3 = Color3.fromRGB(255, 240, 255)
+sendAnnouncementButton.Font = Enum.Font.GothamBold
+sendAnnouncementButton.TextSize = 11
+sendAnnouncementButton.AutoButtonColor = false
+sendAnnouncementButton.Parent = announcementPanel
+
+local sendAnnouncementCorner = Instance.new("UICorner")
+sendAnnouncementCorner.CornerRadius = UDim.new(0, 7)
+sendAnnouncementCorner.Parent = sendAnnouncementButton
+
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Name = "SystemStatus"
+statusLabel.Position = UDim2.new(0, 12, 1, -50)
+statusLabel.Size = UDim2.new(1, -24, 0, 38)
+statusLabel.BackgroundColor3 = Color3.fromRGB(58, 36, 82)
+statusLabel.BackgroundTransparency = 0.04
+statusLabel.TextColor3 = Color3.fromRGB(99, 255, 154)
+statusLabel.Font = Enum.Font.Code
+statusLabel.TextSize = 13
+statusLabel.RichText = true
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+statusLabel.TextYAlignment = Enum.TextYAlignment.Center
+statusLabel.Text = '<font color="#D6A5FF">SYSTEM</font><font color="#FF4D67">:</font> <font color="#63FF9A">Ready</font>'
+statusLabel.Parent = panel
+
+local statusPadding = Instance.new("UIPadding")
+statusPadding.PaddingLeft = UDim.new(0, 12)
+statusPadding.Parent = statusLabel
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(0, 8)
+statusCorner.Parent = statusLabel
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
+toggleButton.Position = UDim2.new(1, -48, 0.5, 0)
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.BackgroundColor3 = Color3.fromRGB(62, 31, 96)
+toggleButton.BorderSizePixel = 0
+toggleButton.Text = "🥚"
+toggleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.TextSize = 24
+toggleButton.AutoButtonColor = false
+toggleButton.ZIndex = 20
+toggleButton.Parent = screenGui
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(1, 0)
+toggleCorner.Parent = toggleButton
+
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Color = Color3.fromRGB(190, 90, 255)
+toggleStroke.Thickness = 2
+toggleStroke.Parent = toggleButton
+
+local badge = Instance.new("TextLabel")
+badge.Name = "NotificationBadge"
+badge.AnchorPoint = Vector2.new(1, 0)
+badge.Position = UDim2.new(1, 5, 0, -5)
+badge.Size = UDim2.new(0, 22, 0, 22)
+badge.BackgroundColor3 = Color3.fromRGB(235, 40, 70)
+badge.BorderSizePixel = 0
+badge.Text = "0"
+badge.TextColor3 = Color3.fromRGB(255, 255, 255)
+badge.Font = Enum.Font.GothamBold
+badge.TextSize = 12
+badge.Visible = false
+badge.ZIndex = 21
+badge.Parent = toggleButton
+
+local badgeCorner = Instance.new("UICorner")
+badgeCorner.CornerRadius = UDim.new(1, 0)
+badgeCorner.Parent = badge
+
+local POSITION_FILE = "AuraEggNotifier_ButtonPosition.json"
+local localFileExists = isfile
+local localFileRead = readfile
+local localFileWrite = writefile
+
+local function saveTogglePosition()
+	if type(localFileWrite) ~= "function" then return end
+
+	local viewport = screenGui.AbsoluteSize
+	if viewport.X <= 0 or viewport.Y <= 0 then return end
+
+	local absolutePosition = toggleButton.AbsolutePosition
+	local absoluteSize = toggleButton.AbsoluteSize
+	local position = {
+		x = (absolutePosition.X + absoluteSize.X / 2) / viewport.X,
+		y = (absolutePosition.Y + absoluteSize.Y / 2) / viewport.Y
+	}
+
+	pcall(function()
+		localFileWrite(POSITION_FILE, HttpService:JSONEncode(position))
+	end)
+end
+
+local function loadTogglePosition()
+	if type(localFileExists) ~= "function" or type(localFileRead) ~= "function" then
+		return
+	end
+
+	local existsOk, exists = pcall(function()
+		return localFileExists(POSITION_FILE)
+	end)
+	if not existsOk or not exists then return end
+
+	local ok, raw = pcall(function()
+		return localFileRead(POSITION_FILE)
+	end)
+	if not ok or not raw or raw == "" then return end
+
+	local decodedOk, position = pcall(function()
+		return HttpService:JSONDecode(raw)
+	end)
+	if not decodedOk or type(position) ~= "table" then return end
+
+	local x = tonumber(position.x)
+	local y = tonumber(position.y)
+	if not x or not y then return end
+
+	x = math.max(0.05, math.min(0.95, x))
+	y = math.max(0.08, math.min(0.92, y))
+	toggleButton.Position = UDim2.new(x, 0, y, 0)
+end
+
+loadTogglePosition()
+
+local activeCards = {}
+local layoutCounter = 0
+
+local function cleanText(text)
+	if not text then return "" end
+	return (text
+		:gsub("<[^>]+>", "")
+		:gsub("🥚", "")
+		:gsub("👋", "")
+		:gsub("✦", "")
+		:gsub("▣", ""))
 end
 
 local function removeCard(card)
-    for index, value in ipairs(activeCards) do
-        if value == card then
-            table.remove(activeCards, index)
-            break
-        end
-    end
+	for i, c in ipairs(activeCards) do
+		if c == card then table.remove(activeCards, i) break end
+	end
 end
 
-local function createVisualCard(event)
-    local isSystemCard = event.isSystem == true
-    if not isSystemCard then
-        detectionCount = detectionCount + 1
-    end
-    updateStatus("MONITORING", Color3.fromRGB(117, 255, 183))
-
-    local card = Instance.new("Frame")
-    card.Name = "SpawnCard"
-    card.LayoutOrder = isSystemCard and 0 or -detectionCount
-    card.Size = UDim2.new(1, 0, 0, 0)
-    card.AutomaticSize = Enum.AutomaticSize.Y
-    card.ClipsDescendants = true
-    card.BackgroundColor3 = Color3.fromRGB(30, 32, 60)
-    card.BackgroundTransparency = 0.08
-    card.BorderSizePixel = 0
-    card.Parent = list
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = card
-
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = event.rarityData.uiColor
-    stroke.Transparency = 0.15
-    stroke.Thickness = 1.5
-    stroke.Parent = card
-
-    local accent = Instance.new("Frame")
-    accent.BackgroundColor3 = event.rarityData.uiColor
-    accent.BorderSizePixel = 0
-    accent.Size = UDim2.new(0, 4, 1, -18)
-    accent.Position = UDim2.new(0, 8, 0, 9)
-    accent.Parent = card
-
-    local accentCorner = Instance.new("UICorner")
-    accentCorner.CornerRadius = UDim.new(1, 0)
-    accentCorner.Parent = accent
-
-    -- Las fuentes de Roblox no renderizan todos los emojis Unicode.
-    -- Un badge de texto evita cuadros vacíos y conserva la identidad visual.
-    local badge = Instance.new("TextLabel")
-    badge.Name = "RarityBadge"
-    badge.BackgroundColor3 = event.rarityData.uiColor
-    badge.BorderSizePixel = 0
-    badge.Position = UDim2.new(0, 18, 0, 10)
-    badge.Size = UDim2.new(0, 28, 0, 28)
-    badge.Font = Enum.Font.GothamBold
-    badge.Text = event.rarityData.badge or "!"
-    badge.TextColor3 = Color3.fromRGB(14, 16, 30)
-    badge.TextSize = 13
-    badge.TextXAlignment = Enum.TextXAlignment.Center
-    badge.TextYAlignment = Enum.TextYAlignment.Center
-    badge.Parent = card
-
-    local badgeCorner = Instance.new("UICorner")
-    badgeCorner.CornerRadius = UDim.new(1, 0)
-    badgeCorner.Parent = badge
-
-    local cardTitle = Instance.new("TextLabel")
-    cardTitle.BackgroundTransparency = 1
-    cardTitle.Position = UDim2.new(0, 54, 0, 10)
-    cardTitle.Size = UDim2.new(1, -63, 0, 21)
-    cardTitle.Font = Enum.Font.GothamBold
-    cardTitle.Text = event.rarity:upper() .. "  |  EGG SPAWNED"
-    cardTitle.TextColor3 = event.rarityData.uiColor
-    cardTitle.TextSize = 14
-    cardTitle.TextXAlignment = Enum.TextXAlignment.Left
-    cardTitle.Parent = card
-
-    local cardBody = Instance.new("TextLabel")
-    cardBody.BackgroundTransparency = 1
-    cardBody.Position = UDim2.new(0, 23, 0, 38)
-    cardBody.Size = UDim2.new(1, -32, 0, 0)
-    cardBody.AutomaticSize = Enum.AutomaticSize.Y
-    cardBody.Font = Enum.Font.Gotham
-    cardBody.Text = string.format(
-        "[EGG]  %s\n[LOC]  %s\n[CASH]  %s\n[SPEED]  %s\n[TIME]  Spotted just now",
-        event.egg,
-        event.location,
-        event.money,
-        event.speed
-    )
-    cardBody.TextColor3 = Color3.fromRGB(232, 235, 247)
-    cardBody.TextSize = 12
-    cardBody.TextWrapped = true
-    cardBody.TextXAlignment = Enum.TextXAlignment.Left
-    cardBody.TextYAlignment = Enum.TextYAlignment.Top
-    cardBody.Parent = card
-
-    table.insert(activeCards, card)
-    if #activeCards > CONFIG.MaxNotifications then
-        local oldest = table.remove(activeCards, 1)
-        if oldest then
-            oldest:Destroy()
-        end
-    end
-
-    card.BackgroundTransparency = 1
-    badge.TextTransparency = 1
-    cardTitle.TextTransparency = 1
-    cardBody.TextTransparency = 1
-
-    TweenService:Create(card, TweenInfo.new(0.22), {
-        BackgroundTransparency = 0.08,
-    }):Play()
-    TweenService:Create(badge, TweenInfo.new(0.22), {
-        TextTransparency = 0,
-        BackgroundTransparency = 0,
-    }):Play()
-    TweenService:Create(cardTitle, TweenInfo.new(0.22), {
-        TextTransparency = 0,
-    }):Play()
-    TweenService:Create(cardBody, TweenInfo.new(0.22), {
-        TextTransparency = 0,
-    }):Play()
-
-    local removed = false
-    local function expire()
-        if removed then
-            return
-        end
-        removed = true
-        removeCard(card)
-        if card.Parent then
-            local tween = TweenService:Create(card, TweenInfo.new(0.2), {
-                BackgroundTransparency = 1,
-            })
-            tween:Play()
-            task.delay(0.22, function()
-                if card then
-                    card:Destroy()
-                end
-            end)
-        end
-    end
-
-    task.delay(CONFIG.DisplayTime, expire)
+local function colorToHex(color)
+	return string.format(
+		"#%02X%02X%02X",
+		math.floor(color.R * 255 + 0.5),
+		math.floor(color.G * 255 + 0.5),
+		math.floor(color.B * 255 + 0.5)
+	)
 end
 
--- =========================
--- WEBHOOK DISCORD
--- =========================
-
-local function webhookReady()
-    return type(CONFIG.WebhookURL) == "string"
-        and #CONFIG.WebhookURL > 50
-        and not CONFIG.WebhookURL:find("PASTE_", 1, true)
+local function escapeRichText(text)
+	return (tostring(text):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
 end
 
-local function buildWebhookPayload(event)
-    local roleMention = "<@&" .. event.rarityData.roleId .. ">"
-    local petEmoji = event.petEmoji or event.rarityData.discordEmoji
-    local joinValue = event.joinUrl
-        and "[**Click here to join the server**](" .. event.joinUrl .. ")"
-        or "`Join link unavailable`"
-
-    return {
-        username = CONFIG.Name,
-        content = string.format(
-            "%s %s\n**%s spawned in %s!**",
-            roleMention,
-            petEmoji,
-            event.egg,
-            event.location
-        ),
-        allowed_mentions = {
-            parse = {},
-            roles = {event.rarityData.roleId},
-        },
-        embeds = {{
-            author = {
-                name = "AURA EGG NOTIFIER  •  STEAL AN EGG TRACKER",
-            },
-            title = petEmoji .. "  " .. event.egg .. " spotted!",
-            url = event.joinUrl,
-            description = string.format(
-                "## %s %s\n> A **%s** pet was detected in **%s**.\n> This alert was routed automatically to the **%s** role.",
-                petEmoji,
-                event.egg,
-                event.rarity,
-                event.location,
-                event.rarity
-            ),
-            color = event.rarityData.color,
-            fields = {
-                {
-                    name = petEmoji .. " Pet",
-                    value = "**" .. event.egg .. "**",
-                    inline = true,
-                },
-                {
-                    name = event.rarityData.discordEmoji .. " Rarity",
-                    value = "`" .. event.rarity .. "`",
-                    inline = true,
-                },
-                {
-                    name = "📍 Location",
-                    value = "`" .. event.location .. "`",
-                    inline = true,
-                },
-                {
-                    name = "💰 Money / second",
-                    value = "**" .. event.money .. "**",
-                    inline = true,
-                },
-                {
-                    name = "⚡ Recommended speed",
-                    value = "**" .. event.speed .. "**",
-                    inline = true,
-                },
-                {
-                    name = "🕒 Spotted",
-                    value = "Just now • `" .. event.shortTime .. "`",
-                    inline = true,
-                },
-                {
-                    name = "🎮 Join Game",
-                    value = joinValue,
-                    inline = true,
-                },
-                {
-                    name = "📊 Data source",
-                    value = "`" .. event.source .. "`",
-                    inline = false,
-                },
-            },
-            footer = {
-                text = "AURA EGG NOTIFIER  •  " .. tostring(player.Name),
-            },
-            timestamp = event.detectedAt,
-        }},
-    }
+local function updateStatus(text, color)
+	local statusColor = color or Color3.fromRGB(99, 255, 154)
+	statusLabel.Text = string.format(
+		'<font color="#D6A5FF">SYSTEM</font><font color="#FF4D67">:</font> <font color="%s">%s</font>',
+		colorToHex(statusColor),
+		escapeRichText(text)
+	)
 end
 
-local function postWebhook(event)
-    if not httpRequest then
-        updateStatus("HTTP API NOT FOUND", Color3.fromRGB(255, 104, 104))
-        return
-    end
+local activeSection = "LOG"
 
-    if not webhookReady() then
-        updateStatus("CONFIGURE WEBHOOK", Color3.fromRGB(255, 205, 76))
-        return
-    end
+local function setActiveSection(section)
+	activeSection = section
+	local showLog = section == "LOG"
+	logPanel.Visible = showLog
+	announcementPanel.Visible = not showLog
+	styleTab(logTab, showLog)
+	styleTab(announcerTab, not showLog)
 
-    local payload = buildWebhookPayload(event)
-    task.spawn(function()
-        local ok, response = pcall(function()
-            return httpRequest({
-                Url = CONFIG.WebhookURL,
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json",
-                },
-                Body = HttpService:JSONEncode(payload),
-            })
-        end)
-
-        if not ok or not response then
-            updateStatus("WEBHOOK NETWORK ERROR", Color3.fromRGB(255, 104, 104))
-            return
-        end
-
-        local statusCode = tonumber(
-            response.StatusCode
-                or response.Status
-                or response.status_code
-                or 0
-        ) or 0
-
-        if statusCode >= 200 and statusCode < 300 then
-            updateStatus("WEBHOOK SENT", Color3.fromRGB(117, 255, 183))
-        elseif statusCode == 429 then
-            updateStatus("DISCORD RATE LIMITED", Color3.fromRGB(255, 205, 76))
-        else
-            updateStatus("WEBHOOK ERROR " .. tostring(statusCode), Color3.fromRGB(255, 104, 104))
-        end
-    end)
+	if showLog then
+		updateStatus("MONITOR // LOG STREAM ACTIVE", Color3.fromRGB(99, 255, 154))
+	else
+		updateStatus("ANNOUNCER // EMBED BUILDER READY", Color3.fromRGB(214, 165, 255))
+	end
 end
 
--- =========================
--- DETECCIÓN
--- =========================
-
-local function processText(rawText)
-    if shuttingDown then
-        return
-    end
-
-    local event = buildEvent(rawText)
-    if not event then
-        return
-    end
-
-    local now = os.clock()
-    local previous = recentEvents[event.fingerprint]
-    if previous and now - previous < CONFIG.DuplicateWindow then
-        return
-    end
-    recentEvents[event.fingerprint] = now
-
-    createVisualCard(event)
-    postWebhook(event)
-end
-
-connect(LogService.MessageOut, function(message)
-    processText(message)
+logTab.MouseButton1Click:Connect(function()
+	setActiveSection("LOG")
 end)
 
-connect(TextChatService.MessageReceived, function(message)
-    if message and message.Text then
-        processText(message.Text)
-    end
+announcerTab.MouseButton1Click:Connect(function()
+	setActiveSection("ANNOUNCER")
 end)
 
-createVisualCard({
-    isSystem = true,
-    rarity = "SYSTEM",
-    rarityData = {
-        badge = "!",
-        uiColor = Color3.fromRGB(117, 255, 183),
-    },
-    egg = "Monitoring active",
-    location = "All supported channels",
-    money = "Awaiting live data",
-    speed = "Ready",
-})
+local function updateBadge()
+	if unreadCount <= 0 then
+		badge.Visible = false
+		return
+	end
 
-updateStatus(
-    webhookReady() and "MONITORING" or "WEBHOOK REQUIRED",
-    webhookReady() and Color3.fromRGB(117, 255, 183) or Color3.fromRGB(255, 205, 76)
-)
+	badge.Visible = true
+	badge.Text = unreadCount > 9 and "9+" or tostring(unreadCount)
+end
 
-print("[AURA EGG NOTIFIER] Ready • Secret / Eternal / Divine routing enabled")
+local function setPanelVisible(visible)
+	panelOpen = visible
+	if visible then
+		panel.Visible = true
+		panelScale.Scale = 0.92
+		TweenService:Create(
+			panelScale,
+			TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+			{Scale = 1}
+		):Play()
+		unreadCount = 0
+		updateBadge()
+	else
+		local closingPanel = panel
+		local animation = TweenService:Create(
+			panelScale,
+			TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{Scale = 0.92}
+		)
+		animation:Play()
+		task.delay(0.15, function()
+			if not panelOpen and closingPanel == panel then
+				panel.Visible = false
+			end
+		end)
+	end
+end
+
+local draggingToggle = false
+local dragMoved = false
+local dragStart = nil
+local dragOrigin = nil
+local targetTogglePosition = toggleButton.Position
+
+toggleButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+		draggingToggle = true
+		dragMoved = false
+		dragStart = input.Position
+		dragOrigin = toggleButton.Position
+		targetTogglePosition = toggleButton.Position
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if not draggingToggle then return end
+	if input.UserInputType ~= Enum.UserInputType.MouseMovement
+		and input.UserInputType ~= Enum.UserInputType.Touch then
+		return
+	end
+	if not dragStart or not dragOrigin then return end
+
+	local delta = input.Position - dragStart
+	if math.abs(delta.X) > 5 or math.abs(delta.Y) > 5 then
+		dragMoved = true
+	end
+
+	targetTogglePosition = UDim2.new(
+		dragOrigin.X.Scale,
+		dragOrigin.X.Offset + delta.X,
+		dragOrigin.Y.Scale,
+		dragOrigin.Y.Offset + delta.Y
+	)
+end)
+
+local dragRenderConnection
+dragRenderConnection = RunService.RenderStepped:Connect(function(deltaTime)
+	if not draggingToggle or not targetTogglePosition then return end
+
+	local current = toggleButton.Position
+	local smoothing = math.min(1, deltaTime * 30)
+	toggleButton.Position = UDim2.new(
+		current.X.Scale,
+		current.X.Offset + (targetTogglePosition.X.Offset - current.X.Offset) * smoothing,
+		current.Y.Scale,
+		current.Y.Offset + (targetTogglePosition.Y.Offset - current.Y.Offset) * smoothing
+	)
+end)
+
+screenGui.Destroying:Connect(function()
+	if dragRenderConnection then
+		dragRenderConnection:Disconnect()
+		dragRenderConnection = nil
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1
+		and input.UserInputType ~= Enum.UserInputType.Touch then
+		return
+	end
+	if not draggingToggle then return end
+
+	draggingToggle = false
+	toggleButton.Position = targetTogglePosition
+	if dragMoved then
+		saveTogglePosition()
+	else
+		setPanelVisible(not panelOpen)
+	end
+	dragStart = nil
+	dragOrigin = nil
+end)
+
+panelClose.MouseButton1Click:Connect(function()
+	setPanelVisible(false)
+end)
+
+toggleButton.MouseEnter:Connect(function()
+	TweenService:Create(
+		toggleButton,
+		TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{Size = UDim2.new(0, 56, 0, 56)}
+	):Play()
+end)
+
+toggleButton.MouseLeave:Connect(function()
+	TweenService:Create(
+		toggleButton,
+		TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{Size = UDim2.new(0, 50, 0, 50)}
+	):Play()
+end)
+
+task.spawn(function()
+	while screenGui.Parent do
+		TweenService:Create(
+			toggleStroke,
+			TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+			{Transparency = 0.48}
+		):Play()
+		task.wait(0.8)
+		TweenService:Create(
+			toggleStroke,
+			TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+			{Transparency = 0.05}
+		):Play()
+		task.wait(0.8)
+	end
+end)
+
+-- Rango de mayor a menor rareza. Los empates conservan el orden detectado.
+local RARITY_ORDER = {
+	{keyword = "divine", rank = 1, roleId = "1544734510665699389"},
+	{keyword = "eternal", rank = 2, roleId = "1544734452054229173"},
+	{keyword = "secret", rank = 3, roleId = "1544734376640782346"},
+	{keyword = "mythical", rank = 4},
+	{keyword = "mythic", rank = 4},
+	{keyword = "legendary", rank = 5},
+	{keyword = "cosmic", rank = 6},
+	{keyword = "rare", rank = 7},
+	{keyword = "common", rank = 8}
+}
+
+local function getRarityRank(text)
+	local lower = text:lower()
+	for _, rarity in ipairs(RARITY_ORDER) do
+		if lower:find(rarity.keyword, 1, true) then
+			return rarity.rank
+		end
+	end
+	return 99
+end
+
+-- Reemplaza "A [RAREZA]" por la mención del rol correspondiente.
+local function replaceRarityWithMention(text)
+	local lower = text:lower()
+
+	for _, rarity in ipairs(RARITY_ORDER) do
+		if rarity.roleId and lower:find(rarity.keyword, 1, true) then
+			local startPos, endPos = lower:find("a%s+" .. rarity.keyword)
+			if startPos then
+				return text:sub(1, startPos - 1)
+					.. "A <@&" .. rarity.roleId .. ">"
+					.. text:sub(endPos + 1)
+			end
+		end
+	end
+
+	return text
+end
+
+local function sendWebhookPayload(payload, successText, onDone)
+	if not httpRequest then
+		updateStatus("HTTP unavailable", Color3.fromRGB(255, 92, 133))
+		if onDone then onDone(false) end
+		return
+	end
+
+	task.spawn(function()
+		local success, response = pcall(function()
+			return httpRequest({
+				Url = CONFIG.WebhookURL,
+				Method = "POST",
+				Headers = {
+					["Content-Type"] = "application/json",
+					["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+				},
+				Body = HttpService:JSONEncode(payload)
+			})
+		end)
+		
+		if success and response then
+			local code = response.StatusCode or response.Status or 0
+			if code >= 200 and code < 300 then
+				updateStatus(successText, Color3.fromRGB(99, 255, 154))
+				if onDone then onDone(true) end
+			else
+				updateStatus("ERR:" .. tostring(code), Color3.fromRGB(255, 50, 50))
+				if onDone then onDone(false) end
+			end
+		else
+			updateStatus("NET FAIL", Color3.fromRGB(255, 50, 50))
+			if onDone then onDone(false) end
+		end
+	end)
+end
+
+-- Envío individual y secuencial: cada huevo conserva su propio webhook.
+local function fireWebhookImmediate(description, onDone)
+	sendWebhookPayload(
+		{content = description},
+		"WEBHOOK BETA // SENT",
+		onDone
+	)
+end
+
+local function trimText(text)
+	return (tostring(text):gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+sendAnnouncementButton.MouseButton1Click:Connect(function()
+	local title = trimText(announcementTitle.Text)
+	local description = trimText(announcementBody.Text)
+
+	if description == "" then
+		updateStatus("ANNOUNCER // MESSAGE REQUIRED", Color3.fromRGB(255, 111, 151))
+		return
+	end
+
+	if title == "" then
+			title = "ANNOUNCEMENT"
+	end
+
+	sendAnnouncementButton.Text = "DISPATCHING EMBED..."
+	updateStatus("ANNOUNCER // DISPATCHING EMBED", Color3.fromRGB(214, 165, 255))
+
+	local embedPayload = {
+		embeds = {{
+			title = title,
+			description = description,
+			color = 0xA855F7,
+			timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+			footer = {
+				text = CONFIG.Version .. "  //  AURA ANNOUNCER"
+			}
+		}}
+	}
+
+	sendWebhookPayload(embedPayload, "ANNOUNCER // EMBED SENT", function(success)
+		if success then
+			sendAnnouncementButton.Text = "SENT [OK]  // SEND ANOTHER"
+			announcementBody.Text = ""
+		else
+			sendAnnouncementButton.Text = "RETRY EMBED  >  WEBHOOK"
+		end
+	end)
+end)
+
+-- ALERTA DE INICIO INMEDIATA
+task.spawn(function()
+	fireWebhookImmediate("**HELLO AURA FAMILY X, I'M READY;)**")
+end)
+
+local function sendPriorityQueue(queue, index)
+	if index > #queue then
+		updateStatus("MONITOR // READY", Color3.fromRGB(99, 255, 154))
+		return
+	end
+
+	updateStatus(
+		"WEBHOOK BETA // SEND " .. tostring(index) .. "/" .. tostring(#queue),
+		Color3.fromRGB(214, 165, 255)
+	)
+
+	local egg = queue[index]
+	fireWebhookImmediate(replaceRarityWithMention(egg.text), function()
+		sendPriorityQueue(queue, index + 1)
+	end)
+end
+
+local function flushPriorityQueue()
+	if #pendingEggs == 0 then return end
+
+	local queue = pendingEggs
+	pendingEggs = {}
+	priorityTimer = nil
+	priorityVersion = priorityVersion + 1
+
+	table.sort(queue, function(a, b)
+		if a.rank == b.rank then
+			return a.sequence < b.sequence
+		end
+		return a.rank < b.rank
+	end)
+
+	sendPriorityQueue(queue, 1)
+end
+
+local function queueEgg(text, sequence)
+	if not sequence then
+		eggSequence = eggSequence + 1
+		sequence = eggSequence
+	end
+
+	unreadCount = unreadCount + 1
+	updateBadge()
+	updateStatus("LOG // PRIORITY QUEUED", Color3.fromRGB(214, 165, 255))
+
+	table.insert(pendingEggs, {
+		text = text,
+		rank = getRarityRank(text),
+		sequence = sequence
+	})
+
+	if #pendingEggs >= CONFIG.MaxPriorityQueue then
+		flushPriorityQueue()
+	elseif not priorityTimer then
+		priorityVersion = priorityVersion + 1
+		local version = priorityVersion
+		priorityTimer = task.delay(CONFIG.PriorityWindow, function()
+			if version == priorityVersion then
+				flushPriorityQueue()
+			end
+		end)
+	end
+end
+
+local function getVisualMeta(text)
+	local lower = text:lower()
+
+	if lower:find("system online", 1, true) or lower:find("ultra-hyper", 1, true) then
+		return "SYSTEM", "✦ SYSTEM ONLINE // LISTENING", Color3.fromRGB(151, 255, 204)
+	elseif lower:find("eternal", 1, true) then
+		return "ETERNAL", "✦ GREAT NEWS // ETERNAL EGG", Color3.fromRGB(255, 204, 76)
+	elseif lower:find("divine", 1, true) then
+		return "DIVINE", "✦ GREAT NEWS // DIVINE EGG", Color3.fromRGB(255, 126, 226)
+	elseif lower:find("secret", 1, true) then
+		return "SECRET", "✦ JACKPOT // SECRET EGG", Color3.fromRGB(192, 126, 255)
+	elseif lower:find("mythical", 1, true) or lower:find("mythic", 1, true) then
+		return "MYTHICAL", "✦ AMAZING FIND // MYTHICAL EGG", Color3.fromRGB(102, 210, 255)
+	elseif lower:find("legendary", 1, true) then
+		return "LEGENDARY", "✦ AMAZING FIND // LEGENDARY EGG", Color3.fromRGB(255, 159, 78)
+	elseif lower:find("cosmic", 1, true) then
+		return "COSMIC", "✦ COSMIC FIND // EGG SPAWNED", Color3.fromRGB(131, 151, 255)
+	end
+
+	return "NORMAL", "✦ GOOD NEWS // EGG SPAWNED", Color3.fromRGB(151, 255, 204)
+end
+
+local function createVisualCard(text, sequence)
+	layoutCounter = layoutCounter + 1
+	local rarityName, titleText, accentColor = getVisualMeta(text)
+	local card = Instance.new("Frame")
+	if sequence then
+		card.LayoutOrder = getRarityRank(text) * 100000 + sequence
+	else
+		card.LayoutOrder = 0
+	end
+	card.BackgroundColor3 = Color3.fromRGB(53, 31, 78)
+	card.BorderSizePixel = 0
+	card.Size = UDim2.new(1, 0, 0, 0)
+	card.AutomaticSize = Enum.AutomaticSize.Y
+	card.Parent = logPanel
+
+	local cardScale = Instance.new("UIScale")
+	cardScale.Scale = 0.96
+	cardScale.Parent = card
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = accentColor
+	stroke.Thickness = 1.25
+	stroke.Transparency = 0.2
+	stroke.Parent = card
+	
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = card
+	
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop, pad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
+	pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 10), UDim.new(0, 10)
+	pad.Parent = card
+
+	local accent = Instance.new("Frame")
+	accent.BackgroundColor3 = accentColor
+	accent.BorderSizePixel = 0
+	accent.Position = UDim2.new(0, 4, 0, 7)
+	accent.Size = UDim2.new(0, 3, 1, -14)
+	accent.Parent = card
+
+	local accentCorner = Instance.new("UICorner")
+	accentCorner.CornerRadius = UDim.new(1, 0)
+	accentCorner.Parent = accent
+
+	local title = Instance.new("TextLabel")
+	title.BackgroundTransparency = 1
+title.Position = UDim2.new(0, 14, 0, 8)
+title.Size = UDim2.new(1, -52, 0, 18)
+	title.Font = Enum.Font.GothamBold
+	title.Text = titleText
+	title.TextColor3 = accentColor
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.TextSize = 12
+	title.Parent = card
+	
+	local close = Instance.new("TextButton")
+	close.BackgroundTransparency = 1
+	close.AnchorPoint = Vector2.new(1, 0)
+	close.Size = UDim2.new(0, 22, 0, 22)
+	close.Position = UDim2.new(1, -4, 0, 3)
+	close.Text = "X"
+	close.TextColor3 = Color3.fromRGB(255, 92, 133)
+	close.Font = Enum.Font.GothamBold
+	close.TextSize = 12
+	close.AutoButtonColor = false
+	close.Parent = card
+
+	local meta = Instance.new("TextLabel")
+	meta.BackgroundTransparency = 1
+meta.Size = UDim2.new(1, -28, 0, 14)
+meta.Position = UDim2.new(0, 14, 0, 20)
+	meta.Font = Enum.Font.Code
+	meta.Text = CONFIG.Version
+		.. "  //  EVENT #"
+		.. string.format("%03d", sequence or 0)
+		.. "  //  PRIORITY "
+		.. rarityName
+	meta.TextColor3 = Color3.fromRGB(173, 145, 203)
+	meta.TextSize = 9
+	meta.TextXAlignment = Enum.TextXAlignment.Left
+	meta.Parent = card
+
+	local body = Instance.new("TextLabel")
+	body.BackgroundTransparency = 1
+body.Size = UDim2.new(1, -28, 0, 0)
+body.Position = UDim2.new(0, 14, 0, 38)
+	body.AutomaticSize = Enum.AutomaticSize.Y
+	body.Font = Enum.Font.Code
+	body.Text = text
+	body.TextColor3 = Color3.fromRGB(240, 240, 240)
+	body.TextSize = 10
+	body.TextWrapped = true
+	body.TextXAlignment = Enum.TextXAlignment.Left
+	body.Parent = card
+
+	card.BackgroundTransparency = 1
+	meta.TextTransparency = 1
+	body.TextTransparency = 1
+	title.TextTransparency = 1
+	TweenService:Create(
+		card,
+		TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{BackgroundTransparency = 0}
+	):Play()
+	TweenService:Create(
+		cardScale,
+		TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{Scale = 1}
+	):Play()
+	TweenService:Create(
+		meta,
+		TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{TextTransparency = 0}
+	):Play()
+	TweenService:Create(
+		body,
+		TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{TextTransparency = 0}
+	):Play()
+	TweenService:Create(
+		title,
+		TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{TextTransparency = 0}
+	):Play()
+
+	if #activeCards >= CONFIG.MaxNotifications then
+		local old = table.remove(activeCards, 1)
+		if old then old:Destroy() end
+	end
+	table.insert(activeCards, card)
+
+	local dead = false
+	local function kill()
+		if dead then return end
+		dead = true
+		removeCard(card)
+		TweenService:Create(
+			card,
+			TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{BackgroundTransparency = 1}
+		):Play()
+		task.wait(0.12)
+		card:Destroy()
+	end
+	close.MouseButton1Click:Connect(kill)
+	task.delay(CONFIG.DisplayTime, kill)
+	task.defer(function()
+		refreshLogCanvas()
+		local scrollY = math.max(0, logLayout.AbsoluteContentSize.Y - logPanel.AbsoluteWindowSize.Y + 20)
+		logPanel.CanvasPosition = Vector2.new(0, scrollY)
+	end)
+end
+
+local function processText(raw)
+	local clean = cleanText(raw)
+	if clean == "" then return end
+	local lower = clean:lower()
+
+	for _, bad in ipairs(CONFIG.Blacklist) do
+		if lower:find(bad, 1, true) then return end
+	end
+
+	local hits = 0
+	for _, good in ipairs(CONFIG.Keywords) do
+		if lower:find(good, 1, true) then hits = hits + 1 end
+	end
+	
+	if hits >= 2 or (lower:find("egg") and lower:find("spawn")) then
+		local now = tick()
+		if clean == lastText and (now - lastTime) < 0.5 then return end
+		lastText, lastTime = clean, now
+
+		eggSequence = eggSequence + 1
+		createVisualCard(clean, eggSequence)
+		queueEgg(clean, eggSequence)
+	end
+end
+
+LogService.MessageOut:Connect(function(msg) processText(msg) end)
+TextChatService.MessageReceived:Connect(function(msg) if msg.Text then processText(msg.Text) end end)
+
+createVisualCard("SYSTEM ONLINE\nListening to game logs // instant alerts enabled.")
+updateStatus("Ready", Color3.fromRGB(99, 255, 154))
+print(":: EGG DETECTOR ULTRA-HYPER-VELOCITY READY ::")
