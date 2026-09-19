@@ -2,23 +2,31 @@
 
 Notificador de huevos Secret, Eternal y Divine para **Steal an Egg**.
 
-## Archivo principal
+## Archivos
 
-- `AURA_EGG_NOTIFIER.lua` — script autocontenido para el ejecutor.
+- `AURA_EGG_NOTIFIER.lua` — sistema completo y base de datos local.
+- `AURA_EGG_LOADER.lua` — loader pequeño para el ejecutor.
 
-## Configuración
+## Uso del loader
 
-Edita únicamente `CONFIG.WebhookURL` y coloca un webhook nuevo de Discord. Nunca publiques el webhook ni un token de GitHub dentro del código.
+1. Abre `AURA_EGG_LOADER.lua`.
+2. Cambia localmente `PASTE_A_NEW_DISCORD_WEBHOOK_HERE` por un webhook nuevo.
+3. Copia el loader al ejecutor.
+4. No subas tu copia configurada con el webhook a GitHub.
 
-El notifier incluye una base de datos local de mascotas con:
+El loader descarga la versión actual del sistema desde este repositorio. Para recibir futuras actualizaciones, basta con ejecutar nuevamente el mismo loader.
+
+## Embed
+
+El embed solo muestra:
 
 - Ubicación
 - Spawneo
-- Money por segundo
+- Money
 - Tiempo de eclosión
 - Velocidad recomendada
 
-Los colores del embed son gris para Secret, morado para Eternal y amarillo para Divine. Los datos detectados directamente en el mensaje del juego tienen prioridad sobre la base local.
+Colores: Secret gris, Eternal morado y Divine amarillo.
 
 ## Roles
 
@@ -28,4 +36,4 @@ Los colores del embed son gris para Secret, morado para Eternal y amarillo para 
 
 ## Seguridad
 
-No subas tokens de GitHub ni webhooks a este repositorio. Si un webhook se filtra, elimínalo y genera uno nuevo desde Discord.
+Este repositorio contiene código público y no debe contener tokens, webhooks ni credenciales. Si un webhook se filtra, elimínalo y genera uno nuevo desde Discord.
