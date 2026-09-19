@@ -642,7 +642,9 @@ local function showToast(event)
     title.Position = UDim2.new(0, 25, 0, 12)
     title.Size = UDim2.new(1, -35, 0, 24)
     title.Font = Enum.Font.GothamBold
-    title.Text = event.rarityData.emoji .. "  " .. event.rarity:upper() .. " EGG"
+    title.Text = event.system
+        and "◈  AURA EGG NOTIFIER"
+        or event.rarityData.emoji .. "  " .. event.rarity:upper() .. " EGG"
     title.TextColor3 = event.rarityData.uiColor
     title.TextSize = 15
     title.TextXAlignment = Enum.TextXAlignment.Left
@@ -653,15 +655,18 @@ local function showToast(event)
     body.Position = UDim2.new(0, 25, 0, 42)
     body.Size = UDim2.new(1, -35, 0, 112)
     body.Font = Enum.Font.Gotham
-    body.Text = string.format(
-        "%s\n📍 %s\n🕒 %s\n💰 %s\n🥚 %s\n⚡ %s",
-        event.pet,
-        event.location,
-        event.time,
-        event.money,
-        event.hatch,
-        event.speed
-    )
+    body.Text = event.system
+        and "● ONLINE\nListening for Secret / Eternal / Divine spawns\n\nWebhook: "
+            .. (getWebhook() and "READY" or "NOT CONFIGURED")
+        or string.format(
+            "%s\n📍 %s\n🕒 %s\n💰 %s\n🥚 %s\n⚡ %s",
+            event.pet,
+            event.location,
+            event.time,
+            event.money,
+            event.hatch,
+            event.speed
+        )
     body.TextColor3 = Color3.fromRGB(235, 237, 245)
     body.TextSize = 12
     body.TextWrapped = true
@@ -672,6 +677,10 @@ local function showToast(event)
     TweenService:Create(toast, TweenInfo.new(0.2), {
         BackgroundTransparency = 0.04,
     }):Play()
+
+    if event.system then
+        return
+    end
 
     task.delay(CONFIG.ToastSeconds, function()
         if thisVersion ~= toastVersion or not toast.Parent then
@@ -719,5 +728,14 @@ connect(TextChatService.MessageReceived, function(message)
         processText(message.Text)
     end
 end)
+
+showToast({
+    system = true,
+    rarity = "SYSTEM",
+    rarityData = {
+        uiColor = Color3.fromRGB(117, 255, 183),
+        emoji = "◈",
+    },
+})
 
 print("[AURA EGG NOTIFIER] Clean rebuild ready")
