@@ -93,6 +93,98 @@ topBarMask.BackgroundColor3 = topBar.BackgroundColor3
 topBarMask.BorderSizePixel = 0
 topBarMask.Parent = topBar
 
+local function createCanvasIcon(parent, kind, color, size, position, name)
+	local root = Instance.new("Frame")
+	root.Name = name or "CanvasIcon"
+	root.AnchorPoint = Vector2.new(0.5, 0.5)
+	root.Position = position or UDim2.new(0.5, 0, 0.5, 0)
+	root.Size = size or UDim2.new(0, 18, 0, 18)
+	root.BackgroundTransparency = 1
+	root.BorderSizePixel = 0
+	root.ZIndex = parent.ZIndex + 1
+	root.Parent = parent
+
+	local function shape(shapeName, shapeSize, shapePosition, rotation, transparency)
+		local part = Instance.new("Frame")
+		part.Name = shapeName
+		part.AnchorPoint = Vector2.new(0.5, 0.5)
+		part.Position = shapePosition
+		part.Size = shapeSize
+		part.BackgroundColor3 = color
+		part.BackgroundTransparency = transparency or 0
+		part.BorderSizePixel = 0
+		part.Rotation = rotation or 0
+		part.ZIndex = root.ZIndex
+		part:SetAttribute("CanvasPart", true)
+		part.Parent = root
+		return part
+	end
+
+	local function round(part, radius)
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(radius or 0.35, 0)
+		corner.Parent = part
+	end
+
+	local function outline(part, thickness)
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = color
+		stroke.Thickness = thickness or 1.2
+		stroke.Transparency = 0
+		stroke:SetAttribute("CanvasPart", true)
+		stroke.Parent = part
+	end
+
+	if kind == "close" then
+		shape("CloseLineA", UDim2.new(0, 2, 0, 15), UDim2.new(0.5, 0, 0.5, 0), 45)
+		shape("CloseLineB", UDim2.new(0, 2, 0, 15), UDim2.new(0.5, 0, 0.5, 0), -45)
+	elseif kind == "egg" then
+		local egg = shape("EggShell", UDim2.new(0.58, 0, 0.76, 0), UDim2.new(0.5, 0, 0.53, 0))
+		round(egg, 0.5)
+		outline(egg, 1.25)
+		local shine = shape("EggShine", UDim2.new(0.12, 0, 0.18, 0), UDim2.new(0.36, 0, 0.34, 0), 0, 0)
+		round(shine, 0.5)
+	elseif kind == "log" then
+		local sheet = shape("LogSheet", UDim2.new(0.58, 0, 0.72, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
+		round(sheet, 0.12)
+		outline(sheet, 1.15)
+		shape("LogLineA", UDim2.new(0.32, 0, 0, 1.5), UDim2.new(0.5, 0, 0.38, 0))
+		shape("LogLineB", UDim2.new(0.32, 0, 0, 1.5), UDim2.new(0.5, 0, 0.53, 0))
+		shape("LogLineC", UDim2.new(0.22, 0, 0, 1.5), UDim2.new(0.45, 0, 0.68, 0))
+	elseif kind == "announce" then
+		local barA = shape("AnnounceBarA", UDim2.new(0, 2.5, 0.32, 0), UDim2.new(0.25, 0, 0.68, 0))
+		local barB = shape("AnnounceBarB", UDim2.new(0, 2.5, 0.52, 0), UDim2.new(0.5, 0, 0.58, 0))
+		local barC = shape("AnnounceBarC", UDim2.new(0, 2.5, 0.72, 0), UDim2.new(0.75, 0, 0.48, 0))
+		round(barA, 0.5)
+		round(barB, 0.5)
+		round(barC, 0.5)
+	elseif kind == "spark" then
+		local diamond = shape("SparkDiamond", UDim2.new(0.42, 0, 0.42, 0), UDim2.new(0.5, 0, 0.5, 0), 45)
+		round(diamond, 0.12)
+		shape("SparkCore", UDim2.new(0.15, 0, 0.15, 0), UDim2.new(0.5, 0, 0.5, 0), 0)
+	elseif kind == "system" then
+		local ring = shape("SystemRing", UDim2.new(0.7, 0, 0.7, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
+		round(ring, 0.5)
+		outline(ring, 1.15)
+		local core = shape("SystemCore", UDim2.new(0.22, 0, 0.22, 0), UDim2.new(0.5, 0, 0.5, 0))
+		round(core, 0.5)
+	end
+
+	return root
+end
+
+local function tintCanvasIcon(root, color)
+	for _, item in ipairs(root:GetDescendants()) do
+		if item:GetAttribute("CanvasPart") then
+			if item:IsA("Frame") then
+				item.BackgroundColor3 = color
+			elseif item:IsA("UIStroke") then
+				item.Color = color
+			end
+		end
+	end
+end
+
 local header = Instance.new("TextLabel")
 header.Name = "Header"
 header.Position = UDim2.new(0, 18, 0, 10)
@@ -124,12 +216,20 @@ panelClose.Size = UDim2.new(0, 32, 0, 32)
 panelClose.BackgroundColor3 = Color3.fromRGB(82, 40, 108)
 panelClose.BackgroundTransparency = 0.1
 panelClose.BorderSizePixel = 0
-panelClose.Text = "×"
+panelClose.Text = ""
 panelClose.TextColor3 = Color3.fromRGB(255, 111, 151)
 panelClose.Font = Enum.Font.GothamBold
 panelClose.TextSize = 22
 panelClose.AutoButtonColor = false
 panelClose.Parent = topBar
+
+createCanvasIcon(
+	panelClose,
+	"close",
+	Color3.fromRGB(255, 111, 151),
+	UDim2.new(0, 15, 0, 15),
+	UDim2.new(0.5, 0, 0.5, 0)
+)
 
 local panelCloseCorner = Instance.new("UICorner")
 panelCloseCorner.CornerRadius = UDim.new(0, 8)
@@ -188,6 +288,16 @@ local function styleTab(button, active)
 	button.TextColor3 = active
 		and Color3.fromRGB(255, 235, 255)
 		or Color3.fromRGB(171, 145, 198)
+
+	local label = button:FindFirstChild("TabLabel")
+	if label then
+		label.TextColor3 = button.TextColor3
+	end
+
+	local icon = button:FindFirstChild("TabIcon")
+	if icon then
+		tintCanvasIcon(icon, button.TextColor3)
+	end
 end
 
 local logTab = Instance.new("TextButton")
@@ -195,7 +305,7 @@ logTab.Name = "LogTab"
 logTab.Size = UDim2.new(0, 102, 1, 0)
 logTab.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 logTab.BorderSizePixel = 0
-logTab.Text = "▣  LOG"
+logTab.Text = ""
 logTab.TextColor3 = Color3.fromRGB(255, 235, 255)
 logTab.Font = Enum.Font.Code
 logTab.TextSize = 14
@@ -203,6 +313,27 @@ logTab.TextXAlignment = Enum.TextXAlignment.Center
 logTab.TextYAlignment = Enum.TextYAlignment.Center
 logTab.AutoButtonColor = false
 logTab.Parent = navigation
+
+local logTabIcon = createCanvasIcon(
+	logTab,
+	"log",
+	logTab.TextColor3,
+	UDim2.new(0, 16, 0, 16),
+	UDim2.new(0, 15, 0.5, 0),
+	"TabIcon"
+)
+local logTabLabel = Instance.new("TextLabel")
+logTabLabel.Name = "TabLabel"
+logTabLabel.Position = UDim2.new(0, 30, 0, 0)
+logTabLabel.Size = UDim2.new(1, -34, 1, 0)
+logTabLabel.BackgroundTransparency = 1
+logTabLabel.Text = "LOG"
+logTabLabel.TextColor3 = logTab.TextColor3
+logTabLabel.Font = Enum.Font.Code
+logTabLabel.TextSize = 13
+logTabLabel.TextXAlignment = Enum.TextXAlignment.Left
+logTabLabel.TextYAlignment = Enum.TextYAlignment.Center
+logTabLabel.Parent = logTab
 
 local logTabCorner = Instance.new("UICorner")
 logTabCorner.CornerRadius = UDim.new(0, 6)
@@ -214,7 +345,7 @@ announcerTab.Position = UDim2.new(0, 108, 0, 0)
 announcerTab.Size = UDim2.new(0, 132, 1, 0)
 announcerTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 announcerTab.BorderSizePixel = 0
-announcerTab.Text = "✦  ANNOUNCER"
+announcerTab.Text = ""
 announcerTab.TextColor3 = Color3.fromRGB(171, 145, 198)
 announcerTab.Font = Enum.Font.Code
 announcerTab.TextSize = 14
@@ -222,6 +353,27 @@ announcerTab.TextXAlignment = Enum.TextXAlignment.Center
 announcerTab.TextYAlignment = Enum.TextYAlignment.Center
 announcerTab.AutoButtonColor = false
 announcerTab.Parent = navigation
+
+local announcerTabIcon = createCanvasIcon(
+	announcerTab,
+	"announce",
+	announcerTab.TextColor3,
+	UDim2.new(0, 16, 0, 16),
+	UDim2.new(0, 15, 0.5, 0),
+	"TabIcon"
+)
+local announcerTabLabel = Instance.new("TextLabel")
+announcerTabLabel.Name = "TabLabel"
+announcerTabLabel.Position = UDim2.new(0, 30, 0, 0)
+announcerTabLabel.Size = UDim2.new(1, -34, 1, 0)
+announcerTabLabel.BackgroundTransparency = 1
+announcerTabLabel.Text = "ANNOUNCER"
+announcerTabLabel.TextColor3 = announcerTab.TextColor3
+announcerTabLabel.Font = Enum.Font.Code
+announcerTabLabel.TextSize = 13
+announcerTabLabel.TextXAlignment = Enum.TextXAlignment.Left
+announcerTabLabel.TextYAlignment = Enum.TextYAlignment.Center
+announcerTabLabel.Parent = announcerTab
 
 local announcerTabCorner = Instance.new("UICorner")
 announcerTabCorner.CornerRadius = UDim.new(0, 6)
@@ -364,13 +516,21 @@ toggleButton.Position = UDim2.new(1, -48, 0.5, 0)
 toggleButton.Size = UDim2.new(0, 50, 0, 50)
 toggleButton.BackgroundColor3 = Color3.fromRGB(62, 31, 96)
 toggleButton.BorderSizePixel = 0
-toggleButton.Text = "🥚"
+toggleButton.Text = ""
 toggleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
 toggleButton.Font = Enum.Font.GothamBold
 toggleButton.TextSize = 24
 toggleButton.AutoButtonColor = false
 toggleButton.ZIndex = 20
 toggleButton.Parent = screenGui
+
+createCanvasIcon(
+	toggleButton,
+	"egg",
+	Color3.fromRGB(238, 201, 255),
+	UDim2.new(0, 24, 0, 24),
+	UDim2.new(0.5, 0, 0.5, 0)
+)
 
 local toggleCorner = Instance.new("UICorner")
 toggleCorner.CornerRadius = UDim.new(1, 0)
@@ -873,27 +1033,27 @@ local function getVisualMeta(text)
 	local lower = text:lower()
 
 	if lower:find("system online", 1, true) or lower:find("ultra-hyper", 1, true) then
-		return "SYSTEM", "✦ SYSTEM ONLINE // LISTENING", Color3.fromRGB(151, 255, 204)
+		return "SYSTEM", "SYSTEM ONLINE // LISTENING", Color3.fromRGB(151, 255, 204), "system"
 	elseif lower:find("eternal", 1, true) then
-		return "ETERNAL", "✦ GREAT NEWS // ETERNAL EGG", Color3.fromRGB(255, 204, 76)
+		return "ETERNAL", "GREAT NEWS // ETERNAL EGG", Color3.fromRGB(255, 204, 76), "spark"
 	elseif lower:find("divine", 1, true) then
-		return "DIVINE", "✦ GREAT NEWS // DIVINE EGG", Color3.fromRGB(255, 126, 226)
+		return "DIVINE", "GREAT NEWS // DIVINE EGG", Color3.fromRGB(255, 126, 226), "spark"
 	elseif lower:find("secret", 1, true) then
-		return "SECRET", "✦ JACKPOT // SECRET EGG", Color3.fromRGB(192, 126, 255)
+		return "SECRET", "JACKPOT // SECRET EGG", Color3.fromRGB(192, 126, 255), "spark"
 	elseif lower:find("mythical", 1, true) or lower:find("mythic", 1, true) then
-		return "MYTHICAL", "✦ AMAZING FIND // MYTHICAL EGG", Color3.fromRGB(102, 210, 255)
+		return "MYTHICAL", "AMAZING FIND // MYTHICAL EGG", Color3.fromRGB(102, 210, 255), "spark"
 	elseif lower:find("legendary", 1, true) then
-		return "LEGENDARY", "✦ AMAZING FIND // LEGENDARY EGG", Color3.fromRGB(255, 159, 78)
+		return "LEGENDARY", "AMAZING FIND // LEGENDARY EGG", Color3.fromRGB(255, 159, 78), "spark"
 	elseif lower:find("cosmic", 1, true) then
-		return "COSMIC", "✦ COSMIC FIND // EGG SPAWNED", Color3.fromRGB(131, 151, 255)
+		return "COSMIC", "COSMIC FIND // EGG SPAWNED", Color3.fromRGB(131, 151, 255), "spark"
 	end
 
-	return "NORMAL", "✦ GOOD NEWS // EGG SPAWNED", Color3.fromRGB(151, 255, 204)
+	return "NORMAL", "GOOD NEWS // EGG SPAWNED", Color3.fromRGB(151, 255, 204), "egg"
 end
 
 local function createVisualCard(text, sequence)
 	layoutCounter = layoutCounter + 1
-	local rarityName, titleText, accentColor = getVisualMeta(text)
+	local rarityName, titleText, accentColor, iconKind = getVisualMeta(text)
 	local card = Instance.new("Frame")
 	if sequence then
 		card.LayoutOrder = getRarityRank(text) * 100000 + sequence
@@ -938,26 +1098,42 @@ local function createVisualCard(text, sequence)
 
 	local title = Instance.new("TextLabel")
 	title.BackgroundTransparency = 1
-title.Position = UDim2.new(0, 14, 0, 8)
-title.Size = UDim2.new(1, -52, 0, 18)
+	title.Position = UDim2.new(0, 34, 0, 8)
+	title.Size = UDim2.new(1, -72, 0, 18)
 	title.Font = Enum.Font.GothamBold
 	title.Text = titleText
 	title.TextColor3 = accentColor
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.TextSize = 12
 	title.Parent = card
+
+	createCanvasIcon(
+		card,
+		iconKind,
+		accentColor,
+		UDim2.new(0, 14, 0, 14),
+		UDim2.new(0, 20, 0, 16)
+	)
 	
 	local close = Instance.new("TextButton")
 	close.BackgroundTransparency = 1
 	close.AnchorPoint = Vector2.new(1, 0)
 	close.Size = UDim2.new(0, 22, 0, 22)
 	close.Position = UDim2.new(1, -4, 0, 3)
-	close.Text = "X"
+	close.Text = ""
 	close.TextColor3 = Color3.fromRGB(255, 92, 133)
 	close.Font = Enum.Font.GothamBold
 	close.TextSize = 12
 	close.AutoButtonColor = false
 	close.Parent = card
+
+	createCanvasIcon(
+		close,
+		"close",
+		Color3.fromRGB(255, 92, 133),
+		UDim2.new(0, 12, 0, 12),
+		UDim2.new(0.5, 0, 0.5, 0)
+	)
 
 	local meta = Instance.new("TextLabel")
 	meta.BackgroundTransparency = 1
