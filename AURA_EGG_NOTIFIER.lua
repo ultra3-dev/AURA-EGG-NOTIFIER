@@ -977,7 +977,7 @@ local function sendPriorityQueue(queue, index)
 	)
 
 	local egg = queue[index]
-	fireWebhookImmediate(replaceRarityWithMention(egg.text), function()
+	fireWebhookImmediate("> ❗" .. replaceRarityWithMention(egg.text), function()
 		sendPriorityQueue(queue, index + 1)
 	end)
 end
