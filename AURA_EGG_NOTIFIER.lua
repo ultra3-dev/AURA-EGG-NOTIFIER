@@ -19,15 +19,8 @@ local CONFIG = {
 	MaxPriorityQueue = 12,
 	ImportantEternalKeywords = {
 		"eternal lunar dragon",
-		"mosasaurus",
-		"ammosaurus",
-		"el maja",
-		"lava dragon",
-		"phoenix",
-		"ice dragon",
-		"shattered drake",
-		"void serpent",
-		"world eater",
+		"oni tiger",
+		"gorilla king",
 	},
 	Version = "WEBHOOK 1.0.0 BETA"
 }
