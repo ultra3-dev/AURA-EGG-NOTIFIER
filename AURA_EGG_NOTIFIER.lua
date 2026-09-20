@@ -1023,9 +1023,20 @@ local function getRandomPublicServerUrl()
 	lastJoinServerId = selectedServerId
 
 	return string.format(
-		"https://www.roblox.com/games/start?placeId=%s&gameInstanceId=%s",
+		"https://www.roblox.com/games/start?placeId=%s&gameId=%s",
 		tostring(game.PlaceId),
 		selectedServerId
+	)
+end
+
+local function getGameFallbackUrl()
+	if not game.PlaceId then
+		return nil
+	end
+
+	return string.format(
+		"https://www.roblox.com/games/start?placeId=%s",
+		tostring(game.PlaceId)
 	)
 end
 
@@ -1036,7 +1047,7 @@ local function sendEggAlert(description, sourceText, onDone)
 		}
 
 		if isDivineOrImportantEternal(sourceText or description) then
-			local joinUrl = getRandomPublicServerUrl()
+			local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
 			if joinUrl then
 				payload.components = {{
 					type = 1,
