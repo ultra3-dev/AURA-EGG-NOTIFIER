@@ -17,6 +17,7 @@ local CONFIG = {
 	MaxNotifications = 6,
 	PriorityWindow = 0.12,
 	MaxPriorityQueue = 12,
+	ServerRefreshInterval = 15,
 	ImportantEternalKeywords = {
 		"oni tiger",
 		"gorilla king",
@@ -46,6 +47,8 @@ local pendingEggs = {}
 local priorityTimer = nil
 local priorityVersion = 0
 local lastJoinServerId = nil
+local cachedPublicServerIds = {}
+local serverCacheRefreshing = false
 
 if playerGui:FindFirstChild("EggDetectorStealth") then
 	playerGui.EggDetectorStealth:Destroy()
@@ -952,59 +955,11 @@ local function isDivineOrImportantEternal(text)
 end
 
 local function getRandomPublicServerUrl()
-	if not httpRequest or not game.PlaceId then
-		return nil
-	end
-
 	local currentServerId = tostring(game.JobId or "")
-	local serverListUrl = string.format(
-		"https://games.roblox.com/v1/games/%s/servers/Public?sortOrder=2&excludeFullGames=true&limit=100",
-		tostring(game.PlaceId)
-	)
-
-	local requestOk, response = pcall(function()
-		return httpRequest({
-			Url = serverListUrl,
-			Method = "GET",
-			Headers = {
-				["Accept"] = "application/json"
-			}
-		})
-	end)
-
-	if not requestOk or not response then
-		return nil
-	end
-
-	local statusCode = tonumber(response.StatusCode or response.Status) or 0
-	if statusCode < 200 or statusCode >= 300 then
-		return nil
-	end
-
-	local rawBody = response.Body or response.body
-	if type(rawBody) ~= "string" or rawBody == "" then
-		return nil
-	end
-
-	local decodeOk, serverData = pcall(function()
-		return HttpService:JSONDecode(rawBody)
-	end)
-	if not decodeOk or type(serverData) ~= "table" or type(serverData.data) ~= "table" then
-		return nil
-	end
-
 	local candidates = {}
-	for _, server in ipairs(serverData.data) do
-		local serverId = type(server) == "table" and server.id
-		local playing = type(server) == "table" and tonumber(server.playing)
-		local maxPlayers = type(server) == "table" and tonumber(server.maxPlayers)
-		local hasRoom = not playing or not maxPlayers or playing < maxPlayers
 
-		if type(serverId) == "string"
-			and serverId ~= ""
-			and serverId ~= currentServerId
-			and serverId ~= lastJoinServerId
-			and hasRoom then
+	for _, serverId in ipairs(cachedPublicServerIds) do
+		if serverId ~= currentServerId and serverId ~= lastJoinServerId then
 			table.insert(candidates, serverId)
 		end
 	end
@@ -1023,6 +978,63 @@ local function getRandomPublicServerUrl()
 	)
 end
 
+local function refreshPublicServerCache()
+	if not httpRequest or not game.PlaceId or serverCacheRefreshing then
+		return
+	end
+
+	serverCacheRefreshing = true
+	local serverListUrl = string.format(
+		"https://games.roblox.com/v1/games/%s/servers/Public?sortOrder=2&excludeFullGames=true&limit=100",
+		tostring(game.PlaceId)
+	)
+
+	local requestOk, response = pcall(function()
+		return httpRequest({
+			Url = serverListUrl,
+			Method = "GET",
+			Headers = {
+				["Accept"] = "application/json"
+			}
+		})
+	end)
+
+	if requestOk and response then
+		local statusCode = tonumber(response.StatusCode or response.Status) or 0
+		local rawBody = response.Body or response.body
+
+		if statusCode >= 200 and statusCode < 300
+			and type(rawBody) == "string"
+			and rawBody ~= "" then
+			local decodeOk, serverData = pcall(function()
+				return HttpService:JSONDecode(rawBody)
+			end)
+
+			if decodeOk and type(serverData) == "table" and type(serverData.data) == "table" then
+				local refreshedIds = {}
+				for _, server in ipairs(serverData.data) do
+					local serverId = type(server) == "table" and server.id
+					local playing = type(server) == "table" and tonumber(server.playing)
+					local maxPlayers = type(server) == "table" and tonumber(server.maxPlayers)
+					local hasRoom = not playing or not maxPlayers or playing < maxPlayers
+
+					if type(serverId) == "string"
+						and serverId ~= ""
+						and hasRoom then
+						table.insert(refreshedIds, serverId)
+					end
+				end
+
+				if #refreshedIds > 0 then
+					cachedPublicServerIds = refreshedIds
+				end
+			end
+		end
+	end
+
+	serverCacheRefreshing = false
+end
+
 local function getGameFallbackUrl()
 	if not game.PlaceId then
 		return nil
@@ -1033,6 +1045,13 @@ local function getGameFallbackUrl()
 		tostring(game.PlaceId)
 	)
 end
+
+task.spawn(function()
+	while screenGui.Parent do
+		refreshPublicServerCache()
+		task.wait(CONFIG.ServerRefreshInterval)
+	end
+end)
 
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
