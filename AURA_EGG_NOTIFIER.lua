@@ -18,9 +18,10 @@ local CONFIG = {
 	PriorityWindow = 0.12,
 	MaxPriorityQueue = 12,
 	ImportantEternalKeywords = {
-		"eternal lunar dragon",
 		"oni tiger",
 		"gorilla king",
+		"skeleton horse",
+		"pegasus",
 	},
 	Version = "WEBHOOK 1.0.0 BETA"
 }
