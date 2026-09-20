@@ -17,6 +17,18 @@ local CONFIG = {
 	MaxNotifications = 6,
 	PriorityWindow = 0.12,
 	MaxPriorityQueue = 12,
+	ImportantEternalKeywords = {
+		"eternal lunar dragon",
+		"mosasaurus",
+		"ammosaurus",
+		"el maja",
+		"lava dragon",
+		"phoenix",
+		"ice dragon",
+		"shattered drake",
+		"void serpent",
+		"world eater",
+	},
 	Version = "WEBHOOK 1.0.0 BETA"
 }
 
@@ -39,6 +51,7 @@ local panelOpen = true
 local pendingEggs = {}
 local priorityTimer = nil
 local priorityVersion = 0
+local lastJoinServerId = nil
 
 if playerGui:FindFirstChild("EggDetectorStealth") then
 	playerGui.EggDetectorStealth:Destroy()
@@ -881,9 +894,16 @@ local function sendWebhookPayload(payload, successText, onDone)
 	end
 
 	task.spawn(function()
+		local webhookUrl = CONFIG.WebhookURL
+		if payload.components then
+			webhookUrl = webhookUrl
+				.. (webhookUrl:find("?", 1, true) and "&" or "?")
+				.. "with_components=true"
+		end
+
 		local success, response = pcall(function()
 			return httpRequest({
-				Url = CONFIG.WebhookURL,
+				Url = webhookUrl,
 				Method = "POST",
 				Headers = {
 					["Content-Type"] = "application/json",
@@ -916,6 +936,123 @@ local function fireWebhookImmediate(description, onDone)
 		"WEBHOOK BETA // SENT",
 		onDone
 	)
+end
+
+local function isDivineOrImportantEternal(text)
+	local lower = text:lower()
+	if lower:find("divine", 1, true) then
+		return true
+	end
+
+	if not lower:find("eternal", 1, true) then
+		return false
+	end
+
+	for _, keyword in ipairs(CONFIG.ImportantEternalKeywords) do
+		if lower:find(keyword, 1, true) then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function getRandomPublicServerUrl()
+	if not httpRequest or not game.PlaceId then
+		return nil
+	end
+
+	local currentServerId = tostring(game.JobId or "")
+	local serverListUrl = string.format(
+		"https://games.roblox.com/v1/games/%s/servers/Public?sortOrder=2&excludeFullGames=true&limit=100",
+		tostring(game.PlaceId)
+	)
+
+	local requestOk, response = pcall(function()
+		return httpRequest({
+			Url = serverListUrl,
+			Method = "GET",
+			Headers = {
+				["Accept"] = "application/json"
+			}
+		})
+	end)
+
+	if not requestOk or not response then
+		return nil
+	end
+
+	local statusCode = tonumber(response.StatusCode or response.Status) or 0
+	if statusCode < 200 or statusCode >= 300 then
+		return nil
+	end
+
+	local rawBody = response.Body or response.body
+	if type(rawBody) ~= "string" or rawBody == "" then
+		return nil
+	end
+
+	local decodeOk, serverData = pcall(function()
+		return HttpService:JSONDecode(rawBody)
+	end)
+	if not decodeOk or type(serverData) ~= "table" or type(serverData.data) ~= "table" then
+		return nil
+	end
+
+	local candidates = {}
+	for _, server in ipairs(serverData.data) do
+		local serverId = type(server) == "table" and server.id
+		local playing = type(server) == "table" and tonumber(server.playing)
+		local maxPlayers = type(server) == "table" and tonumber(server.maxPlayers)
+		local hasRoom = not playing or not maxPlayers or playing < maxPlayers
+
+		if type(serverId) == "string"
+			and serverId ~= ""
+			and serverId ~= currentServerId
+			and serverId ~= lastJoinServerId
+			and hasRoom then
+			table.insert(candidates, serverId)
+		end
+	end
+
+	if #candidates == 0 then
+		return nil
+	end
+
+	local selectedServerId = candidates[math.random(1, #candidates)]
+	lastJoinServerId = selectedServerId
+
+	return string.format(
+		"https://www.roblox.com/games/start?placeId=%s&gameInstanceId=%s",
+		tostring(game.PlaceId),
+		selectedServerId
+	)
+end
+
+local function sendEggAlert(description, sourceText, onDone)
+	task.spawn(function()
+		local payload = {
+			content = description
+		}
+
+		if isDivineOrImportantEternal(sourceText or description) then
+			local joinUrl = getRandomPublicServerUrl()
+			if joinUrl then
+				payload.components = {{
+					type = 1,
+					components = {{
+						type = 2,
+						style = 5,
+						label = "¡JOIN NOW!",
+						emoji = {name = "🔗"},
+						url = joinUrl
+					}}
+				}}
+			end
+		end
+
+		sendWebhookPayload(payload, "WEBHOOK BETA // SENT", onDone)
+	end)
 end
 
 local function trimText(text)
@@ -977,7 +1114,7 @@ local function sendPriorityQueue(queue, index)
 	)
 
 	local egg = queue[index]
-	fireWebhookImmediate("> ❗" .. replaceRarityWithMention(egg.text), function()
+sendEggAlert("> ❗" .. replaceRarityWithMention(egg.text), egg.text, function()
 		sendPriorityQueue(queue, index + 1)
 	end)
 end
