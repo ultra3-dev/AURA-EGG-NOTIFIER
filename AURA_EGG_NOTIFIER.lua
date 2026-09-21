@@ -24,7 +24,7 @@ local CONFIG = {
 		"skeleton horse",
 		"pegasus",
 	},
-	Version = "WEBHOOK 1.0.0 BETA"
+	Version = "WEBHOOK 1.0.0 RELEASE"
 }
 
 local Players = game:GetService("Players")
@@ -211,7 +211,7 @@ local subtitle = Instance.new("TextLabel")
 subtitle.Position = UDim2.new(0, 19, 0, 34)
 subtitle.Size = UDim2.new(1, -70, 0, 16)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "WEBHOOK 1.0.0 BETA  //  LIVE DETECTION"
+subtitle.Text = "WEBHOOK 1.0.0 RELEASE  //  LIVE DETECTION"
 subtitle.TextColor3 = Color3.fromRGB(151, 255, 204)
 subtitle.Font = Enum.Font.Code
 subtitle.TextSize = 10
@@ -928,9 +928,9 @@ end
 
 -- Envío individual y secuencial: cada huevo conserva su propio webhook.
 local function fireWebhookImmediate(description, onDone)
-	sendWebhookPayload(
-		{content = description},
-		"WEBHOOK BETA // SENT",
+sendWebhookPayload(
+{content = description},
+"WEBHOOK RELEASE // SENT",
 		onDone
 	)
 end
@@ -1073,7 +1073,7 @@ local function sendEggAlert(description, sourceText, onDone)
 			}}
 		end
 
-		sendWebhookPayload(payload, "WEBHOOK BETA // SENT", onDone)
+sendWebhookPayload(payload, "WEBHOOK RELEASE // SENT", onDone)
 	end)
 end
 
@@ -1124,6 +1124,26 @@ task.spawn(function()
 	fireWebhookImmediate("**HELLO AURA FAMILY X, I'M READY;)**")
 end)
 
+local function formatEggAlert(text, spawnedAt)
+local message = replaceRarityWithMention(text)
+local rolePrefix, body = message:match("^(%s*A%s+<@&%d+>)%s+(.+)$")
+
+if rolePrefix and body then
+message = rolePrefix .. " — @" .. body
+else
+local article, plainBody = message:match("^(%s*A)%s+(.+)$")
+if article and plainBody then
+message = article .. " @" .. plainBody
+end
+end
+
+return string.format(
+"> ❗%s\n———\n-# **Spawned: <t:%d:R>**",
+message,
+tonumber(spawnedAt) or os.time()
+)
+end
+
 local function sendPriorityQueue(queue, index)
 	if index > #queue then
 		updateStatus("MONITOR // READY", Color3.fromRGB(99, 255, 154))
@@ -1131,12 +1151,12 @@ local function sendPriorityQueue(queue, index)
 	end
 
 	updateStatus(
-		"WEBHOOK BETA // SEND " .. tostring(index) .. "/" .. tostring(#queue),
+"WEBHOOK RELEASE // SEND " .. tostring(index) .. "/" .. tostring(#queue),
 		Color3.fromRGB(214, 165, 255)
 	)
 
 	local egg = queue[index]
-sendEggAlert("> ❗" .. replaceRarityWithMention(egg.text), egg.text, function()
+sendEggAlert(formatEggAlert(egg.text, egg.spawnedAt), egg.text, function()
 		sendPriorityQueue(queue, index + 1)
 	end)
 end
@@ -1159,7 +1179,7 @@ local function flushPriorityQueue()
 	sendPriorityQueue(queue, 1)
 end
 
-local function queueEgg(text, sequence)
+local function queueEgg(text, sequence, spawnedAt)
 	if not sequence then
 		eggSequence = eggSequence + 1
 		sequence = eggSequence
@@ -1172,7 +1192,8 @@ local function queueEgg(text, sequence)
 	table.insert(pendingEggs, {
 		text = text,
 		rank = getRarityRank(text),
-		sequence = sequence
+sequence = sequence,
+spawnedAt = spawnedAt or os.time()
 	})
 
 	if #pendingEggs >= CONFIG.MaxPriorityQueue then
@@ -1400,8 +1421,9 @@ local function processText(raw)
 		lastText, lastTime = clean, now
 
 		eggSequence = eggSequence + 1
-		createVisualCard(clean, eggSequence)
-		queueEgg(clean, eggSequence)
+local spawnedAt = os.time()
+createVisualCard(clean, eggSequence)
+queueEgg(clean, eggSequence, spawnedAt)
 	end
 end
 
