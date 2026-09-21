@@ -1059,20 +1059,18 @@ local function sendEggAlert(description, sourceText, onDone)
 			content = description
 		}
 
-		if isDivineOrImportantEternal(sourceText or description) then
-			local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
-			if joinUrl then
-				payload.components = {{
-					type = 1,
-					components = {{
-						type = 2,
-						style = 5,
-						label = "¡JOIN NOW!",
-						emoji = {name = "🔗"},
-						url = joinUrl
-					}}
+		local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
+		if joinUrl then
+			payload.components = {{
+				type = 1,
+				components = {{
+					type = 2,
+					style = 5,
+					label = "¡JOIN NOW!",
+					emoji = {name = "🔗"},
+					url = joinUrl
 				}}
-			end
+			}}
 		end
 
 		sendWebhookPayload(payload, "WEBHOOK BETA // SENT", onDone)
