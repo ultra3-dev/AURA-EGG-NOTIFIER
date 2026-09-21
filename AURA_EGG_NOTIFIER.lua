@@ -15,7 +15,7 @@ local CONFIG = {
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
 	DisplayTime = 120,
 	MaxNotifications = 6,
-	PriorityWindow = 0.10,
+	PriorityWindow = 0.05,
 	MaxPriorityQueue = 12,
 	ServerRefreshInterval = 15,
 	ImportantEternalKeywords = {
@@ -866,16 +866,60 @@ local function getRarityRank(text)
 end
 
 -- Reemplaza "A [RAREZA]" por la mención del rol correspondiente.
+-- También acepta separadores visuales como "[Secret]" o "(Secret)".
 local function replaceRarityWithMention(text)
 	local lower = text:lower()
+	local articleStart, articleEnd = lower:find("^%s*a%s+")
+
+	if not articleStart then
+		return text
+	end
+
+	local function isRaritySeparator(value)
+		if #value > 16 then
+			return false
+		end
+
+		for index = 1, #value do
+			local character = value:sub(index, index)
+			if character ~= " "
+				and character ~= "\t"
+				and character ~= "["
+				and character ~= "]"
+				and character ~= "("
+				and character ~= ")"
+				and character ~= "*"
+				and character ~= "_"
+				and character ~= "-" then
+				return false
+			end
+		end
+
+		return true
+	end
 
 	for _, rarity in ipairs(RARITY_ORDER) do
-		if rarity.roleId and lower:find(rarity.keyword, 1, true) then
-			local startPos, endPos = lower:find("a%s+" .. rarity.keyword)
-			if startPos then
-				return text:sub(1, startPos - 1)
-					.. "A <@&" .. rarity.roleId .. ">"
-					.. text:sub(endPos + 1)
+		if rarity.roleId then
+			local rarityStart, rarityEnd = lower:find(
+				rarity.keyword,
+				articleEnd + 1,
+				true
+			)
+
+			if rarityStart then
+				local separator = lower:sub(articleEnd + 1, rarityStart - 1)
+				if isRaritySeparator(separator) then
+					local replacementEnd = rarityEnd
+					local closingCharacter = lower:sub(replacementEnd + 1, replacementEnd + 1)
+
+					if closingCharacter == "]" or closingCharacter == ")" then
+						replacementEnd = replacementEnd + 1
+					end
+
+					return text:sub(1, articleStart - 1)
+						.. "A <@&" .. rarity.roleId .. ">"
+						.. text:sub(replacementEnd + 1)
+				end
 			end
 		end
 	end
@@ -1058,6 +1102,15 @@ local function sendEggAlert(description, sourceText, onDone)
 		local payload = {
 			content = description
 		}
+
+		-- Permite explícitamente solo el rol que aparece en este mensaje.
+		-- Sin esto Discord puede mostrar el texto de la mención sin notificar.
+		local roleId = description:match("<@&(%d+)>")
+		if roleId then
+			payload.allowed_mentions = {
+				roles = {roleId}
+			}
+		end
 
 		local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
 		if joinUrl then
