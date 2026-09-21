@@ -24,7 +24,7 @@ local CONFIG = {
 		"skeleton horse",
 		"pegasus",
 	},
-	Version = "WEBHOOK 1.0.0 RELEASE"
+	Version = "WEBHOOK 1.1.0 RELEASE"
 }
 
 local Players = game:GetService("Players")
@@ -855,6 +855,44 @@ local RARITY_ORDER = {
 	{keyword = "common", rank = 8}
 }
 
+-- Roles de cada huevo. El nombre se reemplaza por una mención real.
+-- Los alias cubren las variantes que suelen aparecer en el texto del juego.
+local EGG_ROLE_MENTIONS = {
+	{name = "eternal lunar dragon", roleId = "1551573296632561754"},
+	{name = "lunar dragon", roleId = "1551573296632561754"},
+	{name = "cosmic skeleton boss", roleId = "1551573311681597520"},
+	{name = "pure jellyfish", roleId = "1551573302139424868"},
+	{name = "gorilla king", roleId = "1551573293734039582"},
+	{name = "skeleton horse", roleId = "1551573288474517504"},
+	{name = "lava dragon", roleId = "1551573295814545559"},
+	{name = "oni tiger", roleId = "1551573294795333652"},
+	{name = "mosasaurus", roleId = "1551573291745939557"},
+	{name = "ice dragon", roleId = "1551573297806966794"},
+	{name = "world burner", roleId = "1551573281860223027"},
+	{name = "nightflame", roleId = "1551573284137734256"},
+	{name = "archangel", roleId = "1551573285538500661"},
+	{name = "razor fang", roleId = "1551573308854501416"},
+	{name = "razorfang", roleId = "1551573308854501416"},
+	{name = "mutant shark", roleId = "1551573303812952135"},
+	{name = "cosmic dragon", roleId = "1551573313573359666"},
+	{name = "king snake", roleId = "1551573312549814314"},
+	{name = "unicorn", roleId = "1551573280039641170"},
+	{name = "kitsune", roleId = "1551573285047640115"},
+	{name = "el maja", roleId = "1551573298872189089"},
+	{name = "pegasus", roleId = "1551573286943719595"},
+	{name = "phoenix", roleId = "1551573292530274417"},
+	{name = "stag", roleId = "1551573301153898496"},
+	{name = "tralaledon", roleId = "1551573302558986312"},
+	{name = "cerberus", roleId = "1551624633457975398"},
+	{name = "gargoyle", roleId = "1551573304802812064"},
+	{name = "t rex", roleId = "1551573310637084755"},
+	{name = "trex", roleId = "1551573310637084755"},
+	{name = "t-rex", roleId = "1551573310637084755"},
+	{name = "yeti", roleId = "1551573307671715911"},
+	{name = "kraken", roleId = "1551573309764669631"},
+	{name = "centaur", roleId = "1551573300021567531"}
+}
+
 local function getRarityRank(text)
 	local lower = text:lower()
 	for _, rarity in ipairs(RARITY_ORDER) do
@@ -925,6 +963,39 @@ local function replaceRarityWithMention(text)
 	end
 
 	return text
+end
+
+local function replaceEggNameWithMention(text)
+	local lower = text:lower()
+	local matches = {}
+
+	for _, egg in ipairs(EGG_ROLE_MENTIONS) do
+		local startPos, endPos = lower:find(egg.name, 1, true)
+		if startPos then
+			table.insert(matches, {
+				startPos = startPos,
+				endPos = endPos,
+				roleId = egg.roleId
+			})
+		end
+	end
+
+	table.sort(matches, function(a, b)
+		if a.startPos == b.startPos then
+			return a.endPos > b.endPos
+		end
+		return a.startPos < b.startPos
+	end)
+
+	local match = matches[1]
+	if not match then
+		return text, false
+	end
+
+	return text:sub(1, match.startPos - 1)
+		.. "<@&" .. match.roleId .. ">"
+		.. text:sub(match.endPos + 1),
+		true
 end
 
 local function sendWebhookPayload(payload, successText, onDone)
@@ -1105,10 +1176,18 @@ local function sendEggAlert(description, sourceText, onDone)
 
 		-- Permite explícitamente solo el rol que aparece en este mensaje.
 		-- Sin esto Discord puede mostrar el texto de la mención sin notificar.
-		local roleId = description:match("<@&(%d+)>")
-		if roleId then
+		local roleIds = {}
+		local seenRoleIds = {}
+		for roleId in description:gmatch("<@&(%d+)>") do
+			if not seenRoleIds[roleId] then
+				seenRoleIds[roleId] = true
+				table.insert(roleIds, roleId)
+			end
+		end
+
+		if #roleIds > 0 then
 			payload.allowed_mentions = {
-				roles = {roleId}
+				roles = roleIds
 			}
 		end
 
@@ -1179,14 +1258,16 @@ end)
 
 local function formatEggAlert(text, spawnedAt)
 local message = replaceRarityWithMention(text)
+local eggMentioned
+message, eggMentioned = replaceEggNameWithMention(message)
 local rolePrefix, body = message:match("^(%s*A%s+<@&%d+>)%s+(.+)$")
 
 if rolePrefix and body then
-message = rolePrefix .. " — @" .. body
+message = rolePrefix .. " — " .. body
 else
 local article, plainBody = message:match("^(%s*A)%s+(.+)$")
 if article and plainBody then
-message = article .. " @" .. plainBody
+message = article .. (eggMentioned and " " or " @") .. plainBody
 end
 end
 
