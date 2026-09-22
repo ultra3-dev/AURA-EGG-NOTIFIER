@@ -579,11 +579,22 @@ local localFileRead = readfile
 local localFileWrite = writefile
 
 local lastSeenState = {
-	version = 1,
+version = 2,
 	messageId = nil,
+messageIds = {},
 	entries = {},
 	seeded = false
 }
+
+-- Cada webhook tiene su propio mensaje de Last Seen. El hash evita guardar
+-- el token privado del webhook dentro del archivo local de estado.
+local function getLastSeenWebhookKey(url)
+local hash = 7
+for index = 1, #url do
+hash = (hash * 31 + string.byte(url, index)) % 2147483647
+end
+return tostring(hash)
+end
 
 local function loadLastSeenState()
 	if type(localFileExists) ~= "function" or type(localFileRead) ~= "function" then
@@ -608,6 +619,21 @@ local function loadLastSeenState()
 	if type(decoded.messageId) == "string" and decoded.messageId ~= "" then
 		lastSeenState.messageId = decoded.messageId
 	end
+if type(decoded.messageIds) == "table" then
+for webhookKey, messageId in pairs(decoded.messageIds) do
+if type(webhookKey) == "string" and type(messageId) == "string" and messageId ~= "" then
+lastSeenState.messageIds[webhookKey] = messageId
+end
+end
+elseif lastSeenState.messageId then
+-- Migra el formato anterior al webhook configurado actualmente.
+local configuredWebhook = tostring(CONFIG.LastSeenWebhookURL or "")
+:gsub("%?.*$", "")
+:gsub("/+$", "")
+if configuredWebhook ~= "" and not configuredWebhook:find("PASTE_", 1, true) then
+lastSeenState.messageIds[getLastSeenWebhookKey(configuredWebhook)] = lastSeenState.messageId
+end
+end
 	if type(decoded.entries) == "table" then
 		lastSeenState.entries = decoded.entries
 	elseif type(decoded.lastSeen) == "table" then
@@ -1418,7 +1444,8 @@ end
 
 local function upsertLastSeenMessage(payload, onDone)
 	local baseUrl = getWebhookBaseUrl()
-	local messageId = lastSeenState.messageId
+local webhookKey = getLastSeenWebhookKey(baseUrl)
+local messageId = lastSeenState.messageIds[webhookKey]
 
 	if messageId and messageId ~= "" then
 		executeLastSeenRequest(
@@ -1438,7 +1465,7 @@ local function upsertLastSeenMessage(payload, onDone)
 					return
 				end
 
-				lastSeenState.messageId = nil
+lastSeenState.messageIds[webhookKey] = nil
 				saveLastSeenState()
 				upsertLastSeenMessage(payload, onDone)
 			end
@@ -1453,7 +1480,8 @@ local function upsertLastSeenMessage(payload, onDone)
 		function(ok, statusCode, responseBody)
 			local newMessageId = responseBody and responseBody.id
 			if ok and newMessageId then
-				lastSeenState.messageId = tostring(newMessageId)
+lastSeenState.messageId = tostring(newMessageId)
+lastSeenState.messageIds[webhookKey] = tostring(newMessageId)
 				saveLastSeenState()
 				if onDone then onDone(true) end
 				return
