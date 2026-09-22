@@ -11,6 +11,8 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 local CONFIG = {
 	WebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_WEBHOOK)
 		or "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
+	LastSeenWebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_LAST_SEEN_WEBHOOK)
+		or "PASTE_A_LAST_SEEN_DISCORD_WEBHOOK_HERE",
 	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
 	DisplayTime = 120,
@@ -1298,9 +1300,14 @@ local function buildLastSeenPayload(referenceTime)
 end
 
 local function getWebhookBaseUrl()
-	return tostring(CONFIG.WebhookURL or "")
+	return tostring(CONFIG.LastSeenWebhookURL or "")
 		:gsub("%?.*$", "")
 		:gsub("/+$", "")
+end
+
+local function isLastSeenWebhookConfigured()
+	local url = getWebhookBaseUrl()
+	return url ~= "" and not url:find("PASTE_", 1, true)
 end
 
 local function appendWebhookQuery(url, query)
@@ -1407,6 +1414,10 @@ local lastSeenUpdateInFlight = false
 local lastSeenUpdateQueued = false
 
 local function scheduleLastSeenUpdate()
+	if not isLastSeenWebhookConfigured() then
+		return
+	end
+
 	lastSeenUpdateQueued = true
 	if lastSeenUpdateInFlight then return end
 
