@@ -571,9 +571,59 @@ badgeCorner.CornerRadius = UDim.new(1, 0)
 badgeCorner.Parent = badge
 
 local POSITION_FILE = "AuraEggNotifier_ButtonPosition.json"
+local LAST_SEEN_STATE_FILE = "AuraEggNotifier_LastSeen.json"
 local localFileExists = isfile
 local localFileRead = readfile
 local localFileWrite = writefile
+
+local lastSeenState = {
+	version = 1,
+	messageId = nil,
+	entries = {}
+}
+
+local function loadLastSeenState()
+	if type(localFileExists) ~= "function" or type(localFileRead) ~= "function" then
+		return
+	end
+
+	local existsOk, exists = pcall(function()
+		return localFileExists(LAST_SEEN_STATE_FILE)
+	end)
+	if not existsOk or not exists then return end
+
+	local readOk, raw = pcall(function()
+		return localFileRead(LAST_SEEN_STATE_FILE)
+	end)
+	if not readOk or not raw or raw == "" then return end
+
+	local decodeOk, decoded = pcall(function()
+		return HttpService:JSONDecode(raw)
+	end)
+	if not decodeOk or type(decoded) ~= "table" then return end
+
+	if type(decoded.messageId) == "string" and decoded.messageId ~= "" then
+		lastSeenState.messageId = decoded.messageId
+	end
+	if type(decoded.entries) == "table" then
+		lastSeenState.entries = decoded.entries
+	elseif type(decoded.lastSeen) == "table" then
+		-- Compatibilidad con la forma {messageId, lastSeen} usada por
+		-- versiones intermedias del Last Seen.
+		lastSeenState.entries = decoded.lastSeen
+	end
+end
+
+local function saveLastSeenState()
+	if type(localFileWrite) ~= "function" then
+		return false
+	end
+
+	local ok = pcall(function()
+		localFileWrite(LAST_SEEN_STATE_FILE, HttpService:JSONEncode(lastSeenState))
+	end)
+	return ok
+end
 
 local function saveTogglePosition()
 	if type(localFileWrite) ~= "function" then return end
@@ -623,6 +673,7 @@ local function loadTogglePosition()
 end
 
 loadTogglePosition()
+loadLastSeenState()
 
 local activeCards = {}
 local layoutCounter = 0
@@ -893,6 +944,68 @@ local EGG_ROLE_MENTIONS = {
 	{name = "centaur", roleId = "1551573300021567531"}
 }
 
+-- Catálogo fijo del Last Seen. Se muestran todos los huevos conocidos:
+-- los que todavía no tienen fecha quedan como "No registrada".
+local LAST_SEEN_RARITY_ORDER = {"Divine", "Eternal", "Secret"}
+local LAST_SEEN_STYLES = {
+	Divine = {
+		emoji = "<:Divine:1548446386964406282>",
+		color = 0xFFD700,
+		separator = "divine"
+	},
+	Eternal = {
+		emoji = "<:Eternal:1548446341699477525>",
+		color = 0x9B30FF,
+		separator = "eternal"
+	},
+	Secret = {
+		emoji = "<:Secret:1548446274616041645>",
+		color = 0x010101,
+		separator = "secret"
+	}
+}
+
+local LAST_SEEN_ASSET_BASE_URL =
+	"https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/main/assets/"
+
+local LAST_SEEN_CATALOG = {
+	Divine = {
+		{name = "Nightflame", key = "nightflame", emoji = "<:Nightflame:1548444116873121832>"},
+		{name = "Unicorn", key = "unicorn", emoji = "<:Unicorn:1548443051322646548>"},
+		{name = "World Burner", key = "worldburner", emoji = "<:World_Burner:1548494788158820483>"},
+		{name = "Kitsune", key = "kitsune", emoji = "<:Kitsune:1548443441170620547>"},
+		{name = "ArchAngel", key = "archangel", emoji = "<:ArchAngel:1548495435897770045>"}
+	},
+	Eternal = {
+		{name = "El Maja", key = "elmaja", emoji = "<:El_Maja:1548441358493159474>"},
+		{name = "Oni Tiger", key = "onitiger", emoji = "<:Oni_Tiger:1548443291773566977>"},
+		{name = "Phoenix", key = "phoenix", emoji = "<:Phoenix:1548440843591880724>"},
+		{name = "Gorilla King", key = "gorillaking", emoji = "<:Gorilla_King:1548443784084459531>"},
+		{name = "Skeleton Horse", key = "skeletonhorse", emoji = "<:Skeleton_Horse:1548491359990579250>"},
+		{name = "Lava Dragon", key = "lavadragon", emoji = "<:Lava_Dragon:1548441030783668234>"},
+		{name = "Pegasus", key = "pegasus", emoji = "<:Pegasus:1548490925796495452>"},
+		{name = "Mosasaurus", key = "mosasaurus", emoji = "<:Mosasaurus:1548441957016273036>"},
+		{name = "Eternal Lunar Dragon", key = "eternallunardragon", emoji = "<:Eternal_Lunar_Dragon:1548442744123293766>"},
+		{name = "Ice Dragon", key = "icedragon", emoji = "<:Ice_Dragon:1548440110239064174>"}
+	},
+	Secret = {
+		{name = "Stag", key = "stag", emoji = "<:Stag:1548443172806459494>"},
+		{name = "Pure Jellyfish", key = "purejellyfish", emoji = "<:Pure_Jellyfish:1548480251321909278>"},
+		{name = "RazorFang", key = "razorfang", emoji = "<:RazorFang:1548481759320997928>"},
+		{name = "Gargoyle", key = "gargoyle", emoji = "<:Gargoyle:1548480842786021436>"},
+		{name = "Cosmic Skeleton Boss", key = "cosmicskeletonboss", emoji = "<:Cosmic_Skeleton_Boss:1548442180018770041>"},
+		{name = "Tralaledon", key = "tralaledon", emoji = "<:Tralaledon:1548441688446603435>"},
+		{name = "Cerberus", key = "cerberus", emoji = "<:Cerberus:1548440419107348591>"},
+		{name = "Mutant Shark", key = "mutantshark", emoji = "<:MutantShark:1548443702035353631>"},
+		{name = "Cosmic Dragon", key = "cosmicdragon", emoji = "<:Cosmic_Dragon:1548442406959976579>"},
+		{name = "TRex", key = "trex", emoji = "<:TRex:1548441514550632508>"},
+		{name = "Yeti", key = "yeti", emoji = "<:Yeti:1548439856785395772>"},
+		{name = "Kraken", key = "kraken", emoji = "<:Kraken:1548441236476788786>"},
+		{name = "Centaur", key = "centaur", emoji = "<:Centaur:1548493515841871935>"},
+		{name = "King Snake", key = "kingsnake", emoji = "<:King_Snake:1548439645849919682>"}
+	}
+}
+
 local function getRarityRank(text)
 	local lower = text:lower()
 	for _, rarity in ipairs(RARITY_ORDER) do
@@ -1039,6 +1152,307 @@ local function sendWebhookPayload(payload, successText, onDone)
 			if onDone then onDone(false) end
 		end
 	end)
+end
+
+local function normalizeLastSeenKey(value)
+	return (tostring(value or ""):lower():gsub("[^a-z0-9]", ""))
+end
+
+local function getLastSeenRarity(text)
+	local lower = tostring(text or ""):lower()
+	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
+		if lower:find(rarity:lower(), 1, true) then
+			return rarity
+		end
+	end
+	return nil
+end
+
+local function getLastSeenEggCandidate(text)
+	local lower = tostring(text or ""):lower()
+	local afterArticle = lower:match("^%s*a%s+(.+)$")
+	if not afterArticle then return nil end
+
+	local beforeSpawn = afterArticle:match("^(.-)%s+egg%s+spawned")
+		or afterArticle:match("^(.-)%s+spawned")
+	if not beforeSpawn then return nil end
+
+	return normalizeLastSeenKey(beforeSpawn)
+end
+
+local function findLastSeenEntry(text, rarity)
+	local catalog = LAST_SEEN_CATALOG[rarity]
+	if not catalog then return nil end
+
+	local candidate = getLastSeenEggCandidate(text)
+	if not candidate then return nil end
+
+	local rarityKey = normalizeLastSeenKey(rarity)
+	local withoutRarity = candidate
+	local rarityPrefix = rarityKey .. ""
+	if candidate:sub(1, #rarityPrefix) == rarityPrefix then
+		withoutRarity = candidate:sub(#rarityPrefix + 1)
+	end
+	withoutRarity = withoutRarity:gsub("^%s+", "")
+
+	for _, entry in ipairs(catalog) do
+		local entryKey = normalizeLastSeenKey(entry.name)
+		if candidate == entryKey or withoutRarity == entryKey then
+			return entry
+		end
+	end
+
+	return nil
+end
+
+local function getLastSeenAssetUrl(name)
+	return LAST_SEEN_ASSET_BASE_URL .. "separator-" .. name .. ".png"
+end
+
+local function buildLastSeenSeparator(name)
+	return {
+		type = 12,
+		items = {{
+			media = {url = getLastSeenAssetUrl(name)},
+			description = "AURA " .. tostring(name) .. " separator"
+		}}
+	}
+end
+
+local function formatLastSeenStatus(timestamp)
+	local parsed = tonumber(timestamp)
+	if parsed and parsed > 0 then
+		return "<t:" .. tostring(math.floor(parsed)) .. ":R>"
+	end
+	return "*No registrada*"
+end
+
+local function buildLastSeenContainer(rarity)
+	local style = LAST_SEEN_STYLES[rarity]
+	local catalog = LAST_SEEN_CATALOG[rarity] or {}
+	local lines = {}
+	local registered = 0
+
+	for _, entry in ipairs(catalog) do
+		local timestamp = lastSeenState.entries[entry.key]
+		if tonumber(timestamp) then
+			registered = registered + 1
+		end
+		table.insert(
+			lines,
+			entry.emoji .. " **" .. entry.name .. "** — " .. formatLastSeenStatus(timestamp)
+		)
+	end
+
+	return {
+		type = 17,
+		accent_color = style.color,
+		components = {
+			{
+				type = 10,
+				content = string.format(
+					"## %s %s — Last Seen\n-# %d/%d registradas",
+					style.emoji,
+					rarity,
+					registered,
+					#catalog
+				)
+			},
+			buildLastSeenSeparator(style.separator),
+			{
+				type = 10,
+				content = table.concat(lines, "\n")
+			},
+			buildLastSeenSeparator(style.separator)
+		}
+	}
+end
+
+local function buildLastSeenPayload(referenceTime)
+	local components = {
+		{
+			type = 10,
+			content = "# 🥚 AURA — Last Seen"
+		},
+		buildLastSeenSeparator("glacian")
+	}
+
+	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
+		table.insert(components, buildLastSeenContainer(rarity))
+	end
+
+	table.insert(
+		components,
+		{
+			type = 10,
+			content = "-# AURA • AURA FAMILY X • Actualizado <t:"
+				.. tostring(math.floor(tonumber(referenceTime) or os.time()))
+				.. ":R>"
+		}
+	)
+
+	return {
+		flags = 32768,
+		components = components
+	}
+end
+
+local function getWebhookBaseUrl()
+	return tostring(CONFIG.WebhookURL or "")
+		:gsub("%?.*$", "")
+		:gsub("/+$", "")
+end
+
+local function appendWebhookQuery(url, query)
+	return url
+		.. (url:find("?", 1, true) and "&" or "?")
+		.. query
+end
+
+local function decodeWebhookResponse(response)
+	local body = response and (response.Body or response.body)
+	if type(body) == "table" then
+		return body
+	end
+	if type(body) ~= "string" or body == "" then
+		return nil
+	end
+
+	local ok, decoded = pcall(function()
+		return HttpService:JSONDecode(body)
+	end)
+	return ok and type(decoded) == "table" and decoded or nil
+end
+
+local function executeLastSeenRequest(method, url, payload, onDone)
+	if not httpRequest then
+		if onDone then onDone(false, 0, nil) end
+		return
+	end
+
+	task.spawn(function()
+		local requestOk, response = pcall(function()
+			return httpRequest({
+				Url = url,
+				Method = method,
+				Headers = {
+					["Content-Type"] = "application/json",
+					["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+				},
+				Body = HttpService:JSONEncode(payload)
+			})
+		end)
+
+		if not requestOk or not response then
+			if onDone then onDone(false, 0, nil) end
+			return
+		end
+
+		local statusCode = tonumber(response.StatusCode or response.Status) or 0
+		local responseBody = decodeWebhookResponse(response)
+		local ok = statusCode >= 200 and statusCode < 300
+		if onDone then onDone(ok, statusCode, responseBody) end
+	end)
+end
+
+local function upsertLastSeenMessage(payload, onDone)
+	local baseUrl = getWebhookBaseUrl()
+	local messageId = lastSeenState.messageId
+
+	if messageId and messageId ~= "" then
+		executeLastSeenRequest(
+			"PATCH",
+			appendWebhookQuery(baseUrl .. "/messages/" .. tostring(messageId), "with_components=true"),
+			payload,
+			function(ok, statusCode)
+				if ok then
+					if onDone then onDone(true) end
+					return
+				end
+
+				-- Solo crea otro mensaje si el anterior ya no existe.
+				-- Un error temporal no debe duplicar el Last Seen.
+				if statusCode ~= 404 and statusCode ~= 10008 then
+					if onDone then onDone(false) end
+					return
+				end
+
+				lastSeenState.messageId = nil
+				saveLastSeenState()
+				upsertLastSeenMessage(payload, onDone)
+			end
+		)
+		return
+	end
+
+	executeLastSeenRequest(
+		"POST",
+		appendWebhookQuery(baseUrl, "wait=true&with_components=true"),
+		payload,
+		function(ok, statusCode, responseBody)
+			local newMessageId = responseBody and responseBody.id
+			if ok and newMessageId then
+				lastSeenState.messageId = tostring(newMessageId)
+				saveLastSeenState()
+				if onDone then onDone(true) end
+				return
+			end
+
+			if onDone then onDone(false) end
+		end
+	)
+end
+
+local lastSeenUpdateInFlight = false
+local lastSeenUpdateQueued = false
+
+local function scheduleLastSeenUpdate()
+	lastSeenUpdateQueued = true
+	if lastSeenUpdateInFlight then return end
+
+	lastSeenUpdateInFlight = true
+	task.spawn(function()
+		while lastSeenUpdateQueued do
+			lastSeenUpdateQueued = false
+			local finished = false
+			local succeeded = false
+
+			upsertLastSeenMessage(
+				buildLastSeenPayload(os.time()),
+				function(ok)
+					succeeded = ok
+					finished = true
+				end
+			)
+
+			while not finished do
+				task.wait()
+			end
+
+			if succeeded then
+				updateStatus("LAST SEEN // UPDATED", Color3.fromRGB(151, 255, 204))
+			else
+				updateStatus("LAST SEEN // UPDATE FAILED", Color3.fromRGB(255, 92, 133))
+			end
+		end
+		lastSeenUpdateInFlight = false
+	end)
+end
+
+local function recordLastSeenSpawn(text, spawnedAt)
+	local rarity = getLastSeenRarity(text)
+	if not rarity then return end
+
+	local entry = findLastSeenEntry(text, rarity)
+	if not entry then return end
+
+	local timestamp = tonumber(spawnedAt) or os.time()
+	local previous = tonumber(lastSeenState.entries[entry.key])
+	if previous and previous >= timestamp then return end
+
+	lastSeenState.entries[entry.key] = timestamp
+	saveLastSeenState()
+	scheduleLastSeenUpdate()
 end
 
 -- Envío individual y secuencial: cada huevo conserva su propio webhook.
@@ -1556,6 +1970,7 @@ local function processText(raw)
 
 		eggSequence = eggSequence + 1
 local spawnedAt = os.time()
+		recordLastSeenSpawn(clean, spawnedAt)
 createVisualCard(clean, eggSequence)
 queueEgg(clean, eggSequence, spawnedAt)
 	end
@@ -1566,4 +1981,5 @@ TextChatService.MessageReceived:Connect(function(msg) if msg.Text then processTe
 
 createVisualCard("SYSTEM ONLINE\nListening to game logs // instant alerts enabled.")
 updateStatus("Ready", Color3.fromRGB(99, 255, 154))
+scheduleLastSeenUpdate()
 print(":: EGG DETECTOR ULTRA-HYPER-VELOCITY READY ::")
