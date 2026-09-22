@@ -976,6 +976,11 @@ local EGG_ROLE_MENTIONS = {
 	{name = "centaur", roleId = "1551573300021567531"}
 }
 
+local EGG_ROLE_ID_SET = {}
+for _, eggRole in ipairs(EGG_ROLE_MENTIONS) do
+EGG_ROLE_ID_SET[eggRole.roleId] = true
+end
+
 -- Catálogo fijo del Last Seen. Se muestran todos los huevos conocidos:
 -- los que todavía no tienen fecha quedan como "No registrada".
 local LAST_SEEN_RARITY_ORDER = {"Divine", "Eternal", "Secret"}
@@ -1681,21 +1686,21 @@ local function sendEggAlert(description, sourceText, onDone)
 			content = description
 		}
 
-		-- Permite explícitamente solo el rol que aparece en este mensaje.
-		-- Sin esto Discord puede mostrar el texto de la mención sin notificar.
+-- Permite explícitamente solo el rol de la mascota.
+-- La mención de rareza se conserva como decoración, pero no genera ping.
 		local roleIds = {}
 		local seenRoleIds = {}
 		for roleId in description:gmatch("<@&(%d+)>") do
-			if not seenRoleIds[roleId] then
+if EGG_ROLE_ID_SET[roleId] and not seenRoleIds[roleId] then
 				seenRoleIds[roleId] = true
 				table.insert(roleIds, roleId)
 			end
 		end
 
-		if #roleIds > 0 then
-			payload.allowed_mentions = {
-				roles = roleIds
-			}
+if #roleIds > 0 then
+payload.allowed_mentions = {
+roles = roleIds
+}
 		end
 
 		local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
