@@ -581,7 +581,8 @@ local localFileWrite = writefile
 local lastSeenState = {
 	version = 1,
 	messageId = nil,
-	entries = {}
+	entries = {},
+	seeded = false
 }
 
 local function loadLastSeenState()
@@ -613,6 +614,9 @@ local function loadLastSeenState()
 		-- Compatibilidad con la forma {messageId, lastSeen} usada por
 		-- versiones intermedias del Last Seen.
 		lastSeenState.entries = decoded.lastSeen
+	end
+	if type(decoded.seeded) == "boolean" then
+		lastSeenState.seeded = decoded.seeded
 	end
 end
 
@@ -951,17 +955,17 @@ local EGG_ROLE_MENTIONS = {
 local LAST_SEEN_RARITY_ORDER = {"Divine", "Eternal", "Secret"}
 local LAST_SEEN_STYLES = {
 	Divine = {
-		emoji = "<:Divine:1548446386964406282>",
+		emoji = "<:Divine:1551677739411574794>",
 		color = 0xFFD700,
 		separator = "divine"
 	},
 	Eternal = {
-		emoji = "<:Eternal:1548446341699477525>",
+		emoji = "<:Eternal:1551677658327162940>",
 		color = 0x9B30FF,
 		separator = "eternal"
 	},
 	Secret = {
-		emoji = "<:Secret:1548446274616041645>",
+		emoji = "<:Secret:1551677570389643395>",
 		color = 0x010101,
 		separator = "secret"
 	}
@@ -972,41 +976,92 @@ local LAST_SEEN_ASSET_BASE_URL =
 
 local LAST_SEEN_CATALOG = {
 	Divine = {
-		{name = "Nightflame", key = "nightflame", emoji = "<:Nightflame:1548444116873121832>"},
-		{name = "Unicorn", key = "unicorn", emoji = "<:Unicorn:1548443051322646548>"},
-		{name = "World Burner", key = "worldburner", emoji = "<:World_Burner:1548494788158820483>"},
-		{name = "Kitsune", key = "kitsune", emoji = "<:Kitsune:1548443441170620547>"},
-		{name = "ArchAngel", key = "archangel", emoji = "<:ArchAngel:1548495435897770045>"}
+		{name = "Nightflame", key = "nightflame", emoji = "<:Nightflame:1551671258419044443>"},
+		{name = "Unicorn", key = "unicorn", emoji = "<:Unicorn:1551671338048032898>"},
+		{name = "World Burner", key = "worldburner", emoji = "<:World_Burner:1551671096422572222>"},
+		{name = "Kitsune", key = "kitsune", emoji = "<:Kitsune:1551671214408204438>"},
+		{name = "ArchAngel", key = "archangel", emoji = "<:ArchAngel:1551671132652839032>"}
 	},
 	Eternal = {
-		{name = "El Maja", key = "elmaja", emoji = "<:El_Maja:1548441358493159474>"},
-		{name = "Oni Tiger", key = "onitiger", emoji = "<:Oni_Tiger:1548443291773566977>"},
-		{name = "Phoenix", key = "phoenix", emoji = "<:Phoenix:1548440843591880724>"},
-		{name = "Gorilla King", key = "gorillaking", emoji = "<:Gorilla_King:1548443784084459531>"},
-		{name = "Skeleton Horse", key = "skeletonhorse", emoji = "<:Skeleton_Horse:1548491359990579250>"},
-		{name = "Lava Dragon", key = "lavadragon", emoji = "<:Lava_Dragon:1548441030783668234>"},
-		{name = "Pegasus", key = "pegasus", emoji = "<:Pegasus:1548490925796495452>"},
-		{name = "Mosasaurus", key = "mosasaurus", emoji = "<:Mosasaurus:1548441957016273036>"},
-		{name = "Eternal Lunar Dragon", key = "eternallunardragon", emoji = "<:Eternal_Lunar_Dragon:1548442744123293766>"},
-		{name = "Ice Dragon", key = "icedragon", emoji = "<:Ice_Dragon:1548440110239064174>"}
+		{name = "El Maja", key = "elmaja", emoji = "<:El_Maja:1551670796710187128>"},
+		{name = "Oni Tiger", key = "onitiger", emoji = "<:Oni_Tiger:1551670714241650698>"},
+		{name = "Phoenix", key = "phoenix", emoji = "<:Phoenix:1551671600523386890>"},
+		{name = "Gorilla King", key = "gorillaking", emoji = "<:Gorilla_King:1551670961906913280>"},
+		{name = "Skeleton Horse", key = "skeletonhorse", emoji = "<:Skeleton_Horse:1551670754125283328>"},
+		{name = "Lava Dragon", key = "lavadragon", emoji = "<:Lava_Dragon:1551670919846436975>"},
+		{name = "Pegasus", key = "pegasus", emoji = "<:Pegasus:1551670885033836605>"},
+		{name = "Mosasaurus", key = "mosasaurus", emoji = "<:Mosasaurus:1551671548019081316>"},
+		{name = "Eternal Lunar Dragon", key = "eternallunardragon", emoji = "<:Eternal_Lunar_Dragon:1551671047118528683>"},
+		{name = "Ice Dragon", key = "icedragon", emoji = "<:Ice_Dragon:1551670998003351682>"}
 	},
 	Secret = {
-		{name = "Stag", key = "stag", emoji = "<:Stag:1548443172806459494>"},
-		{name = "Pure Jellyfish", key = "purejellyfish", emoji = "<:Pure_Jellyfish:1548480251321909278>"},
-		{name = "RazorFang", key = "razorfang", emoji = "<:RazorFang:1548481759320997928>"},
-		{name = "Gargoyle", key = "gargoyle", emoji = "<:Gargoyle:1548480842786021436>"},
-		{name = "Cosmic Skeleton Boss", key = "cosmicskeletonboss", emoji = "<:Cosmic_Skeleton_Boss:1548442180018770041>"},
-		{name = "Tralaledon", key = "tralaledon", emoji = "<:Tralaledon:1548441688446603435>"},
-		{name = "Cerberus", key = "cerberus", emoji = "<:Cerberus:1548440419107348591>"},
-		{name = "Mutant Shark", key = "mutantshark", emoji = "<:MutantShark:1548443702035353631>"},
-		{name = "Cosmic Dragon", key = "cosmicdragon", emoji = "<:Cosmic_Dragon:1548442406959976579>"},
-		{name = "TRex", key = "trex", emoji = "<:TRex:1548441514550632508>"},
-		{name = "Yeti", key = "yeti", emoji = "<:Yeti:1548439856785395772>"},
-		{name = "Kraken", key = "kraken", emoji = "<:Kraken:1548441236476788786>"},
-		{name = "Centaur", key = "centaur", emoji = "<:Centaur:1548493515841871935>"},
-		{name = "King Snake", key = "kingsnake", emoji = "<:King_Snake:1548439645849919682>"}
+		{name = "Stag", key = "stag", emoji = "<:Stag:1551670264050352188>"},
+		{name = "Pure Jellyfish", key = "purejellyfish", emoji = "<:Pure_Jellyfish:1551670502186291241>"},
+		{name = "RazorFang", key = "razorfang", emoji = "<:RazorFang:1551670065387020359>"},
+		{name = "Gargoyle", key = "gargoyle", emoji = "<:Gargoyle:1551670608280944640>"},
+		{name = "Cosmic Skeleton Boss", key = "cosmicskeletonboss", emoji = "<:Cosmic_Skeleton_Boss:1551670370203861102>"},
+		{name = "Tralaledon", key = "tralaledon", emoji = "<:Tralaledon:1551670147801026672>"},
+		{name = "Cerberus", key = "cerberus", emoji = "<:Cerberus:1551670182680731709>"},
+		{name = "Mutant Shark", key = "mutantshark", emoji = "<:MutantShark:1551670224493744258>"},
+		{name = "Cosmic Dragon", key = "cosmicdragon", emoji = "<:Cosmic_Dragon:1551670415972241458>"},
+		{name = "TRex", key = "trex", emoji = "<:TRex:1551670552232595618>"},
+		{name = "Yeti", key = "yeti", emoji = "<:Yeti:1551670658897940481>"},
+		{name = "Kraken", key = "kraken", emoji = "<:Kraken:1551670466090111027>"},
+		{name = "Centaur", key = "centaur", emoji = "<:Centaur:1551670291749670922>"},
+		{name = "King Snake", key = "kingsnake", emoji = "<:King_Snake:1551670106675879936>"}
 	}
 }
+
+-- Estado inicial solicitado. Solo se aplica una vez; después los valores
+-- quedan en AuraEggNotifier_LastSeen.json y cada spawn nuevo los reemplaza.
+local LAST_SEEN_INITIAL_TIMES = {
+	nightflame = 1790013065,
+	unicorn = 1789980058,
+	worldburner = 1789929955,
+	kitsune = 1789592442,
+	archangel = 1789440624,
+
+	elmaja = 1790013369,
+	onitiger = 1790012520,
+	phoenix = 1790012512,
+	gorillaking = 1790011263,
+	skeletonhorse = 1790010839,
+	lavadragon = 1790008673,
+	pegasus = 1790007090,
+	mosasaurus = 1790003620,
+	eternallunardragon = 1789999723,
+	icedragon = 1789945262,
+
+	stag = 1790014908,
+	purejellyfish = 1790014899,
+	razorfang = 1790014340,
+	gargoyle = 1790014330,
+	cosmicskeletonboss = 1790011575,
+	tralaledon = 1790009208,
+	cerberus = 1790008670,
+	mutantshark = 1790008030,
+	cosmicdragon = 1790007858,
+	trex = 1790005714,
+	yeti = 1790003628,
+	kraken = 1789996348,
+	centaur = 1789993885,
+	kingsnake = 1789967163
+}
+
+local function seedLastSeenState()
+	if lastSeenState.seeded then return end
+
+	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
+		for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
+			lastSeenState.entries[entry.key] = LAST_SEEN_INITIAL_TIMES[entry.key]
+		end
+	end
+
+	lastSeenState.seeded = true
+	saveLastSeenState()
+end
+
+seedLastSeenState()
 
 local function getRarityRank(text)
 	local lower = text:lower()
@@ -1253,11 +1308,10 @@ local function buildLastSeenContainer(rarity)
 			{
 				type = 10,
 				content = string.format(
-					"## %s %s — Last Seen\n-# %d/%d registradas",
+					"## %s %s — Last Seen\n-# %d registradas",
 					style.emoji,
 					rarity,
-					registered,
-					#catalog
+					registered
 				)
 			},
 			buildLastSeenSeparator(style.separator),
@@ -1287,7 +1341,7 @@ local function buildLastSeenPayload(referenceTime)
 		components,
 		{
 			type = 10,
-			content = "-# AURA • AURA FAMILY X • Actualizado <t:"
+			content = "-# Last Seen • AURA FAMILY X • Actualizado <t:"
 				.. tostring(math.floor(tonumber(referenceTime) or os.time()))
 				.. ":R>"
 		}
