@@ -22,6 +22,8 @@ local CONFIG = {
 		or "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
 	LastSeenWebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_LAST_SEEN_WEBHOOK)
 		or "PASTE_A_LAST_SEEN_DISCORD_WEBHOOK_HERE",
+LastSeenMessageID = (type(getgenv) == "function" and getgenv().AURA_EGG_LAST_SEEN_MESSAGE_ID)
+or "1551771488644767786",
 	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
 	DisplayTime = 120,
@@ -1828,7 +1830,10 @@ end
 
 	local baseUrl = getWebhookBaseUrl()
 local webhookKey = getLastSeenWebhookKey(baseUrl)
-local messageId = lastSeenState.messageIds[webhookKey] or lastSeenState.messageId
+local configuredMessageId = tostring(CONFIG.LastSeenMessageID or "")
+local messageId = (configuredMessageId ~= "" and configuredMessageId or nil)
+or lastSeenState.messageIds[webhookKey]
+or lastSeenState.messageId
 
 	if messageId and messageId ~= "" then
 		executeLastSeenRequest(
@@ -1868,6 +1873,9 @@ end
 		payload,
 		function(ok, statusCode, responseBody)
 			local newMessageId = responseBody and responseBody.id
+if not newMessageId and responseBody and responseBody.message then
+newMessageId = responseBody.message.id
+end
 			if ok and newMessageId then
 lastSeenState.messageId = tostring(newMessageId)
 lastSeenState.messageIds[webhookKey] = tostring(newMessageId)
@@ -2069,7 +2077,9 @@ task.spawn(function()
 end)
 
 local function getPromotionButton()
-if promotionState.url == "" then
+if type(promotionState.url) ~= "string"
+or promotionState.url == ""
+or not promotionState.url:match("^https?://%S+$") then
 return nil
 end
 
