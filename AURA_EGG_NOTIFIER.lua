@@ -1918,6 +1918,7 @@ task.spawn(function()
 end)
 
 -- Rango de mayor a menor rareza. Los empates conservan el orden detectado.
+local function runNotifierRuntime()
 local RARITY_ORDER = {
 	{keyword = "divine", rank = 1, roleId = "1544734510665699389"},
 	{keyword = "eternal", rank = 2, roleId = "1544734452054229173"},
@@ -3299,3 +3300,6 @@ appendConsoleEntry("SYSTEM ONLINE // CONSOLE READY", "MessageInfo", "SCRIPT")
 updateStatus("Ready", Color3.fromRGB(99, 255, 154))
 scheduleLastSeenUpdate()
 print(":: EGG DETECTOR ULTRA-HYPER-VELOCITY READY ::")
+end
+
+runNotifierRuntime()
