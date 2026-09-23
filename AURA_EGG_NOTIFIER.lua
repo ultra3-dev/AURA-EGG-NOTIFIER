@@ -788,6 +788,7 @@ local PROMOTION_STATE_FILE = "AuraEggNotifier_Promotion.json"
 local localFileExists = isfile
 local localFileRead = readfile
 local localFileWrite = writefile
+local lastSeenSaveScheduled = false
 
 local lastSeenState = {
 version = 2,
@@ -875,6 +876,15 @@ end
 		localFileWrite(LAST_SEEN_STATE_FILE, HttpService:JSONEncode(lastSeenState))
 	end)
 	return ok
+end
+
+local function scheduleLastSeenStateSave()
+if lastSeenSaveScheduled then return end
+lastSeenSaveScheduled = true
+task.delay(3, function()
+lastSeenSaveScheduled = false
+saveLastSeenState()
+end)
 end
 
 local function cleanPromotionInput(value)
@@ -1592,6 +1602,9 @@ return
 end
 
 		local webhookUrl = CONFIG.WebhookURL
+webhookUrl = webhookUrl
+.. (webhookUrl:find("?", 1, true) and "&" or "?")
+.. "wait=true"
 		if payload.components then
 			webhookUrl = webhookUrl
 				.. (webhookUrl:find("?", 1, true) and "&" or "?")
@@ -1865,7 +1878,7 @@ function(ok, statusCode)
 				if ok then
 lastSeenState.messageIds[webhookKey] = tostring(messageId)
 lastSeenState.messageId = tostring(messageId)
-saveLastSeenState()
+scheduleLastSeenStateSave()
 if onDone then onDone(true, statusCode) end
 					return
 				end
@@ -1888,7 +1901,7 @@ lastSeenState.messageIds[webhookKey] = nil
 if lastSeenState.messageId == tostring(messageId) then
 lastSeenState.messageId = nil
 end
-				saveLastSeenState()
+scheduleLastSeenStateSave()
 				upsertLastSeenMessage(payload, onDone)
 			end
 		)
@@ -1907,7 +1920,7 @@ end
 			if ok and newMessageId then
 lastSeenState.messageId = tostring(newMessageId)
 lastSeenState.messageIds[webhookKey] = tostring(newMessageId)
-				saveLastSeenState()
+scheduleLastSeenStateSave()
 if onDone then onDone(true, statusCode) end
 				return
 			end
@@ -1986,9 +1999,7 @@ local function recordLastSeenSpawn(text, spawnedAt)
 	if previous and previous >= timestamp then return end
 
 	lastSeenState.entries[entry.key] = timestamp
-task.defer(function()
-saveLastSeenState()
-end)
+scheduleLastSeenStateSave()
 	scheduleLastSeenUpdate()
 end
 
@@ -2112,12 +2123,9 @@ local function getGameFallbackUrl()
 	)
 end
 
-task.spawn(function()
-	while screenGui.Parent do
-		refreshPublicServerCache()
-		task.wait(CONFIG.ServerRefreshInterval)
-	end
-end)
+-- No se refresca la lista pública en segundo plano: esa consulta HTTP
+-- periódica provocaba congelamientos visibles durante la partida.
+-- Join Game usa el enlace directo del servidor actual como fallback.
 
 local function getPromotionButton()
 if type(promotionState.url) ~= "string"
