@@ -27,7 +27,7 @@ LastSeenMessageID = "1552117304609738823",
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
 	DisplayTime = 120,
 	MaxNotifications = 6,
-	PriorityWindow = 0.05,
+	PriorityWindow = 0.35,
 	MaxPriorityQueue = 12,
 	ServerRefreshInterval = 15,
 	ImportantEternalKeywords = {
@@ -52,7 +52,7 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 local eggSequence = 0
-local lastText, lastTime = nil, 0
+local recentProcessedText = {}
 local unreadCount = 0
 local panelOpen = true
 local pendingEggs = {}
@@ -795,7 +795,8 @@ version = 2,
 	messageId = nil,
 messageIds = {},
 	entries = {},
-	seeded = false
+	seeded = false,
+	seedVersion = 0
 }
 
 local sharedLastSeenMessageId = auraRuntime.AURA_EGG_NOTIFIER_LAST_SEEN_MESSAGE_ID
@@ -860,6 +861,9 @@ end
 	end
 	if type(decoded.seeded) == "boolean" then
 		lastSeenState.seeded = decoded.seeded
+	end
+	if tonumber(decoded.seedVersion) then
+		lastSeenState.seedVersion = tonumber(decoded.seedVersion)
 	end
 end
 
@@ -1433,18 +1437,30 @@ local LAST_SEEN_INITIAL_TIMES = {
 	kingsnake = 1789967163
 }
 
+local LAST_SEEN_INITIAL_TIMES_VERSION = 2
+
 local function seedLastSeenState()
-	if lastSeenState.seeded then return end
+	local needsInitialTimeMigration =
+		tonumber(lastSeenState.seedVersion) ~= LAST_SEEN_INITIAL_TIMES_VERSION
+	if lastSeenState.seeded and not needsInitialTimeMigration then return end
 
 	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
 		for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
-			if lastSeenState.entries[entry.key] == nil then
-				lastSeenState.entries[entry.key] = LAST_SEEN_INITIAL_TIMES[entry.key]
+			local existing = tonumber(lastSeenState.entries[entry.key])
+			local initial = LAST_SEEN_INITIAL_TIMES[entry.key]
+			if not lastSeenState.seeded then
+				if existing == nil then
+					lastSeenState.entries[entry.key] = initial
+				end
+			elseif needsInitialTimeMigration and (existing == nil or existing < initial) then
+				-- Actual spawns newer than the supplied baseline are preserved.
+				lastSeenState.entries[entry.key] = initial
 			end
 		end
 	end
 
 	lastSeenState.seeded = true
+	lastSeenState.seedVersion = LAST_SEEN_INITIAL_TIMES_VERSION
 	saveLastSeenState()
 end
 
@@ -2116,6 +2132,15 @@ local function getGameFallbackUrl()
 		return nil
 	end
 
+	local jobId = tostring(game.JobId or "")
+	if jobId ~= "" then
+		return string.format(
+			"https://www.roblox.com/games/start?placeId=%s&gameId=%s",
+			tostring(game.PlaceId),
+			jobId
+		)
+	end
+
 	return string.format(
 		"https://www.roblox.com/games/start?placeId=%s",
 		tostring(game.PlaceId)
@@ -2124,7 +2149,7 @@ end
 
 -- No se refresca la lista pública en segundo plano: esa consulta HTTP
 -- periódica provocaba congelamientos visibles durante la partida.
--- Join Game usa el enlace directo del servidor actual como fallback.
+-- Join Game siempre usa el servidor actual para que el enlace sea correcto.
 
 local function getPromotionButton()
 if type(promotionState.url) ~= "string"
@@ -2181,14 +2206,6 @@ if #roleIds > 0 then
 payload.allowed_mentions = {
 roles = roleIds
 }
-		end
-
-		local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
-		if joinUrl then
-payload.content = payload.content
-.. "\n\n━━━━━━━━━━━━━━━━━━━━\n"
-.. "- **Join Game:** [¡CLICK HERE](" .. joinUrl .. ")\n"
-.. "━━━━━━━━━━━━━━━━━━━━"
 		end
 
 local promotionButton = getPromotionButton()
@@ -2252,11 +2269,13 @@ task.spawn(function()
 	fireWebhookImmediate("**HELLO AURA FAMILY X, I'M READY;)**")
 end)
 
-local function formatEggAlert(text, spawnedAt)
+local function formatEggAlert(text, spawnedAt, count, joinUrl)
 local message = replaceRarityWithMention(text)
 local eggMentioned
 message, eggMentioned = replaceEggNameWithMention(message)
 local eggEmoji, eggMention = getEggDisplayData(text)
+	local countValue = math.max(1, math.floor(tonumber(count) or 1))
+	local countPrefix = countValue > 1 and ("X" .. tostring(countValue) .. " ") or ""
 
 local spawnedDescription = tostring(text or ""):match("[Ee]gg%s+[Ss]pawned%s+(.+)$")
 if spawnedDescription then
@@ -2267,17 +2286,23 @@ end
 
 local headline
 if eggMention and eggEmoji then
-headline = eggEmoji .. " | " .. eggMention .. " **" .. spawnedDescription .. "**"
+		headline = countPrefix .. eggEmoji .. " | " .. eggMention .. " **" .. spawnedDescription .. "**"
 elseif eggMention then
-headline = eggMention .. " **" .. spawnedDescription .. "**"
+		headline = countPrefix .. eggMention .. " **" .. spawnedDescription .. "**"
 else
-headline = message
+		headline = countPrefix .. message
 end
 
+	local joinLine = ""
+	if type(joinUrl) == "string" and joinUrl ~= "" then
+		joinLine = "\n- **Join Game:** [¡CLICK HERE](" .. joinUrl .. ")"
+	end
+
 return string.format(
-		"> %s\n\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:R>\n━━━━━━━━━━━━━━━━━━━━",
+		"> %s\n\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:R>%s\n━━━━━━━━━━━━━━━━━━━━",
 		headline,
-tonumber(spawnedAt) or os.time()
+		tonumber(spawnedAt) or os.time(),
+		joinLine
 )
 end
 
@@ -2293,9 +2318,13 @@ local function sendPriorityQueue(queue, index)
 	)
 
 	local egg = queue[index]
-sendEggAlert(formatEggAlert(egg.text, egg.spawnedAt), egg.text, function()
+	sendEggAlert(
+		formatEggAlert(egg.text, egg.spawnedAt, egg.count, getGameFallbackUrl()),
+		egg.text,
+		function()
 		sendPriorityQueue(queue, index + 1)
-	end)
+		end
+	)
 end
 
 local function flushPriorityQueue()
@@ -2326,11 +2355,23 @@ local function queueEgg(text, sequence, spawnedAt)
 	updateBadge()
 	updateStatus("LOG // PRIORITY QUEUED", Color3.fromRGB(214, 165, 255))
 
+	local aggregationKey = normalizeLastSeenKey(text)
+	local timestamp = spawnedAt or os.time()
+	for _, queuedEgg in ipairs(pendingEggs) do
+		if queuedEgg.aggregationKey == aggregationKey
+			and math.abs((tonumber(queuedEgg.spawnedAt) or timestamp) - timestamp) <= 1 then
+			queuedEgg.count = (queuedEgg.count or 1) + 1
+			return
+		end
+	end
+
 	table.insert(pendingEggs, {
 		text = text,
 		rank = getRarityRank(text),
-sequence = sequence,
-spawnedAt = spawnedAt or os.time()
+		sequence = sequence,
+		spawnedAt = timestamp,
+		aggregationKey = aggregationKey,
+		count = 1
 	})
 
 	if #pendingEggs >= CONFIG.MaxPriorityQueue then
@@ -2538,7 +2579,7 @@ body.Position = UDim2.new(0, 14, 0, 38)
 	end)
 end
 
-local function processText(raw)
+local function processText(raw, source)
 if scriptStopped then return end
 
 	local clean = cleanText(raw)
@@ -2556,19 +2597,31 @@ if scriptStopped then return end
 	
 	if hits >= 2 or (lower:find("egg") and lower:find("spawn")) then
 		local now = tick()
-		if clean == lastText and (now - lastTime) < 0.5 then return end
-		lastText, lastTime = clean, now
+		source = source or "unknown"
+		local otherSource = source == "log" and "chat" or "log"
+		local otherRecent = recentProcessedText[otherSource]
+		if otherRecent
+			and otherRecent.text == clean
+			and (now - otherRecent.time) < 0.15 then
+			return
+		end
+		recentProcessedText[source] = {
+			text = clean,
+			time = now
+		}
 
 		eggSequence = eggSequence + 1
-local spawnedAt = os.time()
+		local spawnedAt = os.time()
 		recordLastSeenSpawn(clean, spawnedAt)
-createVisualCard(clean, eggSequence)
-queueEgg(clean, eggSequence, spawnedAt)
+		createVisualCard(clean, eggSequence)
+		queueEgg(clean, eggSequence, spawnedAt)
 	end
 end
 
-LogService.MessageOut:Connect(function(msg) processText(msg) end)
-TextChatService.MessageReceived:Connect(function(msg) if msg.Text then processText(msg.Text) end end)
+LogService.MessageOut:Connect(function(msg) processText(msg, "log") end)
+TextChatService.MessageReceived:Connect(function(msg)
+	if msg.Text then processText(msg.Text, "chat") end
+end)
 
 createVisualCard("SYSTEM ONLINE\nListening to game logs // instant alerts enabled.")
 updateStatus("Ready", Color3.fromRGB(99, 255, 154))
