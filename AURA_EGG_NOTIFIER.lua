@@ -26,10 +26,13 @@ LastSeenMessageID = "1552117304609738823",
 	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
 	DisplayTime = 120,
-	MaxNotifications = 6,
+	MaxNotifications = 2000,
+	ConsoleMaxLines = 2500,
 	PriorityWindow = 0.35,
 	MaxPriorityQueue = 12,
 	ServerRefreshInterval = 15,
+	AccessKey = "#3003AURA-FAMILY-X333***#ULTRA",
+	MaxAccessAttempts = 3,
 	ImportantEternalKeywords = {
 		"oni tiger",
 		"gorilla king",
@@ -68,7 +71,9 @@ label = "PROMOTION",
 maxUses = 0,
 used = 0,
 intervalMinutes = 0,
-nextAvailableAt = 0
+	nextAvailableAt = 0,
+	emoji = "",
+	rarity = ""
 }
 
 if playerGui:FindFirstChild("EggDetectorStealth") then
@@ -86,7 +91,7 @@ local panel = Instance.new("Frame")
 panel.Name = "EggLogPanel"
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.new(0.5, 0, 0.5, 0)
-panel.Size = UDim2.new(0, 350, 0, 340)
+panel.Size = UDim2.new(0, 390, 0, 420)
 panel.BackgroundColor3 = Color3.fromRGB(42, 25, 64)
 panel.BackgroundTransparency = 0.04
 panel.BorderSizePixel = 0
@@ -199,6 +204,13 @@ local function createCanvasIcon(parent, kind, color, size, position, name)
 		outline(ring, 1.15)
 		local core = shape("SystemCore", UDim2.new(0.22, 0, 0.22, 0), UDim2.new(0.5, 0, 0.5, 0))
 		round(core, 0.5)
+	elseif kind == "console" then
+		local screen = shape("ConsoleScreen", UDim2.new(0.78, 0, 0.62, 0), UDim2.new(0.5, 0, 0.48, 0), 0, 1)
+		round(screen, 0.12)
+		outline(screen, 1.1)
+		shape("ConsolePrompt", UDim2.new(0.18, 0, 0, 1.5), UDim2.new(0.31, 0, 0.52, 0))
+		shape("ConsoleLineA", UDim2.new(0.36, 0, 0, 1.5), UDim2.new(0.56, 0, 0.39, 0))
+		shape("ConsoleLineB", UDim2.new(0.28, 0, 0, 1.5), UDim2.new(0.52, 0, 0.63, 0))
 	end
 
 	return root
@@ -232,7 +244,7 @@ local subtitle = Instance.new("TextLabel")
 subtitle.Position = UDim2.new(0, 19, 0, 34)
 subtitle.Size = UDim2.new(1, -70, 0, 16)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "WEBHOOK 1.0.0 RELEASE  //  LIVE DETECTION"
+subtitle.Text = "WEBHOOK 1.1.0 RELEASE  //  LIVE DETECTION"
 subtitle.TextColor3 = Color3.fromRGB(151, 255, 204)
 subtitle.Font = Enum.Font.Code
 subtitle.TextSize = 10
@@ -298,8 +310,44 @@ logLayout.Padding = UDim.new(0, 7)
 logLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 logLayout.Parent = logPanel
 
+local logJumpButton = Instance.new("TextButton")
+logJumpButton.Name = "LogJumpToLatest"
+logJumpButton.AnchorPoint = Vector2.new(1, 1)
+logJumpButton.Position = UDim2.new(1, -22, 1, -62)
+logJumpButton.Size = UDim2.new(0, 32, 0, 32)
+logJumpButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
+logJumpButton.BackgroundTransparency = 0.04
+logJumpButton.BorderSizePixel = 0
+logJumpButton.Text = "↓"
+logJumpButton.TextColor3 = Color3.fromRGB(255, 240, 255)
+logJumpButton.Font = Enum.Font.GothamBold
+logJumpButton.TextSize = 20
+logJumpButton.AutoButtonColor = false
+logJumpButton.ZIndex = 10
+logJumpButton.Parent = panel
+
+local logJumpCorner = Instance.new("UICorner")
+logJumpCorner.CornerRadius = UDim.new(1, 0)
+logJumpCorner.Parent = logJumpButton
+
+local logBody = Instance.new("TextLabel")
+logBody.Name = "PersistentEggHistory"
+logBody.Position = UDim2.new(0, 10, 0, 10)
+logBody.Size = UDim2.new(1, -20, 0, 0)
+logBody.AutomaticSize = Enum.AutomaticSize.Y
+logBody.BackgroundTransparency = 1
+logBody.Text = ""
+logBody.TextColor3 = Color3.fromRGB(240, 240, 240)
+logBody.Font = Enum.Font.Code
+logBody.TextSize = 10
+logBody.TextWrapped = true
+logBody.TextXAlignment = Enum.TextXAlignment.Left
+logBody.TextYAlignment = Enum.TextYAlignment.Top
+logBody.Parent = logPanel
+logLayout.Parent = nil
+
 local function refreshLogCanvas()
-	local contentHeight = logLayout.AbsoluteContentSize.Y + 20
+	local contentHeight = math.max(logBody.AbsoluteSize.Y + 20, logPanel.AbsoluteWindowSize.Y + 1)
 	logPanel.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
 end
 
@@ -307,8 +355,8 @@ logLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshLogCanv
 
 local navigation = Instance.new("Frame")
 navigation.Name = "Navigation"
-navigation.Position = UDim2.new(0.5, -160, 0, 64)
-navigation.Size = UDim2.new(0, 320, 0, 28)
+navigation.Position = UDim2.new(0.5, -180, 0, 64)
+navigation.Size = UDim2.new(0, 360, 0, 28)
 navigation.BackgroundTransparency = 1
 navigation.Parent = panel
 
@@ -449,6 +497,30 @@ announcerTabLabel.Parent = announcerTab
 local announcerTabCorner = Instance.new("UICorner")
 announcerTabCorner.CornerRadius = UDim.new(0, 6)
 announcerTabCorner.Parent = announcerTab
+
+local consoleTab = Instance.new("TextButton")
+consoleTab.Name = "ConsoleTab"
+consoleTab.Position = UDim2.new(0, 328, 0, 0)
+consoleTab.Size = UDim2.new(0, 32, 1, 0)
+consoleTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
+consoleTab.BorderSizePixel = 0
+consoleTab.Text = ""
+consoleTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+consoleTab.AutoButtonColor = false
+consoleTab.Parent = navigation
+
+local consoleTabIcon = createCanvasIcon(
+	consoleTab,
+	"console",
+	consoleTab.TextColor3,
+	UDim2.new(0, 16, 0, 16),
+	UDim2.new(0.5, 0, 0.5, 0),
+	"TabIcon"
+)
+
+local consoleTabCorner = Instance.new("UICorner")
+consoleTabCorner.CornerRadius = UDim.new(0, 6)
+consoleTabCorner.Parent = consoleTab
 
 local announcementPanel = Instance.new("Frame")
 announcementPanel.Name = "AnnouncementBuilder"
@@ -635,7 +707,7 @@ promotionLabelPadding.Parent = promotionLabelBox
 
 local promotionUsesBox = Instance.new("TextBox")
 promotionUsesBox.Name = "PromotionUses"
-promotionUsesBox.Position = UDim2.new(0, 10, 0, 94)
+promotionUsesBox.Position = UDim2.new(0, 10, 0, 126)
 promotionUsesBox.Size = UDim2.new(0.5, -15, 0, 27)
 promotionUsesBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
 promotionUsesBox.BorderSizePixel = 0
@@ -657,9 +729,57 @@ local promotionUsesPadding = Instance.new("UIPadding")
 promotionUsesPadding.PaddingLeft = UDim.new(0, 8)
 promotionUsesPadding.Parent = promotionUsesBox
 
+local promotionEmojiBox = Instance.new("TextBox")
+promotionEmojiBox.Name = "PromotionEmoji"
+promotionEmojiBox.Position = UDim2.new(0, 10, 0, 94)
+promotionEmojiBox.Size = UDim2.new(1, -20, 0, 27)
+promotionEmojiBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionEmojiBox.BorderSizePixel = 0
+promotionEmojiBox.ClearTextOnFocus = false
+promotionEmojiBox.ClipsDescendants = true
+promotionEmojiBox.PlaceholderText = "Emoji opcional (🔥 o <:Nombre:id>)"
+promotionEmojiBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionEmojiBox.Text = ""
+promotionEmojiBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionEmojiBox.Font = Enum.Font.Code
+promotionEmojiBox.TextSize = 10
+promotionEmojiBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionEmojiBox.Parent = promotionPanel
+
+local promotionEmojiCorner = Instance.new("UICorner")
+promotionEmojiCorner.CornerRadius = UDim.new(0, 6)
+promotionEmojiCorner.Parent = promotionEmojiBox
+
+local promotionEmojiPadding = Instance.new("UIPadding")
+promotionEmojiPadding.PaddingLeft = UDim.new(0, 8)
+promotionEmojiPadding.PaddingRight = UDim.new(0, 8)
+promotionEmojiPadding.Parent = promotionEmojiBox
+
+local promotionRarityButton = Instance.new("TextButton")
+promotionRarityButton.Name = "PromotionRarity"
+promotionRarityButton.Position = UDim2.new(0.5, 5, 0, 126)
+promotionRarityButton.Size = UDim2.new(0.5, -15, 0, 27)
+promotionRarityButton.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionRarityButton.BorderSizePixel = 0
+promotionRarityButton.Text = "RAREZA: TODAS"
+promotionRarityButton.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionRarityButton.Font = Enum.Font.Code
+promotionRarityButton.TextSize = 9
+promotionRarityButton.TextXAlignment = Enum.TextXAlignment.Left
+promotionRarityButton.AutoButtonColor = false
+promotionRarityButton.Parent = promotionPanel
+
+local promotionRarityPadding = Instance.new("UIPadding")
+promotionRarityPadding.PaddingLeft = UDim.new(0, 8)
+promotionRarityPadding.Parent = promotionRarityButton
+
+local promotionRarityCorner = Instance.new("UICorner")
+promotionRarityCorner.CornerRadius = UDim.new(0, 6)
+promotionRarityCorner.Parent = promotionRarityButton
+
 local promotionIntervalBox = Instance.new("TextBox")
 promotionIntervalBox.Name = "PromotionInterval"
-promotionIntervalBox.Position = UDim2.new(0.5, 5, 0, 94)
+promotionIntervalBox.Position = UDim2.new(0, 10, 0, 158)
 promotionIntervalBox.Size = UDim2.new(0.5, -15, 0, 27)
 promotionIntervalBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
 promotionIntervalBox.BorderSizePixel = 0
@@ -682,10 +802,10 @@ promotionIntervalPadding.PaddingLeft = UDim.new(0, 8)
 promotionIntervalPadding.Parent = promotionIntervalBox
 
 local promotionHint = Instance.new("TextLabel")
-promotionHint.Position = UDim2.new(0, 12, 0, 126)
+promotionHint.Position = UDim2.new(0, 12, 0, 190)
 promotionHint.Size = UDim2.new(1, -24, 0, 18)
 promotionHint.BackgroundTransparency = 1
-promotionHint.Text = "URL BUTTON // DISCORD COLOR FIJO // CONFIG SAVED"
+promotionHint.Text = "EMOJI // RARITY LIMIT // CONFIG SAVED"
 promotionHint.TextColor3 = Color3.fromRGB(151, 255, 204)
 promotionHint.Font = Enum.Font.Code
 promotionHint.TextSize = 8
@@ -694,7 +814,7 @@ promotionHint.Parent = promotionPanel
 
 local savePromotionButton = Instance.new("TextButton")
 savePromotionButton.Name = "SavePromotion"
-savePromotionButton.Position = UDim2.new(0, 10, 0, 151)
+savePromotionButton.Position = UDim2.new(0, 10, 0, 215)
 savePromotionButton.Size = UDim2.new(1, -20, 0, 28)
 savePromotionButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 savePromotionButton.BorderSizePixel = 0
@@ -708,6 +828,107 @@ savePromotionButton.Parent = promotionPanel
 local savePromotionCorner = Instance.new("UICorner")
 savePromotionCorner.CornerRadius = UDim.new(0, 7)
 savePromotionCorner.Parent = savePromotionButton
+
+local consolePanel = Instance.new("Frame")
+consolePanel.Name = "ConsolePanel"
+consolePanel.Position = UDim2.new(0, 12, 0, 100)
+consolePanel.Size = UDim2.new(1, -24, 1, -150)
+consolePanel.BackgroundColor3 = Color3.fromRGB(20, 17, 31)
+consolePanel.BackgroundTransparency = 0.02
+consolePanel.BorderSizePixel = 0
+consolePanel.Visible = false
+consolePanel.Parent = panel
+
+local consolePanelCorner = Instance.new("UICorner")
+consolePanelCorner.CornerRadius = UDim.new(0, 10)
+consolePanelCorner.Parent = consolePanel
+
+local consoleHeader = Instance.new("TextLabel")
+consoleHeader.Position = UDim2.new(0, 12, 0, 8)
+consoleHeader.Size = UDim2.new(1, -116, 0, 18)
+consoleHeader.BackgroundTransparency = 1
+consoleHeader.Text = "CONSOLE // GAME + SCRIPT STREAM"
+consoleHeader.TextColor3 = Color3.fromRGB(255, 111, 151)
+consoleHeader.Font = Enum.Font.Code
+consoleHeader.TextSize = 10
+consoleHeader.TextXAlignment = Enum.TextXAlignment.Left
+consoleHeader.Parent = consolePanel
+
+local copyConsoleButton = Instance.new("TextButton")
+copyConsoleButton.Name = "CopyConsole"
+copyConsoleButton.AnchorPoint = Vector2.new(1, 0)
+copyConsoleButton.Position = UDim2.new(1, -10, 0, 7)
+copyConsoleButton.Size = UDim2.new(0, 92, 0, 22)
+copyConsoleButton.BackgroundColor3 = Color3.fromRGB(74, 42, 98)
+copyConsoleButton.BorderSizePixel = 0
+copyConsoleButton.Text = "COPY ALL"
+copyConsoleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
+copyConsoleButton.Font = Enum.Font.GothamBold
+copyConsoleButton.TextSize = 9
+copyConsoleButton.AutoButtonColor = false
+copyConsoleButton.Parent = consolePanel
+
+local copyConsoleCorner = Instance.new("UICorner")
+copyConsoleCorner.CornerRadius = UDim.new(0, 5)
+copyConsoleCorner.Parent = copyConsoleButton
+
+local consoleScroll = Instance.new("ScrollingFrame")
+consoleScroll.Name = "ConsoleOutput"
+consoleScroll.Position = UDim2.new(0, 10, 0, 36)
+consoleScroll.Size = UDim2.new(1, -20, 1, -46)
+consoleScroll.BackgroundColor3 = Color3.fromRGB(10, 9, 16)
+consoleScroll.BackgroundTransparency = 0.08
+consoleScroll.BorderSizePixel = 0
+consoleScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+consoleScroll.AutomaticCanvasSize = Enum.AutomaticSize.None
+consoleScroll.ScrollBarThickness = 4
+consoleScroll.ScrollBarImageColor3 = Color3.fromRGB(255, 92, 133)
+consoleScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+consoleScroll.ClipsDescendants = true
+consoleScroll.Parent = consolePanel
+
+local consoleScrollCorner = Instance.new("UICorner")
+consoleScrollCorner.CornerRadius = UDim.new(0, 7)
+consoleScrollCorner.Parent = consoleScroll
+
+local consoleBody = Instance.new("TextBox")
+consoleBody.Name = "ConsoleText"
+consoleBody.Position = UDim2.new(0, 8, 0, 8)
+consoleBody.Size = UDim2.new(1, -16, 0, 0)
+consoleBody.AutomaticSize = Enum.AutomaticSize.Y
+consoleBody.BackgroundTransparency = 1
+consoleBody.ClearTextOnFocus = false
+consoleBody.MultiLine = true
+consoleBody.TextEditable = false
+consoleBody.Text = "AURA CONSOLE // READY\n"
+consoleBody.TextColor3 = Color3.fromRGB(221, 211, 232)
+consoleBody.Font = Enum.Font.Code
+consoleBody.TextSize = 10
+consoleBody.TextWrapped = true
+consoleBody.TextXAlignment = Enum.TextXAlignment.Left
+consoleBody.TextYAlignment = Enum.TextYAlignment.Top
+consoleBody.Parent = consoleScroll
+
+local consoleJumpButton = Instance.new("TextButton")
+consoleJumpButton.Name = "ConsoleJumpToLatest"
+consoleJumpButton.AnchorPoint = Vector2.new(1, 1)
+consoleJumpButton.Position = UDim2.new(1, -10, 1, -10)
+consoleJumpButton.Size = UDim2.new(0, 32, 0, 32)
+consoleJumpButton.BackgroundColor3 = Color3.fromRGB(162, 54, 99)
+consoleJumpButton.BackgroundTransparency = 0.04
+consoleJumpButton.BorderSizePixel = 0
+consoleJumpButton.Text = "↓"
+consoleJumpButton.TextColor3 = Color3.fromRGB(255, 240, 255)
+consoleJumpButton.Font = Enum.Font.GothamBold
+consoleJumpButton.TextSize = 20
+consoleJumpButton.AutoButtonColor = false
+consoleJumpButton.ZIndex = 10
+consoleJumpButton.Visible = false
+consoleJumpButton.Parent = consolePanel
+
+local consoleJumpCorner = Instance.new("UICorner")
+consoleJumpCorner.CornerRadius = UDim.new(1, 0)
+consoleJumpCorner.Parent = consoleJumpButton
 
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "SystemStatus"
@@ -782,6 +1003,198 @@ badge.Parent = toggleButton
 local badgeCorner = Instance.new("UICorner")
 badgeCorner.CornerRadius = UDim.new(1, 0)
 badgeCorner.Parent = badge
+
+panel.Visible = false
+panelOpen = false
+toggleButton.Visible = false
+
+local accessOverlay = Instance.new("Frame")
+accessOverlay.Name = "SystemAccess"
+accessOverlay.Size = UDim2.new(1, 0, 1, 0)
+accessOverlay.BackgroundColor3 = Color3.fromRGB(5, 7, 15)
+accessOverlay.BackgroundTransparency = 0.08
+accessOverlay.BorderSizePixel = 0
+accessOverlay.Active = true
+accessOverlay.ZIndex = 100
+accessOverlay.Parent = screenGui
+
+local accessGrid = Instance.new("Frame")
+accessGrid.Size = UDim2.new(1, 0, 1, 0)
+accessGrid.BackgroundTransparency = 1
+accessGrid.ZIndex = 100
+accessGrid.Parent = accessOverlay
+
+local accessCard = Instance.new("Frame")
+accessCard.AnchorPoint = Vector2.new(0.5, 0.5)
+accessCard.Position = UDim2.new(0.5, 0, 0.5, 0)
+accessCard.Size = UDim2.new(0, 360, 0, 244)
+accessCard.BackgroundColor3 = Color3.fromRGB(14, 18, 35)
+accessCard.BorderSizePixel = 0
+accessCard.ZIndex = 101
+accessCard.Parent = accessGrid
+
+local accessCardCorner = Instance.new("UICorner")
+accessCardCorner.CornerRadius = UDim.new(0, 12)
+accessCardCorner.Parent = accessCard
+
+local accessCardStroke = Instance.new("UIStroke")
+accessCardStroke.Color = Color3.fromRGB(92, 191, 255)
+accessCardStroke.Thickness = 1.5
+accessCardStroke.Transparency = 0.16
+accessCardStroke.Parent = accessCard
+
+local accessAccent = Instance.new("Frame")
+accessAccent.Position = UDim2.new(0, 0, 0, 0)
+accessAccent.Size = UDim2.new(1, 0, 0, 4)
+accessAccent.BackgroundColor3 = Color3.fromRGB(94, 205, 255)
+accessAccent.BorderSizePixel = 0
+accessAccent.ZIndex = 102
+accessAccent.Parent = accessCard
+
+local accessAccentCorner = Instance.new("UICorner")
+accessAccentCorner.CornerRadius = UDim.new(0, 12)
+accessAccentCorner.Parent = accessAccent
+
+local accessEyebrow = Instance.new("TextLabel")
+accessEyebrow.Position = UDim2.new(0, 24, 0, 22)
+accessEyebrow.Size = UDim2.new(1, -48, 0, 16)
+accessEyebrow.BackgroundTransparency = 1
+accessEyebrow.Text = "SYSTEM // AUTHORIZATION GATE"
+accessEyebrow.TextColor3 = Color3.fromRGB(94, 205, 255)
+accessEyebrow.Font = Enum.Font.Code
+accessEyebrow.TextSize = 10
+accessEyebrow.TextXAlignment = Enum.TextXAlignment.Left
+accessEyebrow.ZIndex = 102
+accessEyebrow.Parent = accessCard
+
+local accessTitle = Instance.new("TextLabel")
+accessTitle.Position = UDim2.new(0, 22, 0, 45)
+accessTitle.Size = UDim2.new(1, -44, 0, 28)
+accessTitle.BackgroundTransparency = 1
+accessTitle.Text = "AURA // SOLO LEVELING"
+accessTitle.TextColor3 = Color3.fromRGB(236, 246, 255)
+accessTitle.Font = Enum.Font.GothamBold
+accessTitle.TextSize = 19
+accessTitle.TextXAlignment = Enum.TextXAlignment.Left
+accessTitle.ZIndex = 102
+accessTitle.Parent = accessCard
+
+local accessDescription = Instance.new("TextLabel")
+accessDescription.Position = UDim2.new(0, 24, 0, 78)
+accessDescription.Size = UDim2.new(1, -48, 0, 18)
+accessDescription.BackgroundTransparency = 1
+accessDescription.Text = "IDENTITY CHECK REQUIRED // 3 ATTEMPTS"
+accessDescription.TextColor3 = Color3.fromRGB(159, 170, 202)
+accessDescription.Font = Enum.Font.Code
+accessDescription.TextSize = 9
+accessDescription.TextXAlignment = Enum.TextXAlignment.Left
+accessDescription.ZIndex = 102
+accessDescription.Parent = accessCard
+
+local accessInput = Instance.new("TextBox")
+accessInput.Name = "AccessKey"
+accessInput.Position = UDim2.new(0, 22, 0, 111)
+accessInput.Size = UDim2.new(1, -44, 0, 34)
+accessInput.BackgroundColor3 = Color3.fromRGB(24, 31, 55)
+accessInput.BorderSizePixel = 0
+accessInput.ClearTextOnFocus = false
+accessInput.PlaceholderText = "ENTER ACCESS KEY"
+accessInput.PlaceholderColor3 = Color3.fromRGB(108, 126, 166)
+accessInput.Text = ""
+accessInput.TextColor3 = Color3.fromRGB(236, 246, 255)
+accessInput.Font = Enum.Font.Code
+accessInput.TextSize = 11
+accessInput.TextXAlignment = Enum.TextXAlignment.Left
+accessInput.ZIndex = 102
+accessInput.Parent = accessCard
+
+local accessInputPadding = Instance.new("UIPadding")
+accessInputPadding.PaddingLeft = UDim.new(0, 10)
+accessInputPadding.PaddingRight = UDim.new(0, 10)
+accessInputPadding.Parent = accessInput
+
+local accessInputCorner = Instance.new("UICorner")
+accessInputCorner.CornerRadius = UDim.new(0, 6)
+accessInputCorner.Parent = accessInput
+
+local accessButton = Instance.new("TextButton")
+accessButton.Name = "Authorize"
+accessButton.Position = UDim2.new(0, 22, 0, 154)
+accessButton.Size = UDim2.new(1, -44, 0, 32)
+accessButton.BackgroundColor3 = Color3.fromRGB(39, 113, 164)
+accessButton.BorderSizePixel = 0
+accessButton.Text = "AUTHORIZE  >  ENTER SYSTEM"
+accessButton.TextColor3 = Color3.fromRGB(239, 251, 255)
+accessButton.Font = Enum.Font.GothamBold
+accessButton.TextSize = 10
+accessButton.AutoButtonColor = false
+accessButton.ZIndex = 102
+accessButton.Parent = accessCard
+
+local accessButtonCorner = Instance.new("UICorner")
+accessButtonCorner.CornerRadius = UDim.new(0, 6)
+accessButtonCorner.Parent = accessButton
+
+local accessStatus = Instance.new("TextLabel")
+accessStatus.Position = UDim2.new(0, 24, 0, 197)
+accessStatus.Size = UDim2.new(1, -48, 0, 22)
+accessStatus.BackgroundTransparency = 1
+accessStatus.Text = "STATUS: LOCKED"
+accessStatus.TextColor3 = Color3.fromRGB(255, 193, 89)
+accessStatus.Font = Enum.Font.Code
+accessStatus.TextSize = 9
+accessStatus.TextXAlignment = Enum.TextXAlignment.Left
+accessStatus.ZIndex = 102
+accessStatus.Parent = accessCard
+
+local accessAttempts = 0
+local accessUnlocked = false
+
+local function submitAccessKey()
+	if accessUnlocked then return end
+
+	if accessInput.Text == CONFIG.AccessKey then
+		accessUnlocked = true
+		accessStatus.Text = "STATUS: AUTHORIZED // WELCOME, AURA"
+		accessStatus.TextColor3 = Color3.fromRGB(151, 255, 204)
+		accessButton.Text = "ACCESS GRANTED"
+		accessButton.BackgroundColor3 = Color3.fromRGB(38, 145, 117)
+		toggleButton.Visible = true
+		panel.Visible = true
+		panelOpen = true
+		accessOverlay.Visible = false
+		accessOverlay.Active = false
+		accessInput:ReleaseFocus()
+	else
+		accessAttempts = accessAttempts + 1
+		local remaining = math.max(0, CONFIG.MaxAccessAttempts - accessAttempts)
+		accessInput.Text = ""
+
+		if remaining <= 0 then
+			accessStatus.Text = "STATUS: ACCESS DENIED // SESSION TERMINATED"
+			accessStatus.TextColor3 = Color3.fromRGB(255, 92, 133)
+			task.delay(0.65, function()
+				if player and player.Parent then
+					player:Kick("AURA SYSTEM: authorization failed.")
+				end
+			end)
+		else
+			accessStatus.Text = "STATUS: INVALID KEY // "
+				.. tostring(remaining)
+				.. " ATTEMPT"
+				.. (remaining == 1 and "" or "S")
+				.. " REMAINING"
+			accessStatus.TextColor3 = Color3.fromRGB(255, 193, 89)
+		end
+	end
+end
+
+accessButton.MouseButton1Click:Connect(submitAccessKey)
+accessInput.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		submitAccessKey()
+	end
+end)
 
 local POSITION_FILE = "AuraEggNotifier_ButtonPosition.json"
 local LAST_SEEN_STATE_FILE = "AuraEggNotifier_LastSeen.json"
@@ -934,6 +1347,12 @@ end
 if tonumber(decoded.nextAvailableAt) then
 promotionState.nextAvailableAt = tonumber(decoded.nextAvailableAt)
 end
+if type(decoded.emoji) == "string" then
+promotionState.emoji = decoded.emoji
+end
+if type(decoded.rarity) == "string" then
+promotionState.rarity = decoded.rarity
+end
 end
 
 local function savePromotionState()
@@ -1000,6 +1419,7 @@ loadPromotionState()
 
 promotionUrlBox.Text = promotionState.url
 promotionLabelBox.Text = promotionState.label
+promotionEmojiBox.Text = promotionState.emoji
 promotionUsesBox.Text = tostring(promotionState.maxUses)
 promotionIntervalBox.Text = tostring(promotionState.intervalMinutes)
 
@@ -1044,13 +1464,211 @@ local function updateStatus(text, color)
 	)
 end
 
+local logEntries = {}
+local consoleEntries = {}
+local logRenderScheduled = false
+local consoleRenderScheduled = false
+
+local function getClockTime()
+	return os.date("!%H:%M:%S")
+end
+
+local function scrollToLatest(scrollingFrame)
+	task.defer(function()
+		local maximum = math.max(
+			0,
+			scrollingFrame.CanvasSize.Y.Offset - scrollingFrame.AbsoluteWindowSize.Y
+		)
+		scrollingFrame.CanvasPosition = Vector2.new(0, maximum)
+	end)
+end
+
+local function renderPersistentLog()
+	logBody.Text = table.concat(logEntries, "\n\n")
+	task.defer(refreshLogCanvas)
+end
+
+local function schedulePersistentLogRender()
+	if logRenderScheduled then return end
+	logRenderScheduled = true
+	task.defer(function()
+		logRenderScheduled = false
+		renderPersistentLog()
+	end)
+end
+
+local function appendLogHistory(text, sequence, rarityName)
+	local safeText = tostring(text or "")
+	local prefix = string.format(
+		"[%s]  EVENT #%03d  //  %s",
+		getClockTime(),
+		tonumber(sequence) or 0,
+		tostring(rarityName or "NORMAL")
+	)
+	table.insert(logEntries, prefix .. "\n" .. safeText)
+
+	while #logEntries > CONFIG.MaxNotifications do
+		table.remove(logEntries, 1)
+	end
+
+	schedulePersistentLogRender()
+end
+
+local function renderConsole()
+	consoleBody.Text = table.concat(consoleEntries, "\n")
+	task.defer(function()
+		local height = math.max(consoleBody.AbsoluteSize.Y + 16, consoleScroll.AbsoluteWindowSize.Y + 1)
+		consoleScroll.CanvasSize = UDim2.new(0, 0, 0, height)
+	end)
+end
+
+local function scheduleConsoleRender()
+	if consoleRenderScheduled then return end
+	consoleRenderScheduled = true
+	task.defer(function()
+		consoleRenderScheduled = false
+		renderConsole()
+	end)
+end
+
+local function appendConsoleEntry(message, messageType, source)
+	local cleanMessage = tostring(message or ""):gsub("\r", "")
+	if cleanMessage == "" then return end
+
+	local typeName = tostring(messageType or ""):upper()
+	local lowerMessage = cleanMessage:lower()
+	local severity = "INFO"
+	if typeName:find("ERROR", 1, true)
+		or lowerMessage:find("error", 1, true)
+		or lowerMessage:find("failed", 1, true)
+		or lowerMessage:find("exception", 1, true) then
+		severity = "ERROR"
+	elseif typeName:find("WARN", 1, true)
+		or lowerMessage:find("warning", 1, true) then
+		severity = "WARN"
+	end
+
+	local origin = source or "GAME"
+	table.insert(
+		consoleEntries,
+		string.format("[%s] [%s] [%s] %s", getClockTime(), severity, origin, cleanMessage)
+	)
+
+	while #consoleEntries > CONFIG.ConsoleMaxLines do
+		table.remove(consoleEntries, 1)
+	end
+
+	scheduleConsoleRender()
+end
+
+copyConsoleButton.MouseButton1Click:Connect(function()
+	local fullText = table.concat(consoleEntries, "\n")
+	local clipboard = setclipboard or toclipboard or set_clipboard
+	if type(clipboard) == "function" then
+		local ok = pcall(function()
+			clipboard(fullText)
+		end)
+		if ok then
+			copyConsoleButton.Text = "COPIED [OK]"
+			updateStatus("CONSOLE // COPIED TO CLIPBOARD", Color3.fromRGB(151, 255, 204))
+			task.delay(1.2, function()
+				if copyConsoleButton.Parent then
+					copyConsoleButton.Text = "COPY ALL"
+				end
+			end)
+			return
+		end
+	end
+
+	updateStatus("CONSOLE // CLIPBOARD UNAVAILABLE", Color3.fromRGB(255, 193, 89))
+end)
+
+logJumpButton.MouseButton1Click:Connect(function()
+	scrollToLatest(logPanel)
+end)
+
+consoleJumpButton.MouseButton1Click:Connect(function()
+	scrollToLatest(consoleScroll)
+end)
+
+local PROMOTION_RARITIES = {"", "DIVINE", "ETERNAL", "SECRET"}
+local promotionDraftRarity = promotionState.rarity
+
+local function getPromotionRarityLabel(rarity)
+	if rarity == "DIVINE" then return "DIVINE" end
+	if rarity == "ETERNAL" then return "ETERNAL" end
+	if rarity == "SECRET" then return "SECRET" end
+	return "TODAS"
+end
+
+local function updatePromotionControls()
+	local rarityLabel = getPromotionRarityLabel(promotionDraftRarity)
+	promotionRarityButton.Text = "RAREZA: " .. rarityLabel
+	if promotionDraftRarity ~= "" then
+		promotionIntervalBox.TextEditable = false
+		promotionIntervalBox.Text = "0"
+		promotionIntervalBox.PlaceholderText = "DESACTIVADO // RAREZA"
+		promotionIntervalBox.TextColor3 = Color3.fromRGB(143, 128, 165)
+	else
+		promotionIntervalBox.TextEditable = true
+		promotionIntervalBox.PlaceholderText = "Minutos (0 = cada huevo)"
+		promotionIntervalBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+	end
+end
+
+local function parsePromotionEmoji(value)
+	local cleaned = cleanPromotionInput(value)
+	if cleaned == "" then return nil end
+
+	local animated, customName, customId
+	customName, customId = cleaned:match("^<a:([%w_]+):(%d+)>$")
+	if customName then
+		animated = true
+	else
+		customName, customId = cleaned:match("^<:([%w_]+):(%d+)>$")
+		animated = false
+	end
+	if customName and customId then
+		return {
+			name = customName,
+			id = customId,
+			animated = animated
+		}
+	end
+
+	if cleaned:find("[<>]") or #cleaned > 32 then
+		return nil
+	end
+
+	return {name = cleaned}
+end
+
+updatePromotionControls()
+
+promotionRarityButton.MouseButton1Click:Connect(function()
+	local currentIndex = 1
+	for index, rarity in ipairs(PROMOTION_RARITIES) do
+		if rarity == promotionDraftRarity then
+			currentIndex = index
+			break
+		end
+	end
+
+	local nextIndex = currentIndex % #PROMOTION_RARITIES + 1
+	promotionDraftRarity = PROMOTION_RARITIES[nextIndex]
+	updatePromotionControls()
+end)
+
 savePromotionButton.MouseButton1Click:Connect(function()
 local url = cleanPromotionInput(promotionUrlBox.Text)
 local label = cleanPromotionInput(promotionLabelBox.Text)
+local emojiText = cleanPromotionInput(promotionEmojiBox.Text)
 local maxUsesText = cleanPromotionInput(promotionUsesBox.Text)
 local intervalText = cleanPromotionInput(promotionIntervalBox.Text)
 local maxUses = maxUsesText == "" and 0 or tonumber(maxUsesText)
 local intervalMinutes = intervalText == "" and 0 or tonumber(intervalText)
+local emoji = parsePromotionEmoji(emojiText)
+local selectedRarity = promotionDraftRarity
 
 if url ~= "" and not url:match("^https?://%S+$") then
 updateStatus("PROMOTIONS // INVALID URL", Color3.fromRGB(255, 92, 133))
@@ -1059,6 +1677,11 @@ end
 
 if #label > 80 then
 updateStatus("PROMOTIONS // BUTTON NAME TOO LONG", Color3.fromRGB(255, 92, 133))
+return
+end
+
+if emojiText ~= "" and not emoji then
+updateStatus("PROMOTIONS // INVALID EMOJI FORMAT", Color3.fromRGB(255, 92, 133))
 return
 end
 
@@ -1073,13 +1696,21 @@ updateStatus("PROMOTIONS // VALUES MUST BE POSITIVE", Color3.fromRGB(255, 92, 13
 return
 end
 
+if selectedRarity ~= "" and maxUses < 1 then
+updateStatus("PROMOTIONS // RARITY NEEDS A POSITIVE LIMIT", Color3.fromRGB(255, 92, 133))
+return
+end
+
 promotionState.url = url
 promotionState.label = label ~= "" and label or "PROMOTION"
+promotionState.emoji = emojiText
+promotionState.rarity = selectedRarity
 promotionState.maxUses = math.floor(maxUses)
 promotionState.used = 0
-promotionState.intervalMinutes = intervalMinutes
+promotionState.intervalMinutes = selectedRarity == "" and intervalMinutes or 0
 promotionState.nextAvailableAt = 0
 savePromotionState()
+updatePromotionControls()
 
 if url == "" then
 savePromotionButton.Text = "SAVE PROMOTION  >  DISABLED"
@@ -1097,16 +1728,22 @@ local function setActiveSection(section)
 	local showLog = section == "LOG"
 local showPromotions = section == "PROMOTIONS"
 	logPanel.Visible = showLog
+	logJumpButton.Visible = showLog
 promotionPanel.Visible = showPromotions
 announcementPanel.Visible = section == "ANNOUNCER"
+	consolePanel.Visible = section == "CONSOLE"
+	consoleJumpButton.Visible = section == "CONSOLE"
 	styleTab(logTab, showLog)
 styleTab(promotionTab, showPromotions)
 styleTab(announcerTab, section == "ANNOUNCER")
+ styleTab(consoleTab, section == "CONSOLE")
 
 	if showLog then
 		updateStatus("MONITOR // LOG STREAM ACTIVE", Color3.fromRGB(99, 255, 154))
 elseif showPromotions then
 updateStatus("PROMOTIONS // CONFIGURATION READY", Color3.fromRGB(214, 165, 255))
+	elseif section == "CONSOLE" then
+		updateStatus("CONSOLE // STREAM READY", Color3.fromRGB(255, 111, 151))
 	else
 		updateStatus("ANNOUNCER // EMBED BUILDER READY", Color3.fromRGB(214, 165, 255))
 	end
@@ -1122,6 +1759,10 @@ end)
 
 announcerTab.MouseButton1Click:Connect(function()
 	setActiveSection("ANNOUNCER")
+end)
+
+consoleTab.MouseButton1Click:Connect(function()
+	setActiveSection("CONSOLE")
 end)
 
 local function updateBadge()
@@ -2152,10 +2793,23 @@ end
 -- periódica provocaba congelamientos visibles durante la partida.
 -- Join Game siempre usa el servidor actual para que el enlace sea correcto.
 
-local function getPromotionButton()
+local function getPromotionRarity(text)
+	local lower = tostring(text or ""):lower()
+	if lower:find("divine", 1, true) then return "DIVINE" end
+	if lower:find("eternal", 1, true) then return "ETERNAL" end
+	if lower:find("secret", 1, true) then return "SECRET" end
+	return ""
+end
+
+local function getPromotionButton(sourceText)
 if type(promotionState.url) ~= "string"
 or promotionState.url == ""
 or not promotionState.url:match("^https?://%S+$") then
+return nil
+end
+
+if promotionState.rarity ~= ""
+and getPromotionRarity(sourceText) ~= promotionState.rarity then
 return nil
 end
 
@@ -2164,25 +2818,36 @@ if promotionState.maxUses > 0 and promotionState.used >= promotionState.maxUses 
 return nil
 end
 
-if now < (tonumber(promotionState.nextAvailableAt) or 0) then
+if promotionState.rarity == ""
+and now < (tonumber(promotionState.nextAvailableAt) or 0) then
 return nil
+end
+
+local button = {
+	type = 2,
+	style = 5,
+	label = promotionState.label ~= "" and promotionState.label or "PROMOTION",
+	url = promotionState.url
+}
+local emoji = parsePromotionEmoji(promotionState.emoji)
+if emoji then
+button.emoji = emoji
 end
 
 return {{
 type = 1,
-components = {{
-type = 2,
-style = 5,
-label = promotionState.label ~= "" and promotionState.label or "PROMOTION",
-url = promotionState.url
-}}
+components = {button}
 }}
 end
 
 local function registerPromotionUse()
 promotionState.used = promotionState.used + 1
+if promotionState.rarity == "" then
 promotionState.nextAvailableAt = os.time()
-.. math.floor((tonumber(promotionState.intervalMinutes) or 0) * 60)
+	+ math.floor((tonumber(promotionState.intervalMinutes) or 0) * 60)
+else
+promotionState.nextAvailableAt = 0
+end
 savePromotionState()
 end
 
@@ -2209,7 +2874,7 @@ roles = roleIds
 }
 		end
 
-local promotionButton = getPromotionButton()
+ local promotionButton = getPromotionButton(sourceText)
 if promotionButton then
 payload.components = promotionButton
 end
@@ -2413,6 +3078,9 @@ end
 local function createVisualCard(text, sequence)
 	layoutCounter = layoutCounter + 1
 	local rarityName, titleText, accentColor, iconKind = getVisualMeta(text)
+	appendLogHistory(text, sequence, rarityName)
+	return
+
 	local card = Instance.new("Frame")
 	if sequence then
 		card.LayoutOrder = getRarityRank(text) * 100000 + sequence
@@ -2619,12 +3287,16 @@ if scriptStopped then return end
 	end
 end
 
-LogService.MessageOut:Connect(function(msg) processText(msg, "log") end)
+LogService.MessageOut:Connect(function(msg, messageType)
+	appendConsoleEntry(msg, messageType, "GAME")
+	processText(msg, "log")
+end)
 TextChatService.MessageReceived:Connect(function(msg)
 	if msg.Text then processText(msg.Text, "chat") end
 end)
 
 createVisualCard("SYSTEM ONLINE\nListening to game logs // instant alerts enabled.")
+appendConsoleEntry("SYSTEM ONLINE // CONSOLE READY", "MessageInfo", "SCRIPT")
 updateStatus("Ready", Color3.fromRGB(99, 255, 154))
 scheduleLastSeenUpdate()
 print(":: EGG DETECTOR ULTRA-HYPER-VELOCITY READY ::")
