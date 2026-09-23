@@ -8,9 +8,21 @@
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 
+local auraRuntime = (type(getgenv) == "function" and getgenv()) or _G
+if type(auraRuntime.AURA_EGG_NOTIFIER_STOP) == "function" then
+pcall(auraRuntime.AURA_EGG_NOTIFIER_STOP)
+end
+local scriptStopped = false
+auraRuntime.AURA_EGG_NOTIFIER_STOP = function()
+scriptStopped = true
+end
+
 local CONFIG = {
 	WebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_WEBHOOK)
 		or "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
+	LastSeenWebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_LAST_SEEN_WEBHOOK)
+		or "PASTE_A_LAST_SEEN_DISCORD_WEBHOOK_HERE",
+LastSeenMessageID = "1552117304609738823",
 	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
 	DisplayTime = 120,
@@ -49,6 +61,15 @@ local priorityVersion = 0
 local lastJoinServerId = nil
 local cachedPublicServerIds = {}
 local serverCacheRefreshing = false
+local promotionState = {
+version = 1,
+url = "",
+label = "PROMOTION",
+maxUses = 0,
+used = 0,
+intervalMinutes = 0,
+nextAvailableAt = 0
+}
 
 if playerGui:FindFirstChild("EggDetectorStealth") then
 	playerGui.EggDetectorStealth:Destroy()
@@ -286,8 +307,8 @@ logLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshLogCanv
 
 local navigation = Instance.new("Frame")
 navigation.Name = "Navigation"
-navigation.Position = UDim2.new(0.5, -120, 0, 64)
-navigation.Size = UDim2.new(0, 240, 0, 28)
+navigation.Position = UDim2.new(0.5, -160, 0, 64)
+navigation.Size = UDim2.new(0, 320, 0, 28)
 navigation.BackgroundTransparency = 1
 navigation.Parent = panel
 
@@ -312,7 +333,7 @@ end
 
 local logTab = Instance.new("TextButton")
 logTab.Name = "LogTab"
-logTab.Size = UDim2.new(0, 102, 1, 0)
+logTab.Size = UDim2.new(0, 100, 1, 0)
 logTab.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 logTab.BorderSizePixel = 0
 logTab.Text = ""
@@ -349,10 +370,50 @@ local logTabCorner = Instance.new("UICorner")
 logTabCorner.CornerRadius = UDim.new(0, 6)
 logTabCorner.Parent = logTab
 
+local promotionTab = Instance.new("TextButton")
+promotionTab.Name = "PromotionsTab"
+promotionTab.Position = UDim2.new(0, 108, 0, 0)
+promotionTab.Size = UDim2.new(0, 102, 1, 0)
+promotionTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
+promotionTab.BorderSizePixel = 0
+promotionTab.Text = ""
+promotionTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+promotionTab.Font = Enum.Font.Code
+promotionTab.TextSize = 14
+promotionTab.TextXAlignment = Enum.TextXAlignment.Center
+promotionTab.TextYAlignment = Enum.TextYAlignment.Center
+promotionTab.AutoButtonColor = false
+promotionTab.Parent = navigation
+
+local promotionTabIcon = createCanvasIcon(
+promotionTab,
+"spark",
+promotionTab.TextColor3,
+UDim2.new(0, 16, 0, 16),
+UDim2.new(0, 15, 0.5, 0),
+"TabIcon"
+)
+local promotionTabLabel = Instance.new("TextLabel")
+promotionTabLabel.Name = "TabLabel"
+promotionTabLabel.Position = UDim2.new(0, 30, 0, 0)
+promotionTabLabel.Size = UDim2.new(1, -34, 1, 0)
+promotionTabLabel.BackgroundTransparency = 1
+promotionTabLabel.Text = "PROMOTIONS"
+promotionTabLabel.TextColor3 = promotionTab.TextColor3
+promotionTabLabel.Font = Enum.Font.Code
+promotionTabLabel.TextSize = 9
+promotionTabLabel.TextXAlignment = Enum.TextXAlignment.Left
+promotionTabLabel.TextYAlignment = Enum.TextYAlignment.Center
+promotionTabLabel.Parent = promotionTab
+
+local promotionTabCorner = Instance.new("UICorner")
+promotionTabCorner.CornerRadius = UDim.new(0, 6)
+promotionTabCorner.Parent = promotionTab
+
 local announcerTab = Instance.new("TextButton")
 announcerTab.Name = "AnnouncerTab"
-announcerTab.Position = UDim2.new(0, 108, 0, 0)
-announcerTab.Size = UDim2.new(0, 132, 1, 0)
+announcerTab.Position = UDim2.new(0, 216, 0, 0)
+announcerTab.Size = UDim2.new(0, 104, 1, 0)
 announcerTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 announcerTab.BorderSizePixel = 0
 announcerTab.Text = ""
@@ -496,6 +557,157 @@ local sendAnnouncementCorner = Instance.new("UICorner")
 sendAnnouncementCorner.CornerRadius = UDim.new(0, 7)
 sendAnnouncementCorner.Parent = sendAnnouncementButton
 
+local promotionPanel = Instance.new("Frame")
+promotionPanel.Name = "PromotionBuilder"
+promotionPanel.Position = UDim2.new(0, 12, 0, 100)
+promotionPanel.Size = UDim2.new(1, -24, 1, -150)
+promotionPanel.BackgroundColor3 = Color3.fromRGB(29, 19, 45)
+promotionPanel.BackgroundTransparency = 0.05
+promotionPanel.BorderSizePixel = 0
+promotionPanel.Visible = false
+promotionPanel.Parent = panel
+
+local promotionCorner = Instance.new("UICorner")
+promotionCorner.CornerRadius = UDim.new(0, 10)
+promotionCorner.Parent = promotionPanel
+
+local promotionHeader = Instance.new("TextLabel")
+promotionHeader.Position = UDim2.new(0, 12, 0, 8)
+promotionHeader.Size = UDim2.new(1, -24, 0, 18)
+promotionHeader.BackgroundTransparency = 1
+promotionHeader.Text = "PROMOTIONS // LINK BUTTON"
+promotionHeader.TextColor3 = Color3.fromRGB(214, 165, 255)
+promotionHeader.Font = Enum.Font.Code
+promotionHeader.TextSize = 10
+promotionHeader.TextXAlignment = Enum.TextXAlignment.Left
+promotionHeader.Parent = promotionPanel
+
+local promotionUrlBox = Instance.new("TextBox")
+promotionUrlBox.Name = "PromotionUrl"
+promotionUrlBox.Position = UDim2.new(0, 10, 0, 30)
+promotionUrlBox.Size = UDim2.new(1, -20, 0, 27)
+promotionUrlBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionUrlBox.BorderSizePixel = 0
+promotionUrlBox.ClearTextOnFocus = false
+promotionUrlBox.PlaceholderText = "https://www.roblox.com/share/g/..."
+promotionUrlBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionUrlBox.Text = ""
+promotionUrlBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionUrlBox.Font = Enum.Font.Code
+promotionUrlBox.TextSize = 10
+promotionUrlBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionUrlBox.Parent = promotionPanel
+
+local promotionUrlCorner = Instance.new("UICorner")
+promotionUrlCorner.CornerRadius = UDim.new(0, 6)
+promotionUrlCorner.Parent = promotionUrlBox
+
+local promotionUrlPadding = Instance.new("UIPadding")
+promotionUrlPadding.PaddingLeft = UDim.new(0, 8)
+promotionUrlPadding.PaddingRight = UDim.new(0, 8)
+promotionUrlPadding.Parent = promotionUrlBox
+
+local promotionLabelBox = Instance.new("TextBox")
+promotionLabelBox.Name = "PromotionButtonLabel"
+promotionLabelBox.Position = UDim2.new(0, 10, 0, 62)
+promotionLabelBox.Size = UDim2.new(1, -20, 0, 27)
+promotionLabelBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionLabelBox.BorderSizePixel = 0
+promotionLabelBox.ClearTextOnFocus = false
+promotionLabelBox.PlaceholderText = "Nombre del botón (ej. JOIN PROMO)"
+promotionLabelBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionLabelBox.Text = ""
+promotionLabelBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionLabelBox.Font = Enum.Font.GothamBold
+promotionLabelBox.TextSize = 10
+promotionLabelBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionLabelBox.Parent = promotionPanel
+
+local promotionLabelCorner = Instance.new("UICorner")
+promotionLabelCorner.CornerRadius = UDim.new(0, 6)
+promotionLabelCorner.Parent = promotionLabelBox
+
+local promotionLabelPadding = Instance.new("UIPadding")
+promotionLabelPadding.PaddingLeft = UDim.new(0, 8)
+promotionLabelPadding.PaddingRight = UDim.new(0, 8)
+promotionLabelPadding.Parent = promotionLabelBox
+
+local promotionUsesBox = Instance.new("TextBox")
+promotionUsesBox.Name = "PromotionUses"
+promotionUsesBox.Position = UDim2.new(0, 10, 0, 94)
+promotionUsesBox.Size = UDim2.new(0.5, -15, 0, 27)
+promotionUsesBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionUsesBox.BorderSizePixel = 0
+promotionUsesBox.ClearTextOnFocus = false
+promotionUsesBox.PlaceholderText = "Veces (0 = ilimitado)"
+promotionUsesBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionUsesBox.Text = ""
+promotionUsesBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionUsesBox.Font = Enum.Font.Code
+promotionUsesBox.TextSize = 9
+promotionUsesBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionUsesBox.Parent = promotionPanel
+
+local promotionUsesCorner = Instance.new("UICorner")
+promotionUsesCorner.CornerRadius = UDim.new(0, 6)
+promotionUsesCorner.Parent = promotionUsesBox
+
+local promotionUsesPadding = Instance.new("UIPadding")
+promotionUsesPadding.PaddingLeft = UDim.new(0, 8)
+promotionUsesPadding.Parent = promotionUsesBox
+
+local promotionIntervalBox = Instance.new("TextBox")
+promotionIntervalBox.Name = "PromotionInterval"
+promotionIntervalBox.Position = UDim2.new(0.5, 5, 0, 94)
+promotionIntervalBox.Size = UDim2.new(0.5, -15, 0, 27)
+promotionIntervalBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionIntervalBox.BorderSizePixel = 0
+promotionIntervalBox.ClearTextOnFocus = false
+promotionIntervalBox.PlaceholderText = "Minutos (0 = cada huevo)"
+promotionIntervalBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionIntervalBox.Text = ""
+promotionIntervalBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionIntervalBox.Font = Enum.Font.Code
+promotionIntervalBox.TextSize = 9
+promotionIntervalBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionIntervalBox.Parent = promotionPanel
+
+local promotionIntervalCorner = Instance.new("UICorner")
+promotionIntervalCorner.CornerRadius = UDim.new(0, 6)
+promotionIntervalCorner.Parent = promotionIntervalBox
+
+local promotionIntervalPadding = Instance.new("UIPadding")
+promotionIntervalPadding.PaddingLeft = UDim.new(0, 8)
+promotionIntervalPadding.Parent = promotionIntervalBox
+
+local promotionHint = Instance.new("TextLabel")
+promotionHint.Position = UDim2.new(0, 12, 0, 126)
+promotionHint.Size = UDim2.new(1, -24, 0, 18)
+promotionHint.BackgroundTransparency = 1
+promotionHint.Text = "URL BUTTON // DISCORD COLOR FIJO // CONFIG SAVED"
+promotionHint.TextColor3 = Color3.fromRGB(151, 255, 204)
+promotionHint.Font = Enum.Font.Code
+promotionHint.TextSize = 8
+promotionHint.TextXAlignment = Enum.TextXAlignment.Left
+promotionHint.Parent = promotionPanel
+
+local savePromotionButton = Instance.new("TextButton")
+savePromotionButton.Name = "SavePromotion"
+savePromotionButton.Position = UDim2.new(0, 10, 0, 151)
+savePromotionButton.Size = UDim2.new(1, -20, 0, 28)
+savePromotionButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
+savePromotionButton.BorderSizePixel = 0
+savePromotionButton.Text = "SAVE PROMOTION  >  READY"
+savePromotionButton.TextColor3 = Color3.fromRGB(255, 240, 255)
+savePromotionButton.Font = Enum.Font.GothamBold
+savePromotionButton.TextSize = 10
+savePromotionButton.AutoButtonColor = false
+savePromotionButton.Parent = promotionPanel
+
+local savePromotionCorner = Instance.new("UICorner")
+savePromotionCorner.CornerRadius = UDim.new(0, 7)
+savePromotionCorner.Parent = savePromotionButton
+
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "SystemStatus"
 statusLabel.Position = UDim2.new(0, 12, 1, -50)
@@ -572,16 +784,34 @@ badgeCorner.Parent = badge
 
 local POSITION_FILE = "AuraEggNotifier_ButtonPosition.json"
 local LAST_SEEN_STATE_FILE = "AuraEggNotifier_LastSeen.json"
+local PROMOTION_STATE_FILE = "AuraEggNotifier_Promotion.json"
 local localFileExists = isfile
 local localFileRead = readfile
 local localFileWrite = writefile
+local lastSeenSaveScheduled = false
 
 local lastSeenState = {
 version = 2,
 	messageId = nil,
-entries = {},
-seeded = false
+messageIds = {},
+	entries = {},
+	seeded = false
 }
+
+local sharedLastSeenMessageId = auraRuntime.AURA_EGG_NOTIFIER_LAST_SEEN_MESSAGE_ID
+if type(sharedLastSeenMessageId) == "string" and sharedLastSeenMessageId ~= "" then
+lastSeenState.messageId = sharedLastSeenMessageId
+end
+
+-- Cada webhook tiene su propio mensaje de Last Seen. El hash evita guardar
+-- el token privado del webhook dentro del archivo local de estado.
+local function getLastSeenWebhookKey(url)
+local hash = 7
+for index = 1, #url do
+hash = (hash * 31 + string.byte(url, index)) % 2147483647
+end
+return tostring(hash)
+end
 
 local function loadLastSeenState()
 	if type(localFileExists) ~= "function" or type(localFileRead) ~= "function" then
@@ -606,6 +836,21 @@ local function loadLastSeenState()
 	if type(decoded.messageId) == "string" and decoded.messageId ~= "" then
 		lastSeenState.messageId = decoded.messageId
 	end
+if type(decoded.messageIds) == "table" then
+for webhookKey, messageId in pairs(decoded.messageIds) do
+if type(webhookKey) == "string" and type(messageId) == "string" and messageId ~= "" then
+lastSeenState.messageIds[webhookKey] = messageId
+end
+end
+elseif lastSeenState.messageId then
+-- Migra el formato anterior al webhook configurado actualmente.
+local configuredWebhook = tostring(CONFIG.LastSeenWebhookURL or "")
+:gsub("%?.*$", "")
+:gsub("/+$", "")
+if configuredWebhook ~= "" and not configuredWebhook:find("PASTE_", 1, true) then
+lastSeenState.messageIds[getLastSeenWebhookKey(configuredWebhook)] = lastSeenState.messageId
+end
+end
 	if type(decoded.entries) == "table" then
 		lastSeenState.entries = decoded.entries
 	elseif type(decoded.lastSeen) == "table" then
@@ -613,12 +858,16 @@ local function loadLastSeenState()
 		-- versiones intermedias del Last Seen.
 		lastSeenState.entries = decoded.lastSeen
 	end
-if type(decoded.seeded) == "boolean" then
-lastSeenState.seeded = decoded.seeded
-end
+	if type(decoded.seeded) == "boolean" then
+		lastSeenState.seeded = decoded.seeded
+	end
 end
 
 local function saveLastSeenState()
+if lastSeenState.messageId and lastSeenState.messageId ~= "" then
+auraRuntime.AURA_EGG_NOTIFIER_LAST_SEEN_MESSAGE_ID = tostring(lastSeenState.messageId)
+end
+
 	if type(localFileWrite) ~= "function" then
 		return false
 	end
@@ -627,6 +876,70 @@ local function saveLastSeenState()
 		localFileWrite(LAST_SEEN_STATE_FILE, HttpService:JSONEncode(lastSeenState))
 	end)
 	return ok
+end
+
+local function scheduleLastSeenStateSave()
+if lastSeenSaveScheduled then return end
+lastSeenSaveScheduled = true
+task.delay(3, function()
+lastSeenSaveScheduled = false
+saveLastSeenState()
+end)
+end
+
+local function cleanPromotionInput(value)
+return (tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+local function loadPromotionState()
+if type(localFileExists) ~= "function" or type(localFileRead) ~= "function" then
+return
+end
+
+local existsOk, exists = pcall(function()
+return localFileExists(PROMOTION_STATE_FILE)
+end)
+if not existsOk or not exists then return end
+
+local readOk, raw = pcall(function()
+return localFileRead(PROMOTION_STATE_FILE)
+end)
+if not readOk or not raw or raw == "" then return end
+
+local decodeOk, decoded = pcall(function()
+return HttpService:JSONDecode(raw)
+end)
+if not decodeOk or type(decoded) ~= "table" then return end
+
+if type(decoded.url) == "string" then
+promotionState.url = decoded.url
+end
+if type(decoded.label) == "string" then
+promotionState.label = decoded.label
+end
+if tonumber(decoded.maxUses) then
+promotionState.maxUses = math.max(0, math.floor(tonumber(decoded.maxUses)))
+end
+if tonumber(decoded.used) then
+promotionState.used = math.max(0, math.floor(tonumber(decoded.used)))
+end
+if tonumber(decoded.intervalMinutes) then
+promotionState.intervalMinutes = math.max(0, tonumber(decoded.intervalMinutes))
+end
+if tonumber(decoded.nextAvailableAt) then
+promotionState.nextAvailableAt = tonumber(decoded.nextAvailableAt)
+end
+end
+
+local function savePromotionState()
+if type(localFileWrite) ~= "function" then
+return false
+end
+
+local ok = pcall(function()
+localFileWrite(PROMOTION_STATE_FILE, HttpService:JSONEncode(promotionState))
+end)
+return ok
 end
 
 local function saveTogglePosition()
@@ -678,6 +991,12 @@ end
 
 loadTogglePosition()
 loadLastSeenState()
+loadPromotionState()
+
+promotionUrlBox.Text = promotionState.url
+promotionLabelBox.Text = promotionState.label
+promotionUsesBox.Text = tostring(promotionState.maxUses)
+promotionIntervalBox.Text = tostring(promotionState.intervalMinutes)
 
 local activeCards = {}
 local layoutCounter = 0
@@ -720,18 +1039,69 @@ local function updateStatus(text, color)
 	)
 end
 
+savePromotionButton.MouseButton1Click:Connect(function()
+local url = cleanPromotionInput(promotionUrlBox.Text)
+local label = cleanPromotionInput(promotionLabelBox.Text)
+local maxUsesText = cleanPromotionInput(promotionUsesBox.Text)
+local intervalText = cleanPromotionInput(promotionIntervalBox.Text)
+local maxUses = maxUsesText == "" and 0 or tonumber(maxUsesText)
+local intervalMinutes = intervalText == "" and 0 or tonumber(intervalText)
+
+if url ~= "" and not url:match("^https?://%S+$") then
+updateStatus("PROMOTIONS // INVALID URL", Color3.fromRGB(255, 92, 133))
+return
+end
+
+if #label > 80 then
+updateStatus("PROMOTIONS // BUTTON NAME TOO LONG", Color3.fromRGB(255, 92, 133))
+return
+end
+
+if not maxUses
+or not intervalMinutes
+or maxUses ~= maxUses
+or intervalMinutes ~= intervalMinutes
+or maxUses < 0
+or intervalMinutes < 0
+or maxUses % 1 ~= 0 then
+updateStatus("PROMOTIONS // VALUES MUST BE POSITIVE", Color3.fromRGB(255, 92, 133))
+return
+end
+
+promotionState.url = url
+promotionState.label = label ~= "" and label or "PROMOTION"
+promotionState.maxUses = math.floor(maxUses)
+promotionState.used = 0
+promotionState.intervalMinutes = intervalMinutes
+promotionState.nextAvailableAt = 0
+savePromotionState()
+
+if url == "" then
+savePromotionButton.Text = "SAVE PROMOTION  >  DISABLED"
+updateStatus("PROMOTIONS // BUTTON DISABLED", Color3.fromRGB(214, 165, 255))
+else
+savePromotionButton.Text = "SAVED [OK]  // NEXT EGG"
+updateStatus("PROMOTIONS // BUTTON READY", Color3.fromRGB(151, 255, 204))
+end
+end)
+
 local activeSection = "LOG"
 
 local function setActiveSection(section)
 	activeSection = section
 	local showLog = section == "LOG"
+local showPromotions = section == "PROMOTIONS"
 	logPanel.Visible = showLog
-	announcementPanel.Visible = not showLog
+promotionPanel.Visible = showPromotions
+announcementPanel.Visible = section == "ANNOUNCER"
 	styleTab(logTab, showLog)
-	styleTab(announcerTab, not showLog)
+styleTab(promotionTab, showPromotions)
+styleTab(announcerTab, section == "ANNOUNCER")
 
 	if showLog then
 		updateStatus("MONITOR // LOG STREAM ACTIVE", Color3.fromRGB(99, 255, 154))
+elseif showPromotions then
+updateStatus("PROMOTIONS // CONFIGURATION READY", Color3.fromRGB(214, 165, 255))
 	else
 		updateStatus("ANNOUNCER // EMBED BUILDER READY", Color3.fromRGB(214, 165, 255))
 	end
@@ -739,6 +1109,10 @@ end
 
 logTab.MouseButton1Click:Connect(function()
 	setActiveSection("LOG")
+end)
+
+promotionTab.MouseButton1Click:Connect(function()
+setActiveSection("PROMOTIONS")
 end)
 
 announcerTab.MouseButton1Click:Connect(function()
@@ -948,22 +1322,27 @@ local EGG_ROLE_MENTIONS = {
 	{name = "centaur", roleId = "1551573300021567531"}
 }
 
+local EGG_ROLE_ID_SET = {}
+for _, eggRole in ipairs(EGG_ROLE_MENTIONS) do
+EGG_ROLE_ID_SET[eggRole.roleId] = true
+end
+
 -- Catálogo fijo del Last Seen. Se muestran todos los huevos conocidos:
 -- los que todavía no tienen fecha quedan como "No registrada".
 local LAST_SEEN_RARITY_ORDER = {"Divine", "Eternal", "Secret"}
 local LAST_SEEN_STYLES = {
 	Divine = {
-emoji = "<:Divine:1551677739411574794>",
+		emoji = "<:Divine:1551677739411574794>",
 		color = 0xFFD700,
 		separator = "divine"
 	},
 	Eternal = {
-emoji = "<:Eternal:1551677658327162940>",
+		emoji = "<:Eternal:1551677658327162940>",
 		color = 0x9B30FF,
 		separator = "eternal"
 	},
 	Secret = {
-emoji = "<:Secret:1551677570389643395>",
+		emoji = "<:Secret:1551677570389643395>",
 		color = 0x010101,
 		separator = "secret"
 	}
@@ -974,95 +1353,41 @@ local LAST_SEEN_ASSET_BASE_URL =
 
 local LAST_SEEN_CATALOG = {
 	Divine = {
-{name = "Nightflame", key = "nightflame", emoji = "<:Nightflame:1551671258419044443>"},
-{name = "Unicorn", key = "unicorn", emoji = "<:Unicorn:1551671338048032898>"},
-{name = "World Burner", key = "worldburner", emoji = "<:World_Burner:1551671096422572222>"},
-{name = "Kitsune", key = "kitsune", emoji = "<:Kitsune:1551671214408204438>"},
-{name = "ArchAngel", key = "archangel", emoji = "<:ArchAngel:1551671132652839032>"}
+		{name = "Nightflame", key = "nightflame", emoji = "<:Nightflame:1551671258419044443>"},
+		{name = "Unicorn", key = "unicorn", emoji = "<:Unicorn:1551671338048032898>"},
+		{name = "World Burner", key = "worldburner", emoji = "<:World_Burner:1551671096422572222>"},
+		{name = "Kitsune", key = "kitsune", emoji = "<:Kitsune:1551671214408204438>"},
+		{name = "ArchAngel", key = "archangel", emoji = "<:ArchAngel:1551671132652839032>"}
 	},
 	Eternal = {
-{name = "El Maja", key = "elmaja", emoji = "<:El_Maja:1551670796710187128>"},
-{name = "Oni Tiger", key = "onitiger", emoji = "<:Oni_Tiger:1551670714241650698>"},
-{name = "Phoenix", key = "phoenix", emoji = "<:Phoenix:1551671600523386890>"},
-{name = "Gorilla King", key = "gorillaking", emoji = "<:Gorilla_King:1551670961906913280>"},
-{name = "Skeleton Horse", key = "skeletonhorse", emoji = "<:Skeleton_Horse:1551670754125283328>"},
-{name = "Lava Dragon", key = "lavadragon", emoji = "<:Lava_Dragon:1551670919846436975>"},
-{name = "Pegasus", key = "pegasus", emoji = "<:Pegasus:1551670885033836605>"},
-{name = "Mosasaurus", key = "mosasaurus", emoji = "<:Mosasaurus:1551671548019081316>"},
-{name = "Eternal Lunar Dragon", key = "eternallunardragon", emoji = "<:Eternal_Lunar_Dragon:1551671047118528683>"},
-{name = "Ice Dragon", key = "icedragon", emoji = "<:Ice_Dragon:1551670998003351682>"}
+		{name = "El Maja", key = "elmaja", emoji = "<:El_Maja:1551670796710187128>"},
+		{name = "Oni Tiger", key = "onitiger", emoji = "<:Oni_Tiger:1551670714241650698>"},
+		{name = "Phoenix", key = "phoenix", emoji = "<:Phoenix:1551671600523386890>"},
+		{name = "Gorilla King", key = "gorillaking", emoji = "<:Gorilla_King:1551670961906913280>"},
+		{name = "Skeleton Horse", key = "skeletonhorse", emoji = "<:Skeleton_Horse:1551670754125283328>"},
+		{name = "Lava Dragon", key = "lavadragon", emoji = "<:Lava_Dragon:1551670919846436975>"},
+		{name = "Pegasus", key = "pegasus", emoji = "<:Pegasus:1551670885033836605>"},
+		{name = "Mosasaurus", key = "mosasaurus", emoji = "<:Mosasaurus:1551671548019081316>"},
+		{name = "Eternal Lunar Dragon", key = "eternallunardragon", emoji = "<:Eternal_Lunar_Dragon:1551671047118528683>"},
+		{name = "Ice Dragon", key = "icedragon", emoji = "<:Ice_Dragon:1551670998003351682>"}
 	},
 	Secret = {
-{name = "Stag", key = "stag", emoji = "<:Stag:1551670264050352188>"},
-{name = "Pure Jellyfish", key = "purejellyfish", emoji = "<:Pure_Jellyfish:1551670502186291241>"},
-{name = "RazorFang", key = "razorfang", emoji = "<:RazorFang:1551670065387020359>"},
-{name = "Gargoyle", key = "gargoyle", emoji = "<:Gargoyle:1551670608280944640>"},
-{name = "Cosmic Skeleton Boss", key = "cosmicskeletonboss", emoji = "<:Cosmic_Skeleton_Boss:1551670370203861102>"},
-{name = "Tralaledon", key = "tralaledon", emoji = "<:Tralaledon:1551670147801026672>"},
-{name = "Cerberus", key = "cerberus", emoji = "<:Cerberus:1551670182680731709>"},
-{name = "Mutant Shark", key = "mutantshark", emoji = "<:MutantShark:1551670224493744258>"},
-{name = "Cosmic Dragon", key = "cosmicdragon", emoji = "<:Cosmic_Dragon:1551670415972241458>"},
-{name = "TRex", key = "trex", emoji = "<:TRex:1551670552232595618>"},
-{name = "Yeti", key = "yeti", emoji = "<:Yeti:1551670658897940481>"},
-{name = "Kraken", key = "kraken", emoji = "<:Kraken:1551670466090111027>"},
-{name = "Centaur", key = "centaur", emoji = "<:Centaur:1551670291749670922>"},
-{name = "King Snake", key = "kingsnake", emoji = "<:King_Snake:1551670106675879936>"}
+		{name = "Stag", key = "stag", emoji = "<:Stag:1551670264050352188>"},
+		{name = "Pure Jellyfish", key = "purejellyfish", emoji = "<:Pure_Jellyfish:1551670502186291241>"},
+		{name = "RazorFang", key = "razorfang", emoji = "<:RazorFang:1551670065387020359>"},
+		{name = "Gargoyle", key = "gargoyle", emoji = "<:Gargoyle:1551670608280944640>"},
+		{name = "Cosmic Skeleton Boss", key = "cosmicskeletonboss", emoji = "<:Cosmic_Skeleton_Boss:1551670370203861102>"},
+		{name = "Tralaledon", key = "tralaledon", emoji = "<:Tralaledon:1551670147801026672>"},
+		{name = "Cerberus", key = "cerberus", emoji = "<:Cerberus:1551670182680731709>"},
+		{name = "Mutant Shark", key = "mutantshark", emoji = "<:MutantShark:1551670224493744258>"},
+		{name = "Cosmic Dragon", key = "cosmicdragon", emoji = "<:Cosmic_Dragon:1551670415972241458>"},
+		{name = "TRex", key = "trex", emoji = "<:TRex:1551670552232595618>"},
+		{name = "Yeti", key = "yeti", emoji = "<:Yeti:1551670658897940481>"},
+		{name = "Kraken", key = "kraken", emoji = "<:Kraken:1551670466090111027>"},
+		{name = "Centaur", key = "centaur", emoji = "<:Centaur:1551670291749670922>"},
+		{name = "King Snake", key = "kingsnake", emoji = "<:King_Snake:1551670106675879936>"}
 	}
 }
-
--- Valores iniciales del embed actualizado. Se aplican una sola vez:
--- los spawns posteriores actualizan únicamente el huevo que apareció.
-local LAST_SEEN_INITIAL_TIMES = {
-nightflame = 1790013065,
-unicorn = 1789980058,
-worldburner = 1790109902,
-kitsune = 1790111102,
-archangel = 1789440624,
-
-elmaja = 1790107802,
-onitiger = 1790109602,
-phoenix = 1790083202,
-gorillaking = 1790092802,
-skeletonhorse = 1790124902,
-lavadragon = 1790116202,
-pegasus = 1790112902,
-mosasaurus = 1790091602,
-eternallunardragon = 1790121902,
-icedragon = 1790100902,
-
-stag = 1790124902,
-purejellyfish = 1790124302,
-razorfang = 1790116502,
-gargoyle = 1790126402,
-cosmicskeletonboss = 1790117102,
-tralaledon = 1790104202,
-cerberus = 1790126702,
-mutantshark = 1790125802,
-cosmicdragon = 1790126102,
-trex = 1790127303,
-yeti = 1790100902,
-kraken = 1790125202,
-centaur = 1790123102,
-kingsnake = 1789967163
-}
-
-local function seedLastSeenState()
-if lastSeenState.seeded then return end
-
-for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
-for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
-if not tonumber(lastSeenState.entries[entry.key])
-and LAST_SEEN_INITIAL_TIMES[entry.key] then
-lastSeenState.entries[entry.key] = LAST_SEEN_INITIAL_TIMES[entry.key]
-end
-end
-end
-
-lastSeenState.seeded = true
-saveLastSeenState()
-end
-
-seedLastSeenState()
 
 local EGG_EMOJI_BY_KEY = {}
 for _, rarityEntries in pairs(LAST_SEEN_CATALOG) do
@@ -1072,24 +1397,58 @@ EGG_EMOJI_BY_KEY[entryKey] = entry.emoji
 end
 end
 
-local function getEggDisplayData(text)
-local lower = tostring(text or ""):lower()
-local selected = nil
+-- Estado inicial solicitado. Solo se aplica una vez; después los valores
+-- quedan en AuraEggNotifier_LastSeen.json y cada spawn nuevo los reemplaza.
+local LAST_SEEN_INITIAL_TIMES = {
+	nightflame = 1790013065,
+	unicorn = 1789980058,
+	worldburner = 1790109902,
+	kitsune = 1790111102,
+	archangel = 1789440624,
 
-for _, egg in ipairs(EGG_ROLE_MENTIONS) do
-if lower:find(egg.name, 1, true)
-and (not selected or #egg.name > #selected.name) then
-selected = egg
-end
+	elmaja = 1790107802,
+	onitiger = 1790109602,
+	phoenix = 1790083202,
+	gorillaking = 1790092802,
+	skeletonhorse = 1790124902,
+	lavadragon = 1790116202,
+	pegasus = 1790112902,
+	mosasaurus = 1790091602,
+	eternallunardragon = 1790121902,
+	icedragon = 1790100902,
+
+	stag = 1790124902,
+	purejellyfish = 1790124302,
+	razorfang = 1790116502,
+	gargoyle = 1790126402,
+	cosmicskeletonboss = 1790117102,
+	tralaledon = 1790104202,
+	cerberus = 1790126702,
+	mutantshark = 1790125802,
+	cosmicdragon = 1790126102,
+	trex = 1790127303,
+	yeti = 1790100902,
+	kraken = 1790125202,
+	centaur = 1790123102,
+	kingsnake = 1789967163
+}
+
+local function seedLastSeenState()
+	if lastSeenState.seeded then return end
+
+	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
+		for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
+			if lastSeenState.entries[entry.key] == nil then
+				lastSeenState.entries[entry.key] = LAST_SEEN_INITIAL_TIMES[entry.key]
+			end
+		end
+	end
+
+	lastSeenState.seeded = true
+	saveLastSeenState()
 end
 
-if not selected then
-return nil, nil
-end
-
-local eggKey = selected.name:lower():gsub("[^a-z0-9]", "")
-return EGG_EMOJI_BY_KEY[eggKey], "<@&" .. selected.roleId .. ">"
-end
+seedLastSeenState()
 
 local function getRarityRank(text)
 	local lower = text:lower()
@@ -1153,7 +1512,7 @@ local function replaceRarityWithMention(text)
 					end
 
 					return text:sub(1, articleStart - 1)
-						.. "A <@&" .. rarity.roleId .. ">"
+.. "A **" .. text:sub(rarityStart, rarityEnd) .. "**"
 						.. text:sub(replacementEnd + 1)
 				end
 			end
@@ -1196,7 +1555,42 @@ local function replaceEggNameWithMention(text)
 		true
 end
 
+local function getEggDisplayData(text)
+local lower = tostring(text or ""):lower()
+local selected = nil
+
+for _, egg in ipairs(EGG_ROLE_MENTIONS) do
+if lower:find(egg.name, 1, true)
+and (not selected or #egg.name > #selected.name) then
+selected = egg
+end
+end
+
+if not selected then
+return nil, nil
+end
+
+local eggKey = selected.name:lower():gsub("[^a-z0-9]", "")
+return EGG_EMOJI_BY_KEY[eggKey], "<@&" .. selected.roleId .. ">"
+end
+
+local function getHttpStatusCode(response)
+local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
+local statusCode = tonumber(rawStatus)
+if statusCode then
+return statusCode
+end
+
+local numericStatus = tostring(rawStatus or ""):match("%d%d%d")
+return tonumber(numericStatus) or 0
+end
+
 local function sendWebhookPayload(payload, successText, onDone)
+if scriptStopped then
+if onDone then onDone(false) end
+return
+end
+
 	if not httpRequest then
 		updateStatus("HTTP unavailable", Color3.fromRGB(255, 92, 133))
 		if onDone then onDone(false) end
@@ -1204,6 +1598,11 @@ local function sendWebhookPayload(payload, successText, onDone)
 	end
 
 	task.spawn(function()
+if scriptStopped then
+if onDone then onDone(false) end
+return
+end
+
 		local webhookUrl = CONFIG.WebhookURL
 		if payload.components then
 			webhookUrl = webhookUrl
@@ -1224,7 +1623,7 @@ local function sendWebhookPayload(payload, successText, onDone)
 		end)
 		
 		if success and response then
-			local code = response.StatusCode or response.Status or 0
+local code = getHttpStatusCode(response)
 			if code >= 200 and code < 300 then
 				updateStatus(successText, Color3.fromRGB(99, 255, 154))
 				if onDone then onDone(true) end
@@ -1336,11 +1735,10 @@ local function buildLastSeenContainer(rarity)
 			{
 				type = 10,
 				content = string.format(
-					"## %s %s — Last Seen\n-# %d/%d registradas",
+					"## %s %s — Last Seen\n-# %d registradas",
 					style.emoji,
 					rarity,
-					registered,
-					#catalog
+					registered
 				)
 			},
 			buildLastSeenSeparator(style.separator),
@@ -1370,7 +1768,7 @@ local function buildLastSeenPayload(referenceTime)
 		components,
 		{
 			type = 10,
-			content = "-# AURA • AURA FAMILY X • Actualizado <t:"
+			content = "-# Last Seen • AURA FAMILY X • Actualizado <t:"
 				.. tostring(math.floor(tonumber(referenceTime) or os.time()))
 				.. ":R>"
 		}
@@ -1383,9 +1781,14 @@ local function buildLastSeenPayload(referenceTime)
 end
 
 local function getWebhookBaseUrl()
-	return tostring(CONFIG.WebhookURL or "")
+	return tostring(CONFIG.LastSeenWebhookURL or "")
 		:gsub("%?.*$", "")
 		:gsub("/+$", "")
+end
+
+local function isLastSeenWebhookConfigured()
+	local url = getWebhookBaseUrl()
+	return url ~= "" and not url:find("PASTE_", 1, true)
 end
 
 local function appendWebhookQuery(url, query)
@@ -1410,12 +1813,22 @@ local function decodeWebhookResponse(response)
 end
 
 local function executeLastSeenRequest(method, url, payload, onDone)
+if scriptStopped then
+if onDone then onDone(false, 0, nil) end
+return
+end
+
 	if not httpRequest then
 		if onDone then onDone(false, 0, nil) end
 		return
 	end
 
 	task.spawn(function()
+if scriptStopped then
+if onDone then onDone(false, 0, nil) end
+return
+end
+
 		local requestOk, response = pcall(function()
 			return httpRequest({
 				Url = url,
@@ -1433,7 +1846,7 @@ local function executeLastSeenRequest(method, url, payload, onDone)
 			return
 		end
 
-		local statusCode = tonumber(response.StatusCode or response.Status) or 0
+local statusCode = getHttpStatusCode(response)
 		local responseBody = decodeWebhookResponse(response)
 		local ok = statusCode >= 200 and statusCode < 300
 		if onDone then onDone(ok, statusCode, responseBody) end
@@ -1441,29 +1854,53 @@ local function executeLastSeenRequest(method, url, payload, onDone)
 end
 
 local function upsertLastSeenMessage(payload, onDone)
+if scriptStopped then
+if onDone then onDone(false) end
+return
+end
+
 	local baseUrl = getWebhookBaseUrl()
-	local messageId = lastSeenState.messageId
+local webhookKey = getLastSeenWebhookKey(baseUrl)
+local configuredMessageId = tostring(CONFIG.LastSeenMessageID or "")
+local messageId = (configuredMessageId ~= "" and configuredMessageId or nil)
+or lastSeenState.messageIds[webhookKey]
+or lastSeenState.messageId
 
 	if messageId and messageId ~= "" then
+lastSeenState.messageId = tostring(messageId)
+lastSeenState.messageIds[webhookKey] = tostring(messageId)
 		executeLastSeenRequest(
 			"PATCH",
 			appendWebhookQuery(baseUrl .. "/messages/" .. tostring(messageId), "with_components=true"),
 			payload,
-			function(ok, statusCode)
+function(ok, statusCode)
 				if ok then
-					if onDone then onDone(true) end
+lastSeenState.messageIds[webhookKey] = tostring(messageId)
+lastSeenState.messageId = tostring(messageId)
+scheduleLastSeenStateSave()
+if onDone then onDone(true, statusCode) end
 					return
 				end
 
 				-- Solo crea otro mensaje si el anterior ya no existe.
 				-- Un error temporal no debe duplicar el Last Seen.
 				if statusCode ~= 404 and statusCode ~= 10008 then
-					if onDone then onDone(false) end
+if onDone then onDone(false, statusCode) end
 					return
 				end
 
-				lastSeenState.messageId = nil
-				saveLastSeenState()
+if configuredMessageId ~= "" then
+-- El mensaje permanente está configurado explícitamente. No se crea
+-- un mensaje nuevo si Discord no encuentra ese ID.
+if onDone then onDone(false, statusCode) end
+return
+end
+
+lastSeenState.messageIds[webhookKey] = nil
+if lastSeenState.messageId == tostring(messageId) then
+lastSeenState.messageId = nil
+end
+scheduleLastSeenStateSave()
 				upsertLastSeenMessage(payload, onDone)
 			end
 		)
@@ -1476,48 +1913,73 @@ local function upsertLastSeenMessage(payload, onDone)
 		payload,
 		function(ok, statusCode, responseBody)
 			local newMessageId = responseBody and responseBody.id
+if not newMessageId and responseBody and responseBody.message then
+newMessageId = responseBody.message.id
+end
 			if ok and newMessageId then
-				lastSeenState.messageId = tostring(newMessageId)
-				saveLastSeenState()
-				if onDone then onDone(true) end
+lastSeenState.messageId = tostring(newMessageId)
+lastSeenState.messageIds[webhookKey] = tostring(newMessageId)
+scheduleLastSeenStateSave()
+if onDone then onDone(true, statusCode) end
 				return
 			end
 
-			if onDone then onDone(false) end
+if onDone then onDone(false, statusCode) end
 		end
 	)
 end
 
 local lastSeenUpdateInFlight = false
 local lastSeenUpdateQueued = false
+local lastSeenRetryAfter = 0
 
 local function scheduleLastSeenUpdate()
+if scriptStopped or not isLastSeenWebhookConfigured() then
+		return
+	end
+
+if os.time() < lastSeenRetryAfter then
+return
+end
+
 	lastSeenUpdateQueued = true
 	if lastSeenUpdateInFlight then return end
 
 	lastSeenUpdateInFlight = true
-	task.spawn(function()
-		while lastSeenUpdateQueued do
+task.spawn(function()
+while lastSeenUpdateQueued and not scriptStopped do
 			lastSeenUpdateQueued = false
 			local finished = false
 			local succeeded = false
+local failureStatus = 0
 
 			upsertLastSeenMessage(
 				buildLastSeenPayload(os.time()),
-				function(ok)
+function(ok, statusCode)
 					succeeded = ok
+failureStatus = tonumber(statusCode) or 0
 					finished = true
 				end
 			)
 
-			while not finished do
+while not finished and not scriptStopped do
 				task.wait()
 			end
 
+if scriptStopped then
+return
+end
+
 			if succeeded then
+lastSeenRetryAfter = 0
 				updateStatus("LAST SEEN // UPDATED", Color3.fromRGB(151, 255, 204))
 			else
-				updateStatus("LAST SEEN // UPDATE FAILED", Color3.fromRGB(255, 92, 133))
+lastSeenRetryAfter = os.time() + 30
+updateStatus(
+"LAST SEEN // UPDATE FAILED"
+.. (failureStatus > 0 and (" [" .. tostring(failureStatus) .. "]") or ""),
+Color3.fromRGB(255, 92, 133)
+)
 			end
 		end
 		lastSeenUpdateInFlight = false
@@ -1536,7 +1998,7 @@ local function recordLastSeenSpawn(text, spawnedAt)
 	if previous and previous >= timestamp then return end
 
 	lastSeenState.entries[entry.key] = timestamp
-	saveLastSeenState()
+scheduleLastSeenStateSave()
 	scheduleLastSeenUpdate()
 end
 
@@ -1660,12 +2122,43 @@ local function getGameFallbackUrl()
 	)
 end
 
-task.spawn(function()
-	while screenGui.Parent do
-		refreshPublicServerCache()
-		task.wait(CONFIG.ServerRefreshInterval)
-	end
-end)
+-- No se refresca la lista pública en segundo plano: esa consulta HTTP
+-- periódica provocaba congelamientos visibles durante la partida.
+-- Join Game usa el enlace directo del servidor actual como fallback.
+
+local function getPromotionButton()
+if type(promotionState.url) ~= "string"
+or promotionState.url == ""
+or not promotionState.url:match("^https?://%S+$") then
+return nil
+end
+
+local now = os.time()
+if promotionState.maxUses > 0 and promotionState.used >= promotionState.maxUses then
+return nil
+end
+
+if now < (tonumber(promotionState.nextAvailableAt) or 0) then
+return nil
+end
+
+return {{
+type = 1,
+components = {{
+type = 2,
+style = 5,
+label = promotionState.label ~= "" and promotionState.label or "PROMOTION",
+url = promotionState.url
+}}
+}}
+end
+
+local function registerPromotionUse()
+promotionState.used = promotionState.used + 1
+promotionState.nextAvailableAt = os.time()
+.. math.floor((tonumber(promotionState.intervalMinutes) or 0) * 60)
+savePromotionState()
+end
 
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
@@ -1673,21 +2166,21 @@ local function sendEggAlert(description, sourceText, onDone)
 			content = description
 		}
 
-		-- Permite explícitamente solo el rol que aparece en este mensaje.
-		-- Sin esto Discord puede mostrar el texto de la mención sin notificar.
+-- Permite explícitamente solo el rol de la mascota.
+-- La mención de rareza se conserva como decoración, pero no genera ping.
 		local roleIds = {}
 		local seenRoleIds = {}
 		for roleId in description:gmatch("<@&(%d+)>") do
-			if not seenRoleIds[roleId] then
+if EGG_ROLE_ID_SET[roleId] and not seenRoleIds[roleId] then
 				seenRoleIds[roleId] = true
 				table.insert(roleIds, roleId)
 			end
 		end
 
-		if #roleIds > 0 then
-			payload.allowed_mentions = {
-				roles = roleIds
-			}
+if #roleIds > 0 then
+payload.allowed_mentions = {
+roles = roleIds
+}
 		end
 
 		local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
@@ -1698,7 +2191,17 @@ payload.content = payload.content
 .. "━━━━━━━━━━━━━━━━━━━━"
 		end
 
-sendWebhookPayload(payload, "WEBHOOK RELEASE // SENT", onDone)
+local promotionButton = getPromotionButton()
+if promotionButton then
+payload.components = promotionButton
+end
+
+sendWebhookPayload(payload, "WEBHOOK RELEASE // SENT", function(success)
+if success and promotionButton then
+registerPromotionUse()
+end
+if onDone then onDone(success) end
+end)
 	end)
 end
 
@@ -1754,8 +2257,8 @@ local message = replaceRarityWithMention(text)
 local eggMentioned
 message, eggMentioned = replaceEggNameWithMention(message)
 local eggEmoji, eggMention = getEggDisplayData(text)
-local spawnedDescription = tostring(text or ""):match("[Ee]gg%s+[Ss]pawned%s+(.+)$")
 
+local spawnedDescription = tostring(text or ""):match("[Ee]gg%s+[Ss]pawned%s+(.+)$")
 if spawnedDescription then
 spawnedDescription = "Egg spawned " .. spawnedDescription
 else
@@ -1772,8 +2275,8 @@ headline = message
 end
 
 return string.format(
-"> %s\n\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:R>\n━━━━━━━━━━━━━━━━━━━━",
-headline,
+		"> %s\n\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:R>\n━━━━━━━━━━━━━━━━━━━━",
+		headline,
 tonumber(spawnedAt) or os.time()
 )
 end
@@ -2036,6 +2539,8 @@ body.Position = UDim2.new(0, 14, 0, 38)
 end
 
 local function processText(raw)
+if scriptStopped then return end
+
 	local clean = cleanText(raw)
 	if clean == "" then return end
 	local lower = clean:lower()
