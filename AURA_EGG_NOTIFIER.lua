@@ -8,6 +8,15 @@
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 
+local auraRuntime = (type(getgenv) == "function" and getgenv()) or _G
+if type(auraRuntime.AURA_EGG_NOTIFIER_STOP) == "function" then
+pcall(auraRuntime.AURA_EGG_NOTIFIER_STOP)
+end
+local scriptStopped = false
+auraRuntime.AURA_EGG_NOTIFIER_STOP = function()
+scriptStopped = true
+end
+
 local CONFIG = {
 	WebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_WEBHOOK)
 		or "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
@@ -51,6 +60,15 @@ local priorityVersion = 0
 local lastJoinServerId = nil
 local cachedPublicServerIds = {}
 local serverCacheRefreshing = false
+local promotionState = {
+version = 1,
+url = "",
+label = "PROMOTION",
+maxUses = 0,
+used = 0,
+intervalMinutes = 0,
+nextAvailableAt = 0
+}
 
 if playerGui:FindFirstChild("EggDetectorStealth") then
 	playerGui.EggDetectorStealth:Destroy()
@@ -288,8 +306,8 @@ logLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshLogCanv
 
 local navigation = Instance.new("Frame")
 navigation.Name = "Navigation"
-navigation.Position = UDim2.new(0.5, -120, 0, 64)
-navigation.Size = UDim2.new(0, 240, 0, 28)
+navigation.Position = UDim2.new(0.5, -160, 0, 64)
+navigation.Size = UDim2.new(0, 320, 0, 28)
 navigation.BackgroundTransparency = 1
 navigation.Parent = panel
 
@@ -314,7 +332,7 @@ end
 
 local logTab = Instance.new("TextButton")
 logTab.Name = "LogTab"
-logTab.Size = UDim2.new(0, 102, 1, 0)
+logTab.Size = UDim2.new(0, 100, 1, 0)
 logTab.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 logTab.BorderSizePixel = 0
 logTab.Text = ""
@@ -351,10 +369,50 @@ local logTabCorner = Instance.new("UICorner")
 logTabCorner.CornerRadius = UDim.new(0, 6)
 logTabCorner.Parent = logTab
 
+local promotionTab = Instance.new("TextButton")
+promotionTab.Name = "PromotionsTab"
+promotionTab.Position = UDim2.new(0, 108, 0, 0)
+promotionTab.Size = UDim2.new(0, 102, 1, 0)
+promotionTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
+promotionTab.BorderSizePixel = 0
+promotionTab.Text = ""
+promotionTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+promotionTab.Font = Enum.Font.Code
+promotionTab.TextSize = 14
+promotionTab.TextXAlignment = Enum.TextXAlignment.Center
+promotionTab.TextYAlignment = Enum.TextYAlignment.Center
+promotionTab.AutoButtonColor = false
+promotionTab.Parent = navigation
+
+local promotionTabIcon = createCanvasIcon(
+promotionTab,
+"spark",
+promotionTab.TextColor3,
+UDim2.new(0, 16, 0, 16),
+UDim2.new(0, 15, 0.5, 0),
+"TabIcon"
+)
+local promotionTabLabel = Instance.new("TextLabel")
+promotionTabLabel.Name = "TabLabel"
+promotionTabLabel.Position = UDim2.new(0, 30, 0, 0)
+promotionTabLabel.Size = UDim2.new(1, -34, 1, 0)
+promotionTabLabel.BackgroundTransparency = 1
+promotionTabLabel.Text = "PROMOTIONS"
+promotionTabLabel.TextColor3 = promotionTab.TextColor3
+promotionTabLabel.Font = Enum.Font.Code
+promotionTabLabel.TextSize = 9
+promotionTabLabel.TextXAlignment = Enum.TextXAlignment.Left
+promotionTabLabel.TextYAlignment = Enum.TextYAlignment.Center
+promotionTabLabel.Parent = promotionTab
+
+local promotionTabCorner = Instance.new("UICorner")
+promotionTabCorner.CornerRadius = UDim.new(0, 6)
+promotionTabCorner.Parent = promotionTab
+
 local announcerTab = Instance.new("TextButton")
 announcerTab.Name = "AnnouncerTab"
-announcerTab.Position = UDim2.new(0, 108, 0, 0)
-announcerTab.Size = UDim2.new(0, 132, 1, 0)
+announcerTab.Position = UDim2.new(0, 216, 0, 0)
+announcerTab.Size = UDim2.new(0, 104, 1, 0)
 announcerTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 announcerTab.BorderSizePixel = 0
 announcerTab.Text = ""
@@ -498,6 +556,157 @@ local sendAnnouncementCorner = Instance.new("UICorner")
 sendAnnouncementCorner.CornerRadius = UDim.new(0, 7)
 sendAnnouncementCorner.Parent = sendAnnouncementButton
 
+local promotionPanel = Instance.new("Frame")
+promotionPanel.Name = "PromotionBuilder"
+promotionPanel.Position = UDim2.new(0, 12, 0, 100)
+promotionPanel.Size = UDim2.new(1, -24, 1, -150)
+promotionPanel.BackgroundColor3 = Color3.fromRGB(29, 19, 45)
+promotionPanel.BackgroundTransparency = 0.05
+promotionPanel.BorderSizePixel = 0
+promotionPanel.Visible = false
+promotionPanel.Parent = panel
+
+local promotionCorner = Instance.new("UICorner")
+promotionCorner.CornerRadius = UDim.new(0, 10)
+promotionCorner.Parent = promotionPanel
+
+local promotionHeader = Instance.new("TextLabel")
+promotionHeader.Position = UDim2.new(0, 12, 0, 8)
+promotionHeader.Size = UDim2.new(1, -24, 0, 18)
+promotionHeader.BackgroundTransparency = 1
+promotionHeader.Text = "PROMOTIONS // LINK BUTTON"
+promotionHeader.TextColor3 = Color3.fromRGB(214, 165, 255)
+promotionHeader.Font = Enum.Font.Code
+promotionHeader.TextSize = 10
+promotionHeader.TextXAlignment = Enum.TextXAlignment.Left
+promotionHeader.Parent = promotionPanel
+
+local promotionUrlBox = Instance.new("TextBox")
+promotionUrlBox.Name = "PromotionUrl"
+promotionUrlBox.Position = UDim2.new(0, 10, 0, 30)
+promotionUrlBox.Size = UDim2.new(1, -20, 0, 27)
+promotionUrlBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionUrlBox.BorderSizePixel = 0
+promotionUrlBox.ClearTextOnFocus = false
+promotionUrlBox.PlaceholderText = "https://www.roblox.com/share/g/..."
+promotionUrlBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionUrlBox.Text = ""
+promotionUrlBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionUrlBox.Font = Enum.Font.Code
+promotionUrlBox.TextSize = 10
+promotionUrlBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionUrlBox.Parent = promotionPanel
+
+local promotionUrlCorner = Instance.new("UICorner")
+promotionUrlCorner.CornerRadius = UDim.new(0, 6)
+promotionUrlCorner.Parent = promotionUrlBox
+
+local promotionUrlPadding = Instance.new("UIPadding")
+promotionUrlPadding.PaddingLeft = UDim.new(0, 8)
+promotionUrlPadding.PaddingRight = UDim.new(0, 8)
+promotionUrlPadding.Parent = promotionUrlBox
+
+local promotionLabelBox = Instance.new("TextBox")
+promotionLabelBox.Name = "PromotionButtonLabel"
+promotionLabelBox.Position = UDim2.new(0, 10, 0, 62)
+promotionLabelBox.Size = UDim2.new(1, -20, 0, 27)
+promotionLabelBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionLabelBox.BorderSizePixel = 0
+promotionLabelBox.ClearTextOnFocus = false
+promotionLabelBox.PlaceholderText = "Nombre del botón (ej. JOIN PROMO)"
+promotionLabelBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionLabelBox.Text = ""
+promotionLabelBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionLabelBox.Font = Enum.Font.GothamBold
+promotionLabelBox.TextSize = 10
+promotionLabelBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionLabelBox.Parent = promotionPanel
+
+local promotionLabelCorner = Instance.new("UICorner")
+promotionLabelCorner.CornerRadius = UDim.new(0, 6)
+promotionLabelCorner.Parent = promotionLabelBox
+
+local promotionLabelPadding = Instance.new("UIPadding")
+promotionLabelPadding.PaddingLeft = UDim.new(0, 8)
+promotionLabelPadding.PaddingRight = UDim.new(0, 8)
+promotionLabelPadding.Parent = promotionLabelBox
+
+local promotionUsesBox = Instance.new("TextBox")
+promotionUsesBox.Name = "PromotionUses"
+promotionUsesBox.Position = UDim2.new(0, 10, 0, 94)
+promotionUsesBox.Size = UDim2.new(0.5, -15, 0, 27)
+promotionUsesBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionUsesBox.BorderSizePixel = 0
+promotionUsesBox.ClearTextOnFocus = false
+promotionUsesBox.PlaceholderText = "Veces (0 = ilimitado)"
+promotionUsesBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionUsesBox.Text = ""
+promotionUsesBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionUsesBox.Font = Enum.Font.Code
+promotionUsesBox.TextSize = 9
+promotionUsesBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionUsesBox.Parent = promotionPanel
+
+local promotionUsesCorner = Instance.new("UICorner")
+promotionUsesCorner.CornerRadius = UDim.new(0, 6)
+promotionUsesCorner.Parent = promotionUsesBox
+
+local promotionUsesPadding = Instance.new("UIPadding")
+promotionUsesPadding.PaddingLeft = UDim.new(0, 8)
+promotionUsesPadding.Parent = promotionUsesBox
+
+local promotionIntervalBox = Instance.new("TextBox")
+promotionIntervalBox.Name = "PromotionInterval"
+promotionIntervalBox.Position = UDim2.new(0.5, 5, 0, 94)
+promotionIntervalBox.Size = UDim2.new(0.5, -15, 0, 27)
+promotionIntervalBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
+promotionIntervalBox.BorderSizePixel = 0
+promotionIntervalBox.ClearTextOnFocus = false
+promotionIntervalBox.PlaceholderText = "Minutos (0 = cada huevo)"
+promotionIntervalBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
+promotionIntervalBox.Text = ""
+promotionIntervalBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+promotionIntervalBox.Font = Enum.Font.Code
+promotionIntervalBox.TextSize = 9
+promotionIntervalBox.TextXAlignment = Enum.TextXAlignment.Left
+promotionIntervalBox.Parent = promotionPanel
+
+local promotionIntervalCorner = Instance.new("UICorner")
+promotionIntervalCorner.CornerRadius = UDim.new(0, 6)
+promotionIntervalCorner.Parent = promotionIntervalBox
+
+local promotionIntervalPadding = Instance.new("UIPadding")
+promotionIntervalPadding.PaddingLeft = UDim.new(0, 8)
+promotionIntervalPadding.Parent = promotionIntervalBox
+
+local promotionHint = Instance.new("TextLabel")
+promotionHint.Position = UDim2.new(0, 12, 0, 126)
+promotionHint.Size = UDim2.new(1, -24, 0, 18)
+promotionHint.BackgroundTransparency = 1
+promotionHint.Text = "URL BUTTON // DISCORD COLOR FIJO // CONFIG SAVED"
+promotionHint.TextColor3 = Color3.fromRGB(151, 255, 204)
+promotionHint.Font = Enum.Font.Code
+promotionHint.TextSize = 8
+promotionHint.TextXAlignment = Enum.TextXAlignment.Left
+promotionHint.Parent = promotionPanel
+
+local savePromotionButton = Instance.new("TextButton")
+savePromotionButton.Name = "SavePromotion"
+savePromotionButton.Position = UDim2.new(0, 10, 0, 151)
+savePromotionButton.Size = UDim2.new(1, -20, 0, 28)
+savePromotionButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
+savePromotionButton.BorderSizePixel = 0
+savePromotionButton.Text = "SAVE PROMOTION  >  READY"
+savePromotionButton.TextColor3 = Color3.fromRGB(255, 240, 255)
+savePromotionButton.Font = Enum.Font.GothamBold
+savePromotionButton.TextSize = 10
+savePromotionButton.AutoButtonColor = false
+savePromotionButton.Parent = promotionPanel
+
+local savePromotionCorner = Instance.new("UICorner")
+savePromotionCorner.CornerRadius = UDim.new(0, 7)
+savePromotionCorner.Parent = savePromotionButton
+
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "SystemStatus"
 statusLabel.Position = UDim2.new(0, 12, 1, -50)
@@ -574,6 +783,7 @@ badgeCorner.Parent = badge
 
 local POSITION_FILE = "AuraEggNotifier_ButtonPosition.json"
 local LAST_SEEN_STATE_FILE = "AuraEggNotifier_LastSeen.json"
+local PROMOTION_STATE_FILE = "AuraEggNotifier_Promotion.json"
 local localFileExists = isfile
 local localFileRead = readfile
 local localFileWrite = writefile
@@ -657,6 +867,61 @@ local function saveLastSeenState()
 	return ok
 end
 
+local function cleanPromotionInput(value)
+return (tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+local function loadPromotionState()
+if type(localFileExists) ~= "function" or type(localFileRead) ~= "function" then
+return
+end
+
+local existsOk, exists = pcall(function()
+return localFileExists(PROMOTION_STATE_FILE)
+end)
+if not existsOk or not exists then return end
+
+local readOk, raw = pcall(function()
+return localFileRead(PROMOTION_STATE_FILE)
+end)
+if not readOk or not raw or raw == "" then return end
+
+local decodeOk, decoded = pcall(function()
+return HttpService:JSONDecode(raw)
+end)
+if not decodeOk or type(decoded) ~= "table" then return end
+
+if type(decoded.url) == "string" then
+promotionState.url = decoded.url
+end
+if type(decoded.label) == "string" then
+promotionState.label = decoded.label
+end
+if tonumber(decoded.maxUses) then
+promotionState.maxUses = math.max(0, math.floor(tonumber(decoded.maxUses)))
+end
+if tonumber(decoded.used) then
+promotionState.used = math.max(0, math.floor(tonumber(decoded.used)))
+end
+if tonumber(decoded.intervalMinutes) then
+promotionState.intervalMinutes = math.max(0, tonumber(decoded.intervalMinutes))
+end
+if tonumber(decoded.nextAvailableAt) then
+promotionState.nextAvailableAt = tonumber(decoded.nextAvailableAt)
+end
+end
+
+local function savePromotionState()
+if type(localFileWrite) ~= "function" then
+return false
+end
+
+local ok = pcall(function()
+localFileWrite(PROMOTION_STATE_FILE, HttpService:JSONEncode(promotionState))
+end)
+return ok
+end
+
 local function saveTogglePosition()
 	if type(localFileWrite) ~= "function" then return end
 
@@ -706,6 +971,12 @@ end
 
 loadTogglePosition()
 loadLastSeenState()
+loadPromotionState()
+
+promotionUrlBox.Text = promotionState.url
+promotionLabelBox.Text = promotionState.label
+promotionUsesBox.Text = tostring(promotionState.maxUses)
+promotionIntervalBox.Text = tostring(promotionState.intervalMinutes)
 
 local activeCards = {}
 local layoutCounter = 0
@@ -748,18 +1019,69 @@ local function updateStatus(text, color)
 	)
 end
 
+savePromotionButton.MouseButton1Click:Connect(function()
+local url = cleanPromotionInput(promotionUrlBox.Text)
+local label = cleanPromotionInput(promotionLabelBox.Text)
+local maxUsesText = cleanPromotionInput(promotionUsesBox.Text)
+local intervalText = cleanPromotionInput(promotionIntervalBox.Text)
+local maxUses = maxUsesText == "" and 0 or tonumber(maxUsesText)
+local intervalMinutes = intervalText == "" and 0 or tonumber(intervalText)
+
+if url ~= "" and not url:match("^https?://%S+$") then
+updateStatus("PROMOTIONS // INVALID URL", Color3.fromRGB(255, 92, 133))
+return
+end
+
+if #label > 80 then
+updateStatus("PROMOTIONS // BUTTON NAME TOO LONG", Color3.fromRGB(255, 92, 133))
+return
+end
+
+if not maxUses
+or not intervalMinutes
+or maxUses ~= maxUses
+or intervalMinutes ~= intervalMinutes
+or maxUses < 0
+or intervalMinutes < 0
+or maxUses % 1 ~= 0 then
+updateStatus("PROMOTIONS // VALUES MUST BE POSITIVE", Color3.fromRGB(255, 92, 133))
+return
+end
+
+promotionState.url = url
+promotionState.label = label ~= "" and label or "PROMOTION"
+promotionState.maxUses = math.floor(maxUses)
+promotionState.used = 0
+promotionState.intervalMinutes = intervalMinutes
+promotionState.nextAvailableAt = 0
+savePromotionState()
+
+if url == "" then
+savePromotionButton.Text = "SAVE PROMOTION  >  DISABLED"
+updateStatus("PROMOTIONS // BUTTON DISABLED", Color3.fromRGB(214, 165, 255))
+else
+savePromotionButton.Text = "SAVED [OK]  // NEXT EGG"
+updateStatus("PROMOTIONS // BUTTON READY", Color3.fromRGB(151, 255, 204))
+end
+end)
+
 local activeSection = "LOG"
 
 local function setActiveSection(section)
 	activeSection = section
 	local showLog = section == "LOG"
+local showPromotions = section == "PROMOTIONS"
 	logPanel.Visible = showLog
-	announcementPanel.Visible = not showLog
+promotionPanel.Visible = showPromotions
+announcementPanel.Visible = section == "ANNOUNCER"
 	styleTab(logTab, showLog)
-	styleTab(announcerTab, not showLog)
+styleTab(promotionTab, showPromotions)
+styleTab(announcerTab, section == "ANNOUNCER")
 
 	if showLog then
 		updateStatus("MONITOR // LOG STREAM ACTIVE", Color3.fromRGB(99, 255, 154))
+elseif showPromotions then
+updateStatus("PROMOTIONS // CONFIGURATION READY", Color3.fromRGB(214, 165, 255))
 	else
 		updateStatus("ANNOUNCER // EMBED BUILDER READY", Color3.fromRGB(214, 165, 255))
 	end
@@ -767,6 +1089,10 @@ end
 
 logTab.MouseButton1Click:Connect(function()
 	setActiveSection("LOG")
+end)
+
+promotionTab.MouseButton1Click:Connect(function()
+setActiveSection("PROMOTIONS")
 end)
 
 announcerTab.MouseButton1Click:Connect(function()
@@ -1043,6 +1369,14 @@ local LAST_SEEN_CATALOG = {
 	}
 }
 
+local EGG_EMOJI_BY_KEY = {}
+for _, rarityEntries in pairs(LAST_SEEN_CATALOG) do
+for _, entry in ipairs(rarityEntries) do
+local entryKey = entry.name:lower():gsub("[^a-z0-9]", "")
+EGG_EMOJI_BY_KEY[entryKey] = entry.emoji
+end
+end
+
 -- Estado inicial solicitado. Solo se aplica una vez; después los valores
 -- quedan en AuraEggNotifier_LastSeen.json y cada spawn nuevo los reemplaza.
 local LAST_SEEN_INITIAL_TIMES = {
@@ -1156,7 +1490,7 @@ local function replaceRarityWithMention(text)
 					end
 
 					return text:sub(1, articleStart - 1)
-						.. "A <@&" .. rarity.roleId .. ">"
+.. "A **" .. text:sub(rarityStart, rarityEnd) .. "**"
 						.. text:sub(replacementEnd + 1)
 				end
 			end
@@ -1199,7 +1533,31 @@ local function replaceEggNameWithMention(text)
 		true
 end
 
+local function getEggDisplayData(text)
+local lower = tostring(text or ""):lower()
+local selected = nil
+
+for _, egg in ipairs(EGG_ROLE_MENTIONS) do
+if lower:find(egg.name, 1, true)
+and (not selected or #egg.name > #selected.name) then
+selected = egg
+end
+end
+
+if not selected then
+return nil, nil
+end
+
+local eggKey = selected.name:lower():gsub("[^a-z0-9]", "")
+return EGG_EMOJI_BY_KEY[eggKey], "<@&" .. selected.roleId .. ">"
+end
+
 local function sendWebhookPayload(payload, successText, onDone)
+if scriptStopped then
+if onDone then onDone(false) end
+return
+end
+
 	if not httpRequest then
 		updateStatus("HTTP unavailable", Color3.fromRGB(255, 92, 133))
 		if onDone then onDone(false) end
@@ -1207,6 +1565,11 @@ local function sendWebhookPayload(payload, successText, onDone)
 	end
 
 	task.spawn(function()
+if scriptStopped then
+if onDone then onDone(false) end
+return
+end
+
 		local webhookUrl = CONFIG.WebhookURL
 		if payload.components then
 			webhookUrl = webhookUrl
@@ -1417,12 +1780,22 @@ local function decodeWebhookResponse(response)
 end
 
 local function executeLastSeenRequest(method, url, payload, onDone)
+if scriptStopped then
+if onDone then onDone(false, 0, nil) end
+return
+end
+
 	if not httpRequest then
 		if onDone then onDone(false, 0, nil) end
 		return
 	end
 
 	task.spawn(function()
+if scriptStopped then
+if onDone then onDone(false, 0, nil) end
+return
+end
+
 		local requestOk, response = pcall(function()
 			return httpRequest({
 				Url = url,
@@ -1448,17 +1821,25 @@ local function executeLastSeenRequest(method, url, payload, onDone)
 end
 
 local function upsertLastSeenMessage(payload, onDone)
+if scriptStopped then
+if onDone then onDone(false) end
+return
+end
+
 	local baseUrl = getWebhookBaseUrl()
 local webhookKey = getLastSeenWebhookKey(baseUrl)
-local messageId = lastSeenState.messageIds[webhookKey]
+local messageId = lastSeenState.messageIds[webhookKey] or lastSeenState.messageId
 
 	if messageId and messageId ~= "" then
 		executeLastSeenRequest(
 			"PATCH",
 			appendWebhookQuery(baseUrl .. "/messages/" .. tostring(messageId), "with_components=true"),
 			payload,
-			function(ok, statusCode)
+function(ok, statusCode)
 				if ok then
+lastSeenState.messageIds[webhookKey] = tostring(messageId)
+lastSeenState.messageId = tostring(messageId)
+saveLastSeenState()
 					if onDone then onDone(true) end
 					return
 				end
@@ -1471,6 +1852,9 @@ local messageId = lastSeenState.messageIds[webhookKey]
 				end
 
 lastSeenState.messageIds[webhookKey] = nil
+if lastSeenState.messageId == tostring(messageId) then
+lastSeenState.messageId = nil
+end
 				saveLastSeenState()
 				upsertLastSeenMessage(payload, onDone)
 			end
@@ -1501,7 +1885,7 @@ local lastSeenUpdateInFlight = false
 local lastSeenUpdateQueued = false
 
 local function scheduleLastSeenUpdate()
-	if not isLastSeenWebhookConfigured() then
+if scriptStopped or not isLastSeenWebhookConfigured() then
 		return
 	end
 
@@ -1509,8 +1893,8 @@ local function scheduleLastSeenUpdate()
 	if lastSeenUpdateInFlight then return end
 
 	lastSeenUpdateInFlight = true
-	task.spawn(function()
-		while lastSeenUpdateQueued do
+task.spawn(function()
+while lastSeenUpdateQueued and not scriptStopped do
 			lastSeenUpdateQueued = false
 			local finished = false
 			local succeeded = false
@@ -1523,9 +1907,13 @@ local function scheduleLastSeenUpdate()
 				end
 			)
 
-			while not finished do
+while not finished and not scriptStopped do
 				task.wait()
 			end
+
+if scriptStopped then
+return
+end
 
 			if succeeded then
 				updateStatus("LAST SEEN // UPDATED", Color3.fromRGB(151, 255, 204))
@@ -1680,6 +2068,38 @@ task.spawn(function()
 	end
 end)
 
+local function getPromotionButton()
+if promotionState.url == "" then
+return nil
+end
+
+local now = os.time()
+if promotionState.maxUses > 0 and promotionState.used >= promotionState.maxUses then
+return nil
+end
+
+if now < (tonumber(promotionState.nextAvailableAt) or 0) then
+return nil
+end
+
+return {{
+type = 1,
+components = {{
+type = 2,
+style = 5,
+label = promotionState.label ~= "" and promotionState.label or "PROMOTION",
+url = promotionState.url
+}}
+}}
+end
+
+local function registerPromotionUse()
+promotionState.used = promotionState.used + 1
+promotionState.nextAvailableAt = os.time()
+.. math.floor((tonumber(promotionState.intervalMinutes) or 0) * 60)
+savePromotionState()
+end
+
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
 		local payload = {
@@ -1705,19 +2125,23 @@ roles = roleIds
 
 		local joinUrl = getRandomPublicServerUrl() or getGameFallbackUrl()
 		if joinUrl then
-			payload.components = {{
-				type = 1,
-				components = {{
-					type = 2,
-					style = 5,
-					label = "¡JOIN NOW!",
-					emoji = {name = "🔗"},
-					url = joinUrl
-				}}
-			}}
+payload.content = payload.content
+.. "\n\n━━━━━━━━━━━━━━━━━━━━\n"
+.. "- **Join Game:** [¡CLICK HERE](" .. joinUrl .. ")\n"
+.. "━━━━━━━━━━━━━━━━━━━━"
 		end
 
-sendWebhookPayload(payload, "WEBHOOK RELEASE // SENT", onDone)
+local promotionButton = getPromotionButton()
+if promotionButton then
+payload.components = promotionButton
+end
+
+sendWebhookPayload(payload, "WEBHOOK RELEASE // SENT", function(success)
+if success and promotionButton then
+registerPromotionUse()
+end
+if onDone then onDone(success) end
+end)
 	end)
 end
 
@@ -1772,20 +2196,33 @@ local function formatEggAlert(text, spawnedAt)
 local message = replaceRarityWithMention(text)
 local eggMentioned
 message, eggMentioned = replaceEggNameWithMention(message)
-local rolePrefix, body = message:match("^(%s*A%s+<@&%d+>)%s+(.+)$")
+local eggEmoji, eggMention = getEggDisplayData(text)
+local rarityLabel = message:match("^%s*A%s+%*%*(.-)%*%*")
 
-if rolePrefix and body then
-message = rolePrefix .. " — " .. body
+local spawnedDescription = tostring(text or ""):match("[Ee]gg%s+[Ss]pawned%s+(.+)$")
+if spawnedDescription then
+spawnedDescription = "Egg spawned " .. spawnedDescription
 else
-local article, plainBody = message:match("^(%s*A)%s+(.+)$")
-if article and plainBody then
-message = article .. (eggMentioned and " " or " @") .. plainBody
+spawnedDescription = "Egg spawned!"
 end
+
+local headline
+if eggMention and eggEmoji then
+headline = eggEmoji .. " | " .. eggMention .. " **" .. spawnedDescription .. "**"
+elseif eggMention then
+headline = eggMention .. " **" .. spawnedDescription .. "**"
+else
+headline = message
+end
+
+local rarityLine = ""
+if rarityLabel and rarityLabel ~= "" then
+rarityLine = "\n-# Rarity: **" .. rarityLabel .. "**"
 end
 
 return string.format(
-"> ❗%s\n———\n-# **Spawned: <t:%d:R>**",
-message,
+"> %s%s\n\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:F>\n━━━━━━━━━━━━━━━━━━━━",
+headline .. rarityLine,
 tonumber(spawnedAt) or os.time()
 )
 end
@@ -2048,6 +2485,8 @@ body.Position = UDim2.new(0, 14, 0, 38)
 end
 
 local function processText(raw)
+if scriptStopped then return end
+
 	local clean = cleanText(raw)
 	if clean == "" then return end
 	local lower = clean:lower()
