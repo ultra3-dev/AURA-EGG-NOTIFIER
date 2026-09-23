@@ -589,6 +589,7 @@ promotionUrlBox.Size = UDim2.new(1, -20, 0, 27)
 promotionUrlBox.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
 promotionUrlBox.BorderSizePixel = 0
 promotionUrlBox.ClearTextOnFocus = false
+promotionUrlBox.ClipsDescendants = true
 promotionUrlBox.PlaceholderText = "https://www.roblox.com/share/g/..."
 promotionUrlBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 promotionUrlBox.Text = ""
@@ -1406,38 +1407,38 @@ end
 local LAST_SEEN_INITIAL_TIMES = {
 	nightflame = 1790013065,
 	unicorn = 1789980058,
-	worldburner = 1790109902,
-	kitsune = 1790111102,
+	worldburner = 1790109978,
+	kitsune = 1790111312,
 	archangel = 1789440624,
 
-	elmaja = 1790107802,
-	onitiger = 1790109602,
-	phoenix = 1790083202,
-	gorillaking = 1790092802,
-	skeletonhorse = 1790124902,
-	lavadragon = 1790116202,
-	pegasus = 1790112902,
-	mosasaurus = 1790091602,
-	eternallunardragon = 1790121902,
-	icedragon = 1790100902,
+	elmaja = 1790107876,
+	onitiger = 1790109737,
+	phoenix = 1790083267,
+	gorillaking = 1790092905,
+	skeletonhorse = 1790123767,
+	lavadragon = 1790116272,
+	pegasus = 1790112971,
+	mosasaurus = 1790091667,
+	eternallunardragon = 1790128023,
+	icedragon = 1790100992,
 
-	stag = 1790124902,
-	purejellyfish = 1790124302,
-	razorfang = 1790116502,
-	gargoyle = 1790126402,
-	cosmicskeletonboss = 1790117102,
-	tralaledon = 1790104202,
-	cerberus = 1790126702,
-	mutantshark = 1790125802,
-	cosmicdragon = 1790126102,
-	trex = 1790127303,
-	yeti = 1790100902,
-	kraken = 1790125202,
-	centaur = 1790123102,
+	stag = 1790124968,
+	purejellyfish = 1790124380,
+	razorfang = 1790116572,
+	gargoyle = 1790129768,
+	cosmicskeletonboss = 1790117227,
+	tralaledon = 1790127966,
+	cerberus = 1790128575,
+	mutantshark = 1790125870,
+	cosmicdragon = 1790130389,
+	trex = 1790127379,
+	yeti = 1790129464,
+	kraken = 1790128880,
+	centaur = 1790123162,
 	kingsnake = 1789967163
 }
 
-local LAST_SEEN_INITIAL_TIMES_VERSION = 2
+local LAST_SEEN_INITIAL_TIMES_VERSION = 3
 
 local function seedLastSeenState()
 	local needsInitialTimeMigration =
@@ -2275,7 +2276,7 @@ local eggMentioned
 message, eggMentioned = replaceEggNameWithMention(message)
 local eggEmoji, eggMention = getEggDisplayData(text)
 	local countValue = math.max(1, math.floor(tonumber(count) or 1))
-	local countPrefix = countValue > 1 and ("X" .. tostring(countValue) .. " ") or ""
+	local countPrefix = "X" .. tostring(countValue) .. " "
 
 local spawnedDescription = tostring(text or ""):match("[Ee]gg%s+[Ss]pawned%s+(.+)$")
 if spawnedDescription then
@@ -2295,11 +2296,11 @@ end
 
 	local joinLine = ""
 	if type(joinUrl) == "string" and joinUrl ~= "" then
-		joinLine = "\n- **Join Game:** [¡CLICK HERE](" .. joinUrl .. ")"
+		joinLine = "\n-# Join Game: **[¡CLICK HERE!](" .. joinUrl .. ")**"
 	end
 
 return string.format(
-		"> %s\n\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:R>%s\n━━━━━━━━━━━━━━━━━━━━",
+		"> %s\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:R>\n━━━━━━━━━━━━━━━━━━━━%s",
 		headline,
 		tonumber(spawnedAt) or os.time(),
 		joinLine
