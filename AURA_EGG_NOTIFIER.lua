@@ -2053,7 +2053,7 @@ local LAST_SEEN_INITIAL_TIMES = {
 	archangel = 1789440624,
 
 	elmaja = 1790107876,
-	onitiger = 1790109737,
+	onitiger = 1790133728,
 	phoenix = 1790083267,
 	gorillaking = 1790092905,
 	skeletonhorse = 1790123767,
@@ -2064,22 +2064,22 @@ local LAST_SEEN_INITIAL_TIMES = {
 	icedragon = 1790100992,
 
 	stag = 1790124968,
-	purejellyfish = 1790124380,
+	purejellyfish = 1790130971,
 	razorfang = 1790116572,
-	gargoyle = 1790129768,
+	gargoyle = 1790132817,
 	cosmicskeletonboss = 1790117227,
 	tralaledon = 1790127966,
 	cerberus = 1790128575,
 	mutantshark = 1790125870,
-	cosmicdragon = 1790130389,
+	cosmicdragon = 1790131041,
 	trex = 1790127379,
-	yeti = 1790129464,
-	kraken = 1790128880,
+	yeti = 1790133722,
+	kraken = 1790132762,
 	centaur = 1790123162,
 	kingsnake = 1789967163
 }
 
-local LAST_SEEN_INITIAL_TIMES_VERSION = 3
+local LAST_SEEN_INITIAL_TIMES_VERSION = 4
 
 local function seedLastSeenState()
 	local needsInitialTimeMigration =
@@ -3079,7 +3079,6 @@ local function createVisualCard(text, sequence)
 	layoutCounter = layoutCounter + 1
 	local rarityName, titleText, accentColor, iconKind = getVisualMeta(text)
 	appendLogHistory(text, sequence, rarityName)
-	return
 
 	local card = Instance.new("Frame")
 	if sequence then
