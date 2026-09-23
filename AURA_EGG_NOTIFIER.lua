@@ -22,8 +22,7 @@ local CONFIG = {
 		or "PASTE_A_NEW_DISCORD_WEBHOOK_HERE",
 	LastSeenWebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_LAST_SEEN_WEBHOOK)
 		or "PASTE_A_LAST_SEEN_DISCORD_WEBHOOK_HERE",
-LastSeenMessageID = (type(getgenv) == "function" and getgenv().AURA_EGG_LAST_SEEN_MESSAGE_ID)
-or "1551771488644767786",
+LastSeenMessageID = "1552117304609738823",
 	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
 	DisplayTime = 120,
@@ -798,6 +797,11 @@ messageIds = {},
 	seeded = false
 }
 
+local sharedLastSeenMessageId = auraRuntime.AURA_EGG_NOTIFIER_LAST_SEEN_MESSAGE_ID
+if type(sharedLastSeenMessageId) == "string" and sharedLastSeenMessageId ~= "" then
+lastSeenState.messageId = sharedLastSeenMessageId
+end
+
 -- Cada webhook tiene su propio mensaje de Last Seen. El hash evita guardar
 -- el token privado del webhook dentro del archivo local de estado.
 local function getLastSeenWebhookKey(url)
@@ -859,6 +863,10 @@ end
 end
 
 local function saveLastSeenState()
+if lastSeenState.messageId and lastSeenState.messageId ~= "" then
+auraRuntime.AURA_EGG_NOTIFIER_LAST_SEEN_MESSAGE_ID = tostring(lastSeenState.messageId)
+end
+
 	if type(localFileWrite) ~= "function" then
 		return false
 	end
@@ -1554,6 +1562,17 @@ local eggKey = selected.name:lower():gsub("[^a-z0-9]", "")
 return EGG_EMOJI_BY_KEY[eggKey], "<@&" .. selected.roleId .. ">"
 end
 
+local function getHttpStatusCode(response)
+local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
+local statusCode = tonumber(rawStatus)
+if statusCode then
+return statusCode
+end
+
+local numericStatus = tostring(rawStatus or ""):match("%d%d%d")
+return tonumber(numericStatus) or 0
+end
+
 local function sendWebhookPayload(payload, successText, onDone)
 if scriptStopped then
 if onDone then onDone(false) end
@@ -1592,7 +1611,7 @@ end
 		end)
 		
 		if success and response then
-			local code = response.StatusCode or response.Status or 0
+local code = getHttpStatusCode(response)
 			if code >= 200 and code < 300 then
 				updateStatus(successText, Color3.fromRGB(99, 255, 154))
 				if onDone then onDone(true) end
@@ -1815,7 +1834,7 @@ end
 			return
 		end
 
-		local statusCode = tonumber(response.StatusCode or response.Status) or 0
+local statusCode = getHttpStatusCode(response)
 		local responseBody = decodeWebhookResponse(response)
 		local ok = statusCode >= 200 and statusCode < 300
 		if onDone then onDone(ok, statusCode, responseBody) end
@@ -1836,6 +1855,8 @@ or lastSeenState.messageIds[webhookKey]
 or lastSeenState.messageId
 
 	if messageId and messageId ~= "" then
+lastSeenState.messageId = tostring(messageId)
+lastSeenState.messageIds[webhookKey] = tostring(messageId)
 		executeLastSeenRequest(
 			"PATCH",
 			appendWebhookQuery(baseUrl .. "/messages/" .. tostring(messageId), "with_components=true"),
@@ -1845,16 +1866,23 @@ function(ok, statusCode)
 lastSeenState.messageIds[webhookKey] = tostring(messageId)
 lastSeenState.messageId = tostring(messageId)
 saveLastSeenState()
-					if onDone then onDone(true) end
+if onDone then onDone(true, statusCode) end
 					return
 				end
 
 				-- Solo crea otro mensaje si el anterior ya no existe.
 				-- Un error temporal no debe duplicar el Last Seen.
 				if statusCode ~= 404 and statusCode ~= 10008 then
-					if onDone then onDone(false) end
+if onDone then onDone(false, statusCode) end
 					return
 				end
+
+if configuredMessageId ~= "" then
+-- El mensaje permanente está configurado explícitamente. No se crea
+-- un mensaje nuevo si Discord no encuentra ese ID.
+if onDone then onDone(false, statusCode) end
+return
+end
 
 lastSeenState.messageIds[webhookKey] = nil
 if lastSeenState.messageId == tostring(messageId) then
@@ -1880,22 +1908,27 @@ end
 lastSeenState.messageId = tostring(newMessageId)
 lastSeenState.messageIds[webhookKey] = tostring(newMessageId)
 				saveLastSeenState()
-				if onDone then onDone(true) end
+if onDone then onDone(true, statusCode) end
 				return
 			end
 
-			if onDone then onDone(false) end
+if onDone then onDone(false, statusCode) end
 		end
 	)
 end
 
 local lastSeenUpdateInFlight = false
 local lastSeenUpdateQueued = false
+local lastSeenRetryAfter = 0
 
 local function scheduleLastSeenUpdate()
 if scriptStopped or not isLastSeenWebhookConfigured() then
 		return
 	end
+
+if os.time() < lastSeenRetryAfter then
+return
+end
 
 	lastSeenUpdateQueued = true
 	if lastSeenUpdateInFlight then return end
@@ -1906,11 +1939,13 @@ while lastSeenUpdateQueued and not scriptStopped do
 			lastSeenUpdateQueued = false
 			local finished = false
 			local succeeded = false
+local failureStatus = 0
 
 			upsertLastSeenMessage(
 				buildLastSeenPayload(os.time()),
-				function(ok)
+function(ok, statusCode)
 					succeeded = ok
+failureStatus = tonumber(statusCode) or 0
 					finished = true
 				end
 			)
@@ -1924,9 +1959,15 @@ return
 end
 
 			if succeeded then
+lastSeenRetryAfter = 0
 				updateStatus("LAST SEEN // UPDATED", Color3.fromRGB(151, 255, 204))
 			else
-				updateStatus("LAST SEEN // UPDATE FAILED", Color3.fromRGB(255, 92, 133))
+lastSeenRetryAfter = os.time() + 30
+updateStatus(
+"LAST SEEN // UPDATE FAILED"
+.. (failureStatus > 0 and (" [" .. tostring(failureStatus) .. "]") or ""),
+Color3.fromRGB(255, 92, 133)
+)
 			end
 		end
 		lastSeenUpdateInFlight = false
@@ -1945,7 +1986,9 @@ local function recordLastSeenSpawn(text, spawnedAt)
 	if previous and previous >= timestamp then return end
 
 	lastSeenState.entries[entry.key] = timestamp
-	saveLastSeenState()
+task.defer(function()
+saveLastSeenState()
+end)
 	scheduleLastSeenUpdate()
 end
 
