@@ -1602,9 +1602,6 @@ return
 end
 
 		local webhookUrl = CONFIG.WebhookURL
-webhookUrl = webhookUrl
-.. (webhookUrl:find("?", 1, true) and "&" or "?")
-.. "wait=true"
 		if payload.components then
 			webhookUrl = webhookUrl
 				.. (webhookUrl:find("?", 1, true) and "&" or "?")
