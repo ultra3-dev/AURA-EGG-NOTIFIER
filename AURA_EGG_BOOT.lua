@@ -598,6 +598,7 @@ configUi.webhookTabCorner.CornerRadius = UDim.new(0, 6)
 configUi.webhookTabCorner.Parent = configUi.webhookTab
 
 
+local consoleTab = Instance.new("TextButton")
 consoleTab.Name = "ConsoleTab"
 consoleTab.Position = UDim2.new(0, 398, 0, 0)
 consoleTab.Size = UDim2.new(0, 24, 1, 0)
