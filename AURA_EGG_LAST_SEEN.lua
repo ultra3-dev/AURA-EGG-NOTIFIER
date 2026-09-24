@@ -167,7 +167,7 @@ local function buildLastSeenContainer(rarity)
 		end
 		table.insert(
 			lines,
-			entry.emoji .. " **" .. entry.name .. "** — " .. formatLastSeenStatus(timestamp)
+			entry.emoji .. " " .. entry.name .. " — " .. formatLastSeenStatus(timestamp)
 		)
 	end
 
@@ -178,7 +178,7 @@ local function buildLastSeenContainer(rarity)
 			{
 				type = 10,
 				content = string.format(
-					"## %s %s — Last Seen\n-# %d registradas",
+					"%s %s — Last Seen\n-# %d registradas",
 					style.emoji,
 					rarity,
 					registered
@@ -198,7 +198,7 @@ local function buildLastSeenPayload(referenceTime)
 	local components = {
 		{
 			type = 10,
-			content = "# 🥚 AURA — Last Seen"
+			content = "🥚 Glacian — Last Seen"
 		},
 		buildLastSeenSeparator("glacian")
 	}
