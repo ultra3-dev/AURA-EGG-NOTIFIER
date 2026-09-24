@@ -404,15 +404,7 @@ local function styleTab(button, active)
 	end
 
 	local gradient = button:FindFirstChild("TabGradient")
-	if not gradient then
-		gradient = Instance.new("UIGradient")
-		gradient.Name = "TabGradient"
-		gradient.Rotation = 90
-		gradient.Parent = button
-	end
-	gradient.Color = active
-		and ColorSequence.new(Color3.fromRGB(0, 160, 255), Color3.fromRGB(92, 48, 205))
-		or ColorSequence.new(Color3.fromRGB(20, 31, 61), Color3.fromRGB(10, 16, 34))
+	if gradient then gradient:Destroy() end
 
 	local stroke = button:FindFirstChild("TabStroke")
 	if not stroke then
@@ -1132,8 +1124,8 @@ configUi.webhookPanelCorner.CornerRadius = UDim.new(0, 12)
 configUi.webhookPanelCorner.Parent = configUi.webhookPanel
 
 configUi.webhookHeader = Instance.new("TextLabel")
-configUi.webhookHeader.Position = UDim2.new(0, 14, 0, 12)
-configUi.webhookHeader.Size = UDim2.new(1, -28, 0, 20)
+configUi.webhookHeader.Position = UDim2.new(0, 36, 0, 12)
+configUi.webhookHeader.Size = UDim2.new(1, -50, 0, 20)
 configUi.webhookHeader.BackgroundTransparency = 1
 configUi.webhookHeader.Text = "WEBHOOK  //  DELIVERY ROUTING"
 configUi.webhookHeader.TextColor3 = Color3.fromRGB(240, 225, 255)
@@ -1141,6 +1133,7 @@ configUi.webhookHeader.Font = Enum.Font.GothamBold
 configUi.webhookHeader.TextSize = 12
 configUi.webhookHeader.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookHeader.Parent = configUi.webhookPanel
+createCanvasIcon(configUi.webhookPanel, "console", Color3.fromRGB(0, 198, 255), UDim2.new(0, 18, 0, 18), UDim2.new(0, 20, 0, 22), "WebhookHeaderIcon")
 
 configUi.webhookHelp = Instance.new("TextLabel")
 configUi.webhookHelp.Position = UDim2.new(0, 14, 0, 36)
@@ -1159,6 +1152,7 @@ configUi.mainWebhookBox.Position = UDim2.new(0, 10, 0, 76)
 configUi.mainWebhookBox.Size = UDim2.new(1, -20, 0, 30)
 configUi.mainWebhookBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.mainWebhookBox.BorderSizePixel = 0
+configUi.mainWebhookBox.ClipsDescendants = true
 configUi.mainWebhookBox.ClearTextOnFocus = false
 configUi.mainWebhookBox.PlaceholderText = "MAIN WEBHOOK  //  https://discord.com/api/webhooks/..."
 configUi.mainWebhookBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
@@ -1167,6 +1161,11 @@ configUi.mainWebhookBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.mainWebhookBox.Font = Enum.Font.Code
 configUi.mainWebhookBox.TextSize = 8
 configUi.mainWebhookBox.TextXAlignment = Enum.TextXAlignment.Left
+local mainWebhookPadding = Instance.new("UIPadding")
+mainWebhookPadding.PaddingLeft = UDim.new(0, 28)
+mainWebhookPadding.PaddingRight = UDim.new(0, 8)
+mainWebhookPadding.Parent = configUi.mainWebhookBox
+createCanvasIcon(configUi.mainWebhookBox, "console", Color3.fromRGB(0, 174, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
 configUi.mainWebhookBox.Parent = configUi.webhookPanel
 
 configUi.lastSeenWebhookBox = Instance.new("TextBox")
@@ -1174,6 +1173,7 @@ configUi.lastSeenWebhookBox.Position = UDim2.new(0, 10, 0, 121)
 configUi.lastSeenWebhookBox.Size = UDim2.new(1, -20, 0, 30)
 configUi.lastSeenWebhookBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.lastSeenWebhookBox.BorderSizePixel = 0
+configUi.lastSeenWebhookBox.ClipsDescendants = true
 configUi.lastSeenWebhookBox.ClearTextOnFocus = false
 configUi.lastSeenWebhookBox.PlaceholderText = "LAST SEEN WEBHOOK  //  https://discord.com/api/webhooks/..."
 configUi.lastSeenWebhookBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
@@ -1182,6 +1182,11 @@ configUi.lastSeenWebhookBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.lastSeenWebhookBox.Font = Enum.Font.Code
 configUi.lastSeenWebhookBox.TextSize = 8
 configUi.lastSeenWebhookBox.TextXAlignment = Enum.TextXAlignment.Left
+local lastSeenWebhookPadding = Instance.new("UIPadding")
+lastSeenWebhookPadding.PaddingLeft = UDim.new(0, 28)
+lastSeenWebhookPadding.PaddingRight = UDim.new(0, 8)
+lastSeenWebhookPadding.Parent = configUi.lastSeenWebhookBox
+createCanvasIcon(configUi.lastSeenWebhookBox, "system", Color3.fromRGB(171, 92, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
 configUi.lastSeenWebhookBox.Parent = configUi.webhookPanel
 
 configUi.saveWebhookButton = Instance.new("TextButton")
@@ -1924,17 +1929,8 @@ local function enhanceButton(button, accent, iconKind)
 	button.ClipsDescendants = true
 	button.TextColor3 = Color3.fromRGB(248, 250, 255)
 
-	local gradient = button:FindFirstChild("UltraGradient")
-	if not gradient then
-		gradient = Instance.new("UIGradient")
-		gradient.Name = "UltraGradient"
-		gradient.Rotation = 90
-		gradient.Parent = button
-	end
-	gradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, accent),
-		ColorSequenceKeypoint.new(1, Color3.new(accent.R * 0.34, accent.G * 0.34, accent.B * 0.34))
-	})
+	button.BackgroundColor3 = accent
+	button.BackgroundTransparency = 0.04
 
 	local stroke = button:FindFirstChild("UltraStroke")
 	if not stroke then
@@ -1958,7 +1954,7 @@ local function enhanceButton(button, accent, iconKind)
 	end
 
 	local function setPressed(pressed)
-		gradient.Offset = pressed and Vector2.new(0, 0.12) or Vector2.new(0, 0)
+		button.BackgroundTransparency = pressed and 0.16 or 0.04
 		stroke.Thickness = pressed and 2 or 1.25
 		stroke.Transparency = pressed and 0 or 0.08
 	end
