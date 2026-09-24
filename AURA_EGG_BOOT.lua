@@ -79,7 +79,8 @@ intervalMinutes = 0,
 
 local configState = {
 version = 1,
-entries = {}
+entries = {},
+webhooks = {main = "", lastSeen = ""}
 }
 local configSelectedKey = nil
 
@@ -372,10 +373,14 @@ logPanel:GetPropertyChangedSignal("CanvasPosition"):Connect(updateLogJumpVisibil
 logPanel:GetPropertyChangedSignal("CanvasSize"):Connect(updateLogJumpVisibility)
 updateLogJumpVisibility()
 
-local navigation = Instance.new("Frame")
+local navigation = Instance.new("ScrollingFrame")
 navigation.Name = "Navigation"
-navigation.Position = UDim2.new(0.5, -215, 0, 64)
-navigation.Size = UDim2.new(0, 430, 0, 28)
+navigation.Position = UDim2.new(0, 12, 0, 64)
+navigation.Size = UDim2.new(1, -24, 0, 28)
+navigation.CanvasSize = UDim2.new(0, 520, 0, 0)
+navigation.ScrollBarThickness = 0
+navigation.ScrollingDirection = Enum.ScrollingDirection.X
+navigation.ScrollingEnabled = true
 navigation.BackgroundTransparency = 1
 navigation.Parent = panel
 
@@ -400,7 +405,7 @@ end
 
 local logTab = Instance.new("TextButton")
 logTab.Name = "LogTab"
-logTab.Size = UDim2.new(0, 82, 1, 0)
+logTab.Size = UDim2.new(0, 76, 1, 0)
 logTab.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 logTab.BorderSizePixel = 0
 logTab.Text = ""
@@ -439,8 +444,8 @@ logTabCorner.Parent = logTab
 
 local promotionTab = Instance.new("TextButton")
 promotionTab.Name = "PromotionsTab"
-promotionTab.Position = UDim2.new(0, 88, 0, 0)
-promotionTab.Size = UDim2.new(0, 94, 1, 0)
+promotionTab.Position = UDim2.new(0, 82, 0, 0)
+promotionTab.Size = UDim2.new(0, 91, 1, 0)
 promotionTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 promotionTab.BorderSizePixel = 0
 promotionTab.Text = ""
@@ -479,8 +484,8 @@ promotionTabCorner.Parent = promotionTab
 
 local announcerTab = Instance.new("TextButton")
 announcerTab.Name = "AnnouncerTab"
-announcerTab.Position = UDim2.new(0, 190, 0, 0)
-announcerTab.Size = UDim2.new(0, 104, 1, 0)
+announcerTab.Position = UDim2.new(0, 179, 0, 0)
+announcerTab.Size = UDim2.new(0, 103, 1, 0)
 announcerTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 announcerTab.BorderSizePixel = 0
 announcerTab.Text = ""
@@ -520,8 +525,8 @@ announcerTabCorner.Parent = announcerTab
 local configUi = {}
 configUi.tab = Instance.new("TextButton")
 configUi.tab.Name = "ConfigTab"
-configUi.tab.Position = UDim2.new(0, 300, 0, 0)
-configUi.tab.Size = UDim2.new(0, 90, 1, 0)
+configUi.tab.Position = UDim2.new(0, 288, 0, 0)
+configUi.tab.Size = UDim2.new(0, 88, 1, 0)
 configUi.tab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 configUi.tab.BorderSizePixel = 0
 configUi.tab.Text = ""
@@ -558,10 +563,43 @@ configUi.tabCorner = Instance.new("UICorner")
 configUi.tabCorner.CornerRadius = UDim.new(0, 6)
 configUi.tabCorner.Parent = configUi.tab
 
-local consoleTab = Instance.new("TextButton")
+configUi.webhookTab = Instance.new("TextButton")
+configUi.webhookTab.Name = "WebhookTab"
+configUi.webhookTab.Position = UDim2.new(0, 382, 0, 0)
+configUi.webhookTab.Size = UDim2.new(0, 98, 1, 0)
+configUi.webhookTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
+configUi.webhookTab.BorderSizePixel = 0
+configUi.webhookTab.Text = ""
+configUi.webhookTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+configUi.webhookTab.Font = Enum.Font.Code
+configUi.webhookTab.TextSize = 14
+configUi.webhookTab.TextXAlignment = Enum.TextXAlignment.Center
+configUi.webhookTab.TextYAlignment = Enum.TextYAlignment.Center
+configUi.webhookTab.AutoButtonColor = false
+configUi.webhookTab.Parent = navigation
+
+configUi.webhookTabIcon = createCanvasIcon(configUi.webhookTab, "console", configUi.webhookTab.TextColor3, UDim2.new(0, 16, 0, 16), UDim2.new(0, 15, 0.5, 0), "TabIcon")
+configUi.webhookTabLabel = Instance.new("TextLabel")
+configUi.webhookTabLabel.Name = "TabLabel"
+configUi.webhookTabLabel.Position = UDim2.new(0, 30, 0, 0)
+configUi.webhookTabLabel.Size = UDim2.new(1, -34, 1, 0)
+configUi.webhookTabLabel.BackgroundTransparency = 1
+configUi.webhookTabLabel.Text = "WEBHOOK"
+configUi.webhookTabLabel.TextColor3 = configUi.webhookTab.TextColor3
+configUi.webhookTabLabel.Font = Enum.Font.Code
+configUi.webhookTabLabel.TextSize = 9
+configUi.webhookTabLabel.TextXAlignment = Enum.TextXAlignment.Left
+configUi.webhookTabLabel.TextYAlignment = Enum.TextYAlignment.Center
+configUi.webhookTabLabel.Parent = configUi.webhookTab
+
+configUi.webhookTabCorner = Instance.new("UICorner")
+configUi.webhookTabCorner.CornerRadius = UDim.new(0, 6)
+configUi.webhookTabCorner.Parent = configUi.webhookTab
+
+
 consoleTab.Name = "ConsoleTab"
-consoleTab.Position = UDim2.new(0, 398, 0, 0)
-consoleTab.Size = UDim2.new(0, 32, 1, 0)
+consoleTab.Position = UDim2.new(0, 486, 0, 0)
+consoleTab.Size = UDim2.new(0, 28, 1, 0)
 consoleTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 consoleTab.BorderSizePixel = 0
 consoleTab.Text = ""
@@ -1056,6 +1094,108 @@ configUi.deleteButton.Font = Enum.Font.GothamBold
 configUi.deleteButton.TextSize = 8
 configUi.deleteButton.AutoButtonColor = false
 configUi.deleteButton.Parent = configUi.panel
+
+configUi.webhookPanel = Instance.new("Frame")
+configUi.webhookPanel.Name = "WebhookPanel"
+configUi.webhookPanel.Position = UDim2.new(0, 12, 0, 100)
+configUi.webhookPanel.Size = UDim2.new(1, -24, 1, -150)
+configUi.webhookPanel.BackgroundColor3 = Color3.fromRGB(23, 16, 38)
+configUi.webhookPanel.BorderSizePixel = 0
+configUi.webhookPanel.Visible = false
+configUi.webhookPanel.Parent = panel
+
+configUi.webhookPanelCorner = Instance.new("UICorner")
+configUi.webhookPanelCorner.CornerRadius = UDim.new(0, 12)
+configUi.webhookPanelCorner.Parent = configUi.webhookPanel
+
+configUi.webhookHeader = Instance.new("TextLabel")
+configUi.webhookHeader.Position = UDim2.new(0, 14, 0, 12)
+configUi.webhookHeader.Size = UDim2.new(1, -28, 0, 20)
+configUi.webhookHeader.BackgroundTransparency = 1
+configUi.webhookHeader.Text = "WEBHOOK  //  DELIVERY ROUTING"
+configUi.webhookHeader.TextColor3 = Color3.fromRGB(240, 225, 255)
+configUi.webhookHeader.Font = Enum.Font.GothamBold
+configUi.webhookHeader.TextSize = 12
+configUi.webhookHeader.TextXAlignment = Enum.TextXAlignment.Left
+configUi.webhookHeader.Parent = configUi.webhookPanel
+
+configUi.webhookHelp = Instance.new("TextLabel")
+configUi.webhookHelp.Position = UDim2.new(0, 14, 0, 36)
+configUi.webhookHelp.Size = UDim2.new(1, -28, 0, 28)
+configUi.webhookHelp.BackgroundTransparency = 1
+configUi.webhookHelp.Text = "LOCAL ONLY  //  SAVED ON DEVICE  //  NEVER UPLOAD WEBHOOKS"
+configUi.webhookHelp.TextColor3 = Color3.fromRGB(255, 193, 89)
+configUi.webhookHelp.Font = Enum.Font.Code
+configUi.webhookHelp.TextSize = 8
+configUi.webhookHelp.TextWrapped = true
+configUi.webhookHelp.TextXAlignment = Enum.TextXAlignment.Left
+configUi.webhookHelp.Parent = configUi.webhookPanel
+
+configUi.mainWebhookBox = Instance.new("TextBox")
+configUi.mainWebhookBox.Position = UDim2.new(0, 10, 0, 76)
+configUi.mainWebhookBox.Size = UDim2.new(1, -20, 0, 30)
+configUi.mainWebhookBox.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.mainWebhookBox.BorderSizePixel = 0
+configUi.mainWebhookBox.ClearTextOnFocus = false
+configUi.mainWebhookBox.PlaceholderText = "MAIN WEBHOOK  //  https://discord.com/api/webhooks/..."
+configUi.mainWebhookBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
+configUi.mainWebhookBox.Text = ""
+configUi.mainWebhookBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+configUi.mainWebhookBox.Font = Enum.Font.Code
+configUi.mainWebhookBox.TextSize = 8
+configUi.mainWebhookBox.TextXAlignment = Enum.TextXAlignment.Left
+configUi.mainWebhookBox.Parent = configUi.webhookPanel
+
+configUi.lastSeenWebhookBox = Instance.new("TextBox")
+configUi.lastSeenWebhookBox.Position = UDim2.new(0, 10, 0, 121)
+configUi.lastSeenWebhookBox.Size = UDim2.new(1, -20, 0, 30)
+configUi.lastSeenWebhookBox.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.lastSeenWebhookBox.BorderSizePixel = 0
+configUi.lastSeenWebhookBox.ClearTextOnFocus = false
+configUi.lastSeenWebhookBox.PlaceholderText = "LAST SEEN WEBHOOK  //  https://discord.com/api/webhooks/..."
+configUi.lastSeenWebhookBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
+configUi.lastSeenWebhookBox.Text = ""
+configUi.lastSeenWebhookBox.TextColor3 = Color3.fromRGB(245, 235, 255)
+configUi.lastSeenWebhookBox.Font = Enum.Font.Code
+configUi.lastSeenWebhookBox.TextSize = 8
+configUi.lastSeenWebhookBox.TextXAlignment = Enum.TextXAlignment.Left
+configUi.lastSeenWebhookBox.Parent = configUi.webhookPanel
+
+configUi.saveWebhookButton = Instance.new("TextButton")
+configUi.saveWebhookButton.Position = UDim2.new(0, 10, 0, 166)
+configUi.saveWebhookButton.Size = UDim2.new(0.5, -15, 0, 29)
+configUi.saveWebhookButton.BackgroundColor3 = Color3.fromRGB(126, 63, 191)
+configUi.saveWebhookButton.BorderSizePixel = 0
+configUi.saveWebhookButton.Text = "SAVE  //  WEBHOOKS"
+configUi.saveWebhookButton.TextColor3 = Color3.fromRGB(255, 245, 255)
+configUi.saveWebhookButton.Font = Enum.Font.GothamBold
+configUi.saveWebhookButton.TextSize = 9
+configUi.saveWebhookButton.AutoButtonColor = false
+configUi.saveWebhookButton.Parent = configUi.webhookPanel
+
+configUi.clearWebhookButton = Instance.new("TextButton")
+configUi.clearWebhookButton.Position = UDim2.new(0.5, 5, 0, 166)
+configUi.clearWebhookButton.Size = UDim2.new(0.5, -15, 0, 29)
+configUi.clearWebhookButton.BackgroundColor3 = Color3.fromRGB(74, 31, 56)
+configUi.clearWebhookButton.BorderSizePixel = 0
+configUi.clearWebhookButton.Text = "CLEAR  //  DISABLE"
+configUi.clearWebhookButton.TextColor3 = Color3.fromRGB(255, 181, 205)
+configUi.clearWebhookButton.Font = Enum.Font.GothamBold
+configUi.clearWebhookButton.TextSize = 9
+configUi.clearWebhookButton.AutoButtonColor = false
+configUi.clearWebhookButton.Parent = configUi.webhookPanel
+
+configUi.webhookStatus = Instance.new("TextLabel")
+configUi.webhookStatus.Position = UDim2.new(0, 14, 0, 210)
+configUi.webhookStatus.Size = UDim2.new(1, -28, 0, 38)
+configUi.webhookStatus.BackgroundTransparency = 1
+configUi.webhookStatus.Text = "STATUS // NOT CONFIGURED"
+configUi.webhookStatus.TextColor3 = Color3.fromRGB(151, 255, 204)
+configUi.webhookStatus.Font = Enum.Font.Code
+configUi.webhookStatus.TextSize = 9
+configUi.webhookStatus.TextWrapped = true
+configUi.webhookStatus.TextXAlignment = Enum.TextXAlignment.Left
+configUi.webhookStatus.Parent = configUi.webhookPanel
 
 local consolePanel = Instance.new("Frame")
 consolePanel.Name = "ConsolePanel"
@@ -1639,6 +1779,10 @@ local function loadConfigState()
 		local entry = normalizeConfiguredEntry(value)
 		if entry then table.insert(configState.entries, entry) end
 	end
+	if type(decoded.webhooks) == "table" then
+		if type(decoded.webhooks.main) == "string" then configState.webhooks.main = decoded.webhooks.main end
+		if type(decoded.webhooks.lastSeen) == "string" then configState.webhooks.lastSeen = decoded.webhooks.lastSeen end
+	end
 end
 
 local function saveConfigState()
@@ -1699,6 +1843,40 @@ loadTogglePosition()
 loadLastSeenState()
 loadPromotionState()
 loadConfigState()
+
+configUi.mainWebhookBox.Text = configState.webhooks.main or ""
+configUi.lastSeenWebhookBox.Text = configState.webhooks.lastSeen or ""
+if configState.webhooks.main ~= "" or configState.webhooks.lastSeen ~= "" then
+	configUi.webhookStatus.Text = "STATUS // SAVED LOCALLY  //  READY"
+end
+
+configUi.saveWebhookButton.MouseButton1Click:Connect(function()
+	local main = tostring(configUi.mainWebhookBox.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+	local lastSeen = tostring(configUi.lastSeenWebhookBox.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+	if main ~= "" and not main:match("^https://") then
+		updateStatus("WEBHOOK // MAIN URL INVALID", Color3.fromRGB(255, 92, 133))
+		return
+	end
+	if lastSeen ~= "" and not lastSeen:match("^https://") then
+		updateStatus("WEBHOOK // LAST SEEN URL INVALID", Color3.fromRGB(255, 92, 133))
+		return
+	end
+	configState.webhooks.main = main
+	configState.webhooks.lastSeen = lastSeen
+	saveConfigState()
+	configUi.webhookStatus.Text = "STATUS // SAVED LOCALLY  //  READY"
+	updateStatus("WEBHOOK // SAVED ON DEVICE", Color3.fromRGB(151, 255, 204))
+end)
+
+configUi.clearWebhookButton.MouseButton1Click:Connect(function()
+	configState.webhooks.main = ""
+	configState.webhooks.lastSeen = ""
+	configUi.mainWebhookBox.Text = ""
+	configUi.lastSeenWebhookBox.Text = ""
+	configUi.webhookStatus.Text = "STATUS // DISABLED  //  USING LOADER ENV"
+	saveConfigState()
+	updateStatus("WEBHOOK // LOCAL VALUES CLEARED", Color3.fromRGB(255, 193, 89))
+end)
 
 promotionUrlBox.Text = promotionState.url
 promotionLabelBox.Text = promotionState.label
@@ -2011,10 +2189,12 @@ local function setActiveSection(section)
 	local showLog = section == "LOG"
 	local showPromotions = section == "PROMOTIONS"
 	local showConfig = section == "CONFIG"
+	local showWebhook = section == "WEBHOOK"
 	logPanel.Visible = showLog
 	updateLogJumpVisibility()
 	promotionPanel.Visible = showPromotions
 	configUi.panel.Visible = showConfig
+	configUi.webhookPanel.Visible = showWebhook
 	announcementPanel.Visible = section == "ANNOUNCER"
 	consolePanel.Visible = section == "CONSOLE"
 	consoleJumpButton.Visible = section == "CONSOLE"
@@ -2022,6 +2202,7 @@ local function setActiveSection(section)
 	styleTab(promotionTab, showPromotions)
 	styleTab(announcerTab, section == "ANNOUNCER")
 	styleTab(configUi.tab, showConfig)
+	styleTab(configUi.webhookTab, showWebhook)
 	styleTab(consoleTab, section == "CONSOLE")
 
 	if showLog then
@@ -2030,6 +2211,8 @@ local function setActiveSection(section)
 		updateStatus("PROMOTIONS // CONFIGURATION READY", Color3.fromRGB(214, 165, 255))
 	elseif showConfig then
 		updateStatus("CONFIG // SAVED PETS READY", Color3.fromRGB(151, 255, 204))
+	elseif showWebhook then
+		updateStatus("WEBHOOK // LOCAL ROUTING READY", Color3.fromRGB(255, 193, 89))
 	elseif section == "CONSOLE" then
 		updateStatus("CONSOLE // STREAM READY", Color3.fromRGB(255, 111, 151))
 	else
@@ -2051,6 +2234,10 @@ end)
 
 configUi.tab.MouseButton1Click:Connect(function()
 	setActiveSection("CONFIG")
+end)
+
+configUi.webhookTab.MouseButton1Click:Connect(function()
+	setActiveSection("WEBHOOK")
 end)
 
 consoleTab.MouseButton1Click:Connect(function()
