@@ -821,7 +821,7 @@ local function saveConfigEditor()
 end
 
 configUi.rarityButton.MouseButton1Click:Connect(function()
-	local options = {"Secret", "Eternal", "Divine", "Mythical", "Legendary", "Cosmic"}
+local options = {"Secret", "Eternal", "Divine"}
 	local current = 1
 	for index, value in ipairs(options) do
 		if value == configUi.rarityValue then current = index break end
