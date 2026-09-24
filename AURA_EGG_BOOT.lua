@@ -43,6 +43,8 @@ LastSeenMessageID = "1552117304609738823",
 	Version = "2.0.2 ULTRA"
 }
 
+local ACCESS_STATE_FILE = "AuraEggNotifier_Access.json"
+
 local Players = game:GetService("Players")
 local LogService = game:GetService("LogService")
 local TextChatService = game:GetService("TextChatService")
@@ -137,7 +139,7 @@ topBarMask.BackgroundColor3 = topBar.BackgroundColor3
 topBarMask.BorderSizePixel = 0
 topBarMask.Parent = topBar
 
-local function createCanvasIcon(parent, kind, color, size, position, name)
+function createCanvasIcon(parent, kind, color, size, position, name)
 	local root = Instance.new("Frame")
 	root.Name = name or "CanvasIcon"
 	root.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -324,7 +326,7 @@ local function createCanvasIcon(parent, kind, color, size, position, name)
 	return root
 end
 
-local function tintCanvasIcon(root, color)
+function tintCanvasIcon(root, color)
 	for _, item in ipairs(root:GetDescendants()) do
 		if item:GetAttribute("CanvasPart") then
 			if item:IsA("Frame") then
@@ -1600,7 +1602,7 @@ accessGrid.Parent = accessOverlay
 local accessCard = Instance.new("Frame")
 accessCard.AnchorPoint = Vector2.new(0.5, 0.5)
 accessCard.Position = UDim2.new(0.5, 0, 0.5, 0)
-accessCard.Size = UDim2.new(0, 360, 0, 244)
+accessCard.Size = UDim2.new(0, 390, 0, 274)
 accessCard.BackgroundColor3 = Color3.fromRGB(14, 18, 35)
 accessCard.BorderSizePixel = 0
 accessCard.ZIndex = 101
@@ -1628,11 +1630,20 @@ local accessAccentCorner = Instance.new("UICorner")
 accessAccentCorner.CornerRadius = UDim.new(0, 12)
 accessAccentCorner.Parent = accessAccent
 
+createCanvasIcon(
+	accessCard,
+	"power",
+	Color3.fromRGB(94, 205, 255),
+	UDim2.new(0, 26, 0, 26),
+	UDim2.new(1, -42, 0, 20),
+	"AccessIcon"
+)
+
 local accessEyebrow = Instance.new("TextLabel")
 accessEyebrow.Position = UDim2.new(0, 24, 0, 22)
 accessEyebrow.Size = UDim2.new(1, -48, 0, 16)
 accessEyebrow.BackgroundTransparency = 1
-accessEyebrow.Text = "SYSTEM // AUTHORIZATION GATE"
+accessEyebrow.Text = "AURA // DEVICE AUTHORIZATION"
 accessEyebrow.TextColor3 = Color3.fromRGB(94, 205, 255)
 accessEyebrow.Font = Enum.Font.Code
 accessEyebrow.TextSize = 10
@@ -1644,7 +1655,7 @@ local accessTitle = Instance.new("TextLabel")
 accessTitle.Position = UDim2.new(0, 22, 0, 45)
 accessTitle.Size = UDim2.new(1, -44, 0, 28)
 accessTitle.BackgroundTransparency = 1
-accessTitle.Text = "SHADOW MONARCH KEY REQUIRED"
+accessTitle.Text = "WELCOME TO AURA"
 accessTitle.TextColor3 = Color3.fromRGB(236, 246, 255)
 accessTitle.Font = Enum.Font.GothamBold
 accessTitle.TextSize = 19
@@ -1656,7 +1667,7 @@ local accessDescription = Instance.new("TextLabel")
 accessDescription.Position = UDim2.new(0, 24, 0, 78)
 accessDescription.Size = UDim2.new(1, -48, 0, 18)
 accessDescription.BackgroundTransparency = 1
-accessDescription.Text = "IDENTITY CHECK REQUIRED // 3 ATTEMPTS"
+accessDescription.Text = "ONE-TIME SETUP // THIS DEVICE ONLY"
 accessDescription.TextColor3 = Color3.fromRGB(159, 170, 202)
 accessDescription.Font = Enum.Font.Code
 accessDescription.TextSize = 9
@@ -1710,7 +1721,7 @@ accessButtonCorner.Parent = accessButton
 
 local accessStatus = Instance.new("TextLabel")
 accessStatus.Position = UDim2.new(0, 24, 0, 197)
-accessStatus.Size = UDim2.new(1, -48, 0, 22)
+accessStatus.Size = UDim2.new(1, -48, 0, 36)
 accessStatus.BackgroundTransparency = 1
 accessStatus.Text = "STATUS: LOCKED"
 accessStatus.TextColor3 = Color3.fromRGB(255, 193, 89)
@@ -1722,13 +1733,45 @@ accessStatus.Parent = accessCard
 
 local accessAttempts = 0
 local accessUnlocked = false
+local accessWasRemembered = false
+
+function getAccessFingerprint(value)
+	local hash = 7
+	for index = 1, #value do
+		hash = (hash * 31 + string.byte(value, index)) % 2147483647
+	end
+	return tostring(hash)
+end
+
+local accessFingerprint = getAccessFingerprint(CONFIG.AccessKey)
+if type(isfile) == "function" and type(readfile) == "function" then
+	local readOk, raw = pcall(readfile, ACCESS_STATE_FILE)
+	if readOk and type(raw) == "string" and raw ~= "" then
+		local decodeOk, decoded = pcall(function()
+			return HttpService:JSONDecode(raw)
+		end)
+		if decodeOk
+			and type(decoded) == "table"
+			and decoded.authorized == true
+			and tostring(decoded.fingerprint or "") == accessFingerprint then
+			accessWasRemembered = true
+		end
+	end
+end
 
 local function submitAccessKey()
 	if accessUnlocked then return end
 
 	if accessInput.Text == CONFIG.AccessKey then
 		accessUnlocked = true
-		accessStatus.Text = "STATUS: AUTHORIZED // WELCOME, AURA"
+		if type(writefile) == "function" then
+			pcall(writefile, ACCESS_STATE_FILE, HttpService:JSONEncode({
+				version = 1,
+				authorized = true,
+				fingerprint = accessFingerprint
+			}))
+		end
+		accessStatus.Text = "STATUS: AUTHORIZED // SAVED ON THIS DEVICE"
 		accessStatus.TextColor3 = Color3.fromRGB(151, 255, 204)
 		accessButton.Text = "ACCESS GRANTED"
 		accessButton.BackgroundColor3 = Color3.fromRGB(38, 145, 117)
@@ -1768,6 +1811,11 @@ accessInput.FocusLost:Connect(function(enterPressed)
 		submitAccessKey()
 	end
 end)
+
+if accessWasRemembered then
+	accessInput.Text = CONFIG.AccessKey
+	submitAccessKey()
+end
 
 local POSITION_FILE = "AuraEggNotifier_ButtonPosition.json"
 local LAST_SEEN_STATE_FILE = "AuraEggNotifier_LastSeen.json"
@@ -2090,7 +2138,7 @@ promotionUsesBox.Text = tostring(promotionState.maxUses)
 promotionIntervalBox.Text = tostring(promotionState.intervalMinutes)
 
 -- ULTRA button system: gradients, neon edge, tactile press state and compact icons.
-local function enhanceButton(button, accent, iconKind)
+function enhanceButton(button, accent, iconKind)
 	if not button then return end
 	button.AutoButtonColor = false
 	button.ClipsDescendants = true
@@ -2166,7 +2214,7 @@ enhanceButton(consoleJumpButton, Color3.fromRGB(218, 35, 78), nil)
 local activeCards = {}
 local layoutCounter = 0
 
-local function cleanText(text)
+function cleanText(text)
 	if not text then return "" end
 	return (text
 		:gsub("<[^>]+>", "")
@@ -2182,7 +2230,7 @@ local function removeCard(card)
 	end
 end
 
-local function colorToHex(color)
+function colorToHex(color)
 	return string.format(
 		"#%02X%02X%02X",
 		math.floor(color.R * 255 + 0.5),
@@ -2191,7 +2239,7 @@ local function colorToHex(color)
 	)
 end
 
-local function escapeRichText(text)
+function escapeRichText(text)
 	return (tostring(text):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
 end
 
@@ -2209,7 +2257,7 @@ local consoleEntries = {}
 local logRenderScheduled = false
 local consoleRenderScheduled = false
 
-local function getClockTime()
+function getClockTime()
 	return os.date("!%H:%M:%S")
 end
 
