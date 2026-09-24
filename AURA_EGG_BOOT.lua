@@ -402,6 +402,27 @@ local function styleTab(button, active)
 	if icon then
 		tintCanvasIcon(icon, button.TextColor3)
 	end
+
+	local gradient = button:FindFirstChild("TabGradient")
+	if not gradient then
+		gradient = Instance.new("UIGradient")
+		gradient.Name = "TabGradient"
+		gradient.Rotation = 90
+		gradient.Parent = button
+	end
+	gradient.Color = active
+		and ColorSequence.new(Color3.fromRGB(0, 160, 255), Color3.fromRGB(92, 48, 205))
+		or ColorSequence.new(Color3.fromRGB(20, 31, 61), Color3.fromRGB(10, 16, 34))
+
+	local stroke = button:FindFirstChild("TabStroke")
+	if not stroke then
+		stroke = Instance.new("UIStroke")
+		stroke.Name = "TabStroke"
+		stroke.Parent = button
+	end
+	stroke.Color = active and Color3.fromRGB(0, 198, 255) or Color3.fromRGB(38, 62, 101)
+	stroke.Thickness = active and 1.5 or 1
+	stroke.Transparency = active and 0.05 or 0.35
 end
 
 local logTab = Instance.new("TextButton")
@@ -718,7 +739,7 @@ sendAnnouncementButton.Position = UDim2.new(0, 10, 0, 153)
 sendAnnouncementButton.Size = UDim2.new(1, -20, 0, 28)
 sendAnnouncementButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 sendAnnouncementButton.BorderSizePixel = 0
-sendAnnouncementButton.Text = "SEND EMBED  >  WEBHOOK"
+sendAnnouncementButton.Text = "  DISPATCH EMBED  //  WEBHOOK"
 sendAnnouncementButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 sendAnnouncementButton.Font = Enum.Font.GothamBold
 sendAnnouncementButton.TextSize = 11
@@ -918,7 +939,7 @@ savePromotionButton.Position = UDim2.new(0, 10, 0, 215)
 savePromotionButton.Size = UDim2.new(1, -20, 0, 28)
 savePromotionButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 savePromotionButton.BorderSizePixel = 0
-savePromotionButton.Text = "SAVE PROMOTION  >  READY"
+savePromotionButton.Text = "  SAVE PROMOTION  //  READY"
 savePromotionButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 savePromotionButton.Font = Enum.Font.GothamBold
 savePromotionButton.TextSize = 10
@@ -1064,7 +1085,7 @@ configUi.saveButton.Position = UDim2.new(0, 10, 0, 190)
 configUi.saveButton.Size = UDim2.new(0.5, -15, 0, 28)
 configUi.saveButton.BackgroundColor3 = Color3.fromRGB(0, 132, 255)
 configUi.saveButton.BorderSizePixel = 0
-configUi.saveButton.Text = "SAVE  //  APPLY"
+configUi.saveButton.Text = "  SAVE  //  APPLY"
 configUi.saveButton.TextColor3 = Color3.fromRGB(255, 245, 255)
 configUi.saveButton.Font = Enum.Font.GothamBold
 configUi.saveButton.TextSize = 9
@@ -1077,7 +1098,7 @@ configUi.newButton.Position = UDim2.new(0.5, 5, 0, 190)
 configUi.newButton.Size = UDim2.new(0.5, -15, 0, 28)
 configUi.newButton.BackgroundColor3 = Color3.fromRGB(28, 36, 68)
 configUi.newButton.BorderSizePixel = 0
-configUi.newButton.Text = "NEW  //  CLEAR"
+configUi.newButton.Text = "  NEW  //  CLEAR"
 configUi.newButton.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.newButton.Font = Enum.Font.GothamBold
 configUi.newButton.TextSize = 9
@@ -1168,7 +1189,7 @@ configUi.saveWebhookButton.Position = UDim2.new(0, 10, 0, 166)
 configUi.saveWebhookButton.Size = UDim2.new(0.5, -15, 0, 29)
 configUi.saveWebhookButton.BackgroundColor3 = Color3.fromRGB(0, 132, 255)
 configUi.saveWebhookButton.BorderSizePixel = 0
-configUi.saveWebhookButton.Text = "SAVE  //  WEBHOOKS"
+configUi.saveWebhookButton.Text = "  SAVE  //  WEBHOOKS"
 configUi.saveWebhookButton.TextColor3 = Color3.fromRGB(255, 245, 255)
 configUi.saveWebhookButton.Font = Enum.Font.GothamBold
 configUi.saveWebhookButton.TextSize = 9
@@ -1180,7 +1201,7 @@ configUi.clearWebhookButton.Position = UDim2.new(0.5, 5, 0, 166)
 configUi.clearWebhookButton.Size = UDim2.new(0.5, -15, 0, 29)
 configUi.clearWebhookButton.BackgroundColor3 = Color3.fromRGB(92, 20, 45)
 configUi.clearWebhookButton.BorderSizePixel = 0
-configUi.clearWebhookButton.Text = "CLEAR  //  DISABLE"
+configUi.clearWebhookButton.Text = "  CLEAR  //  DISABLE"
 configUi.clearWebhookButton.TextColor3 = Color3.fromRGB(255, 181, 205)
 configUi.clearWebhookButton.Font = Enum.Font.GothamBold
 configUi.clearWebhookButton.TextSize = 9
@@ -1231,7 +1252,7 @@ copyConsoleButton.Position = UDim2.new(1, -10, 0, 7)
 copyConsoleButton.Size = UDim2.new(0, 92, 0, 22)
 copyConsoleButton.BackgroundColor3 = Color3.fromRGB(74, 42, 98)
 copyConsoleButton.BorderSizePixel = 0
-copyConsoleButton.Text = "COPY ALL"
+copyConsoleButton.Text = "  COPY ALL"
 copyConsoleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
 copyConsoleButton.Font = Enum.Font.GothamBold
 copyConsoleButton.TextSize = 9
@@ -1896,6 +1917,69 @@ promotionEmojiBox.Text = promotionState.emoji
 promotionUsesBox.Text = tostring(promotionState.maxUses)
 promotionIntervalBox.Text = tostring(promotionState.intervalMinutes)
 
+-- ULTRA button system: gradients, neon edge, tactile press state and compact icons.
+local function enhanceButton(button, accent, iconKind)
+	if not button then return end
+	button.AutoButtonColor = false
+	button.ClipsDescendants = true
+	button.TextColor3 = Color3.fromRGB(248, 250, 255)
+
+	local gradient = button:FindFirstChild("UltraGradient")
+	if not gradient then
+		gradient = Instance.new("UIGradient")
+		gradient.Name = "UltraGradient"
+		gradient.Rotation = 90
+		gradient.Parent = button
+	end
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, accent),
+		ColorSequenceKeypoint.new(1, Color3.new(accent.R * 0.34, accent.G * 0.34, accent.B * 0.34))
+	})
+
+	local stroke = button:FindFirstChild("UltraStroke")
+	if not stroke then
+		stroke = Instance.new("UIStroke")
+		stroke.Name = "UltraStroke"
+		stroke.Parent = button
+	end
+	stroke.Color = accent
+	stroke.Thickness = 1.25
+	stroke.Transparency = 0.08
+
+	local corner = button:FindFirstChildOfClass("UICorner")
+	if not corner then
+		corner = Instance.new("UICorner")
+		corner.Parent = button
+	end
+	corner.CornerRadius = UDim.new(0, 8)
+
+	if iconKind and not button:FindFirstChild("UltraButtonIcon") then
+		createCanvasIcon(button, iconKind, Color3.fromRGB(255, 255, 255), UDim2.new(0, 13, 0, 13), UDim2.new(0, 14, 0.5, 0), "UltraButtonIcon")
+	end
+
+	local function setPressed(pressed)
+		gradient.Offset = pressed and Vector2.new(0, 0.12) or Vector2.new(0, 0)
+		stroke.Thickness = pressed and 2 or 1.25
+		stroke.Transparency = pressed and 0 or 0.08
+	end
+	button.MouseButton1Down:Connect(function() setPressed(true) end)
+	button.MouseButton1Up:Connect(function() setPressed(false) end)
+	button.MouseLeave:Connect(function() setPressed(false) end)
+end
+
+enhanceButton(panelClose, Color3.fromRGB(255, 78, 128), nil)
+enhanceButton(sendAnnouncementButton, Color3.fromRGB(156, 78, 255), "spark")
+enhanceButton(savePromotionButton, Color3.fromRGB(0, 151, 255), "spark")
+enhanceButton(configUi.rarityButton, Color3.fromRGB(102, 73, 215), "spark")
+enhanceButton(configUi.saveButton, Color3.fromRGB(0, 151, 255), "system")
+enhanceButton(configUi.newButton, Color3.fromRGB(94, 73, 184), "egg")
+enhanceButton(configUi.deleteButton, Color3.fromRGB(218, 35, 78), "close")
+enhanceButton(configUi.saveWebhookButton, Color3.fromRGB(0, 151, 255), "console")
+enhanceButton(configUi.clearWebhookButton, Color3.fromRGB(218, 35, 78), "close")
+enhanceButton(copyConsoleButton, Color3.fromRGB(156, 78, 255), "console")
+enhanceButton(logJumpButton, Color3.fromRGB(156, 78, 255), nil)
+enhanceButton(consoleJumpButton, Color3.fromRGB(218, 35, 78), nil)
+
 local activeCards = {}
 local layoutCounter = 0
 
@@ -2046,7 +2130,7 @@ copyConsoleButton.MouseButton1Click:Connect(function()
 			updateStatus("CONSOLE // COPIED TO CLIPBOARD", Color3.fromRGB(151, 255, 204))
 			task.delay(1.2, function()
 				if copyConsoleButton.Parent then
-					copyConsoleButton.Text = "COPY ALL"
+					copyConsoleButton.Text = "  COPY ALL"
 				end
 			end)
 			return
