@@ -1,4 +1,4 @@
--- AURA EGG 2.0.0 // DELIVERY + EVENT LOOP
+-- AURA EGG 2.0.2 ULTRA // DELIVERY + EVENT LOOP
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
 		local payload = {
