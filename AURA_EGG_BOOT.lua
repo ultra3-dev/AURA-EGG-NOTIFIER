@@ -219,6 +219,90 @@ local function createCanvasIcon(parent, kind, color, size, position, name)
 		shape("ConsolePrompt", UDim2.new(0.18, 0, 0, 1.5), UDim2.new(0.31, 0, 0.52, 0))
 		shape("ConsoleLineA", UDim2.new(0.36, 0, 0, 1.5), UDim2.new(0.56, 0, 0.39, 0))
 		shape("ConsoleLineB", UDim2.new(0.28, 0, 0, 1.5), UDim2.new(0.52, 0, 0.63, 0))
+	elseif kind == "sliders" then
+		for index, data in ipairs({{0.34, 0.32}, {0.58, 0.50}, {0.78, 0.68}}) do
+			local line = shape("SliderLine" .. index, UDim2.new(0.72, 0, 0, 1.5), UDim2.new(0.5, 0, data[1], 0))
+			round(line, 0.5)
+			local knob = shape("SliderKnob" .. index, UDim2.new(0.16, 0, 0.16, 0), UDim2.new(data[2], 0, data[1], 0))
+			round(knob, 0.5)
+		end
+	elseif kind == "webhook" then
+		local left = shape("WebhookLeft", UDim2.new(0.34, 0, 0.34, 0), UDim2.new(0.35, 0, 0.43, 0), 45, 1)
+		local right = shape("WebhookRight", UDim2.new(0.34, 0, 0.34, 0), UDim2.new(0.65, 0, 0.57, 0), 45, 1)
+		round(left, 0.25)
+		round(right, 0.25)
+		outline(left, 1.1)
+		outline(right, 1.1)
+		shape("WebhookBridge", UDim2.new(0.28, 0, 0, 2), UDim2.new(0.5, 0, 0.5, 0), -35)
+	elseif kind == "terminal" then
+		local terminal = shape("TerminalShell", UDim2.new(0.78, 0, 0.64, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
+		round(terminal, 0.1)
+		outline(terminal, 1.1)
+		shape("TerminalChevronA", UDim2.new(0.16, 0, 0, 1.8), UDim2.new(0.34, 0, 0.48, 0), 35)
+		shape("TerminalChevronB", UDim2.new(0.16, 0, 0, 1.8), UDim2.new(0.43, 0, 0.52, 0), -35)
+		shape("TerminalCursor", UDim2.new(0.18, 0, 0, 1.8), UDim2.new(0.66, 0, 0.62, 0))
+	elseif kind == "check" then
+		shape("CheckA", UDim2.new(0, 2.2, 0, 8), UDim2.new(0.38, 0, 0.58, 0), -45)
+		shape("CheckB", UDim2.new(0, 2.2, 0, 13), UDim2.new(0.62, 0, 0.43, 0), 45)
+	elseif kind == "plus" then
+		local horizontal = shape("PlusHorizontal", UDim2.new(0.68, 0, 0, 2.2), UDim2.new(0.5, 0, 0.5, 0))
+		local vertical = shape("PlusVertical", UDim2.new(0, 2.2, 0.68, 0), UDim2.new(0.5, 0, 0.5, 0))
+		round(horizontal, 0.5)
+		round(vertical, 0.5)
+	elseif kind == "trash" then
+		local bin = shape("TrashBin", UDim2.new(0.52, 0, 0.58, 0), UDim2.new(0.5, 0, 0.57, 0))
+		round(bin, 0.12)
+		shape("TrashLid", UDim2.new(0.68, 0, 0, 2), UDim2.new(0.5, 0, 0.25, 0))
+		shape("TrashHandle", UDim2.new(0.24, 0, 0, 2), UDim2.new(0.5, 0, 0.17, 0))
+	elseif kind == "send" then
+		local plane = shape("SendPlane", UDim2.new(0.7, 0, 0.42, 0), UDim2.new(0.52, 0, 0.48, 0), -25)
+		round(plane, 0.12)
+		shape("SendCut", UDim2.new(0.1, 0, 0.42, 0), UDim2.new(0.35, 0, 0.57, 0), 25, 0.35)
+	elseif kind == "link" then
+		local link = shape("LinkBody", UDim2.new(0.68, 0, 0.22, 0), UDim2.new(0.5, 0, 0.5, 0), -25, 1)
+		round(link, 0.5)
+		outline(link, 1.2)
+		shape("LinkCut", UDim2.new(0.16, 0, 0.3, 0), UDim2.new(0.5, 0, 0.5, 0), -25, 1)
+	elseif kind == "tag" then
+		local tag = shape("TagBody", UDim2.new(0.62, 0, 0.56, 0), UDim2.new(0.47, 0, 0.52, 0), 0, 1)
+		round(tag, 0.12)
+		outline(tag, 1.1)
+		local tagHole = shape("TagHole", UDim2.new(0.14, 0, 0.14, 0), UDim2.new(0.27, 0, 0.35, 0))
+		round(tagHole, 0.5)
+	elseif kind == "copy" then
+		local back = shape("CopyBack", UDim2.new(0.54, 0, 0.62, 0), UDim2.new(0.58, 0, 0.42, 0), 0, 1)
+		round(back, 0.1)
+		outline(back, 1.1)
+		local front = shape("CopyFront", UDim2.new(0.54, 0, 0.62, 0), UDim2.new(0.42, 0, 0.58, 0))
+		round(front, 0.1)
+	elseif kind == "clock" then
+		local clock = shape("ClockRing", UDim2.new(0.76, 0, 0.76, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
+		round(clock, 0.5)
+		outline(clock, 1.1)
+		shape("ClockHandA", UDim2.new(0, 1.7, 0.27, 0), UDim2.new(0.5, 0, 0.39, 0))
+		shape("ClockHandB", UDim2.new(0.26, 0, 0, 1.7), UDim2.new(0.58, 0, 0.54, 0), 35)
+	elseif kind == "route" then
+		local routeLine = shape("RouteLine", UDim2.new(0.62, 0, 0, 2), UDim2.new(0.5, 0, 0.5, 0))
+		round(routeLine, 0.5)
+		local routeStart = shape("RouteStart", UDim2.new(0.2, 0, 0.2, 0), UDim2.new(0.2, 0, 0.5, 0))
+		local routeEnd = shape("RouteEnd", UDim2.new(0.2, 0, 0.2, 0), UDim2.new(0.8, 0, 0.5, 0))
+		round(routeStart, 0.5)
+		round(routeEnd, 0.5)
+	elseif kind == "broom" then
+		shape("BroomHandle", UDim2.new(0, 2, 0.76, 0), UDim2.new(0.6, 0, 0.42, 0), 35)
+		local brush = shape("BroomBrush", UDim2.new(0.52, 0, 0.18, 0), UDim2.new(0.3, 0, 0.68, 0), -20)
+		round(brush, 0.35)
+	elseif kind == "endpoint" then
+		local node = shape("EndpointNode", UDim2.new(0.62, 0, 0.62, 0), UDim2.new(0.5, 0, 0.5, 0), 45, 1)
+		round(node, 0.2)
+		outline(node, 1.1)
+		local endpointCore = shape("EndpointCore", UDim2.new(0.2, 0, 0.2, 0), UDim2.new(0.5, 0, 0.5, 0))
+		round(endpointCore, 0.5)
+	elseif kind == "power" then
+		local ring = shape("PowerRing", UDim2.new(0.76, 0, 0.76, 0), UDim2.new(0.5, 0, 0.54, 0), 0, 1)
+		round(ring, 0.5)
+		outline(ring, 1.3)
+		shape("PowerStem", UDim2.new(0, 2, 0.42, 0), UDim2.new(0.5, 0, 0.28, 0))
 	end
 
 	return root
@@ -405,6 +489,7 @@ local function styleTab(button, active)
 
 	local gradient = button:FindFirstChild("TabGradient")
 	if gradient then gradient:Destroy() end
+	button.BackgroundColor3 = active and Color3.fromRGB(0, 128, 255) or Color3.fromRGB(16, 24, 48)
 
 	local stroke = button:FindFirstChild("TabStroke")
 	if not stroke then
@@ -554,7 +639,7 @@ configUi.tab.Parent = navigation
 
 configUi.tabIcon = createCanvasIcon(
 	configUi.tab,
-	"system",
+	"sliders",
 	configUi.tab.TextColor3,
 	UDim2.new(0, 16, 0, 16),
 	UDim2.new(0, 15, 0.5, 0),
@@ -592,7 +677,7 @@ configUi.webhookTab.TextYAlignment = Enum.TextYAlignment.Center
 configUi.webhookTab.AutoButtonColor = false
 configUi.webhookTab.Parent = navigation
 
-configUi.webhookTabIcon = createCanvasIcon(configUi.webhookTab, "console", configUi.webhookTab.TextColor3, UDim2.new(0, 16, 0, 16), UDim2.new(0, 15, 0.5, 0), "TabIcon")
+configUi.webhookTabIcon = createCanvasIcon(configUi.webhookTab, "webhook", configUi.webhookTab.TextColor3, UDim2.new(0, 16, 0, 16), UDim2.new(0, 15, 0.5, 0), "TabIcon")
 configUi.webhookTabLabel = Instance.new("TextLabel")
 configUi.webhookTabLabel.Name = "TabLabel"
 configUi.webhookTabLabel.Position = UDim2.new(0, 30, 0, 0)
@@ -624,7 +709,7 @@ consoleTab.Parent = navigation
 
 local consoleTabIcon = createCanvasIcon(
 	consoleTab,
-	"console",
+	"terminal",
 	consoleTab.TextColor3,
 	UDim2.new(0, 16, 0, 16),
 	UDim2.new(0.5, 0, 0.5, 0),
@@ -1068,7 +1153,7 @@ configUi.rarityButton.AutoButtonColor = false
 configUi.rarityButton.Parent = configUi.panel
 
 configUi.rarityPadding = Instance.new("UIPadding")
-configUi.rarityPadding.PaddingLeft = UDim.new(0, 8)
+configUi.rarityPadding.PaddingLeft = UDim.new(0, 30)
 configUi.rarityPadding.Parent = configUi.rarityButton
 
 configUi.saveButton = Instance.new("TextButton")
@@ -1133,7 +1218,7 @@ configUi.webhookHeader.Font = Enum.Font.GothamBold
 configUi.webhookHeader.TextSize = 12
 configUi.webhookHeader.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookHeader.Parent = configUi.webhookPanel
-createCanvasIcon(configUi.webhookPanel, "console", Color3.fromRGB(0, 198, 255), UDim2.new(0, 18, 0, 18), UDim2.new(0, 20, 0, 22), "WebhookHeaderIcon")
+createCanvasIcon(configUi.webhookPanel, "endpoint", Color3.fromRGB(0, 198, 255), UDim2.new(0, 18, 0, 18), UDim2.new(0, 20, 0, 22), "WebhookHeaderIcon")
 
 configUi.webhookHelp = Instance.new("TextLabel")
 configUi.webhookHelp.Position = UDim2.new(0, 14, 0, 36)
@@ -1165,7 +1250,7 @@ local mainWebhookPadding = Instance.new("UIPadding")
 mainWebhookPadding.PaddingLeft = UDim.new(0, 28)
 mainWebhookPadding.PaddingRight = UDim.new(0, 8)
 mainWebhookPadding.Parent = configUi.mainWebhookBox
-createCanvasIcon(configUi.mainWebhookBox, "console", Color3.fromRGB(0, 174, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
+createCanvasIcon(configUi.mainWebhookBox, "endpoint", Color3.fromRGB(0, 174, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
 configUi.mainWebhookBox.Parent = configUi.webhookPanel
 
 configUi.lastSeenWebhookBox = Instance.new("TextBox")
@@ -1186,7 +1271,7 @@ local lastSeenWebhookPadding = Instance.new("UIPadding")
 lastSeenWebhookPadding.PaddingLeft = UDim.new(0, 28)
 lastSeenWebhookPadding.PaddingRight = UDim.new(0, 8)
 lastSeenWebhookPadding.Parent = configUi.lastSeenWebhookBox
-createCanvasIcon(configUi.lastSeenWebhookBox, "system", Color3.fromRGB(171, 92, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
+createCanvasIcon(configUi.lastSeenWebhookBox, "clock", Color3.fromRGB(171, 92, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
 configUi.lastSeenWebhookBox.Parent = configUi.webhookPanel
 
 configUi.saveWebhookButton = Instance.new("TextButton")
@@ -1376,7 +1461,7 @@ toggleButton.Parent = screenGui
 
 createCanvasIcon(
 	toggleButton,
-	"egg",
+	"power",
 	Color3.fromRGB(238, 201, 255),
 	UDim2.new(0, 24, 0, 24),
 	UDim2.new(0.5, 0, 0.5, 0)
@@ -1964,15 +2049,15 @@ local function enhanceButton(button, accent, iconKind)
 end
 
 enhanceButton(panelClose, Color3.fromRGB(255, 78, 128), nil)
-enhanceButton(sendAnnouncementButton, Color3.fromRGB(156, 78, 255), "spark")
-enhanceButton(savePromotionButton, Color3.fromRGB(0, 151, 255), "spark")
-enhanceButton(configUi.rarityButton, Color3.fromRGB(102, 73, 215), "spark")
-enhanceButton(configUi.saveButton, Color3.fromRGB(0, 151, 255), "system")
-enhanceButton(configUi.newButton, Color3.fromRGB(94, 73, 184), "egg")
-enhanceButton(configUi.deleteButton, Color3.fromRGB(218, 35, 78), "close")
-enhanceButton(configUi.saveWebhookButton, Color3.fromRGB(0, 151, 255), "console")
-enhanceButton(configUi.clearWebhookButton, Color3.fromRGB(218, 35, 78), "close")
-enhanceButton(copyConsoleButton, Color3.fromRGB(156, 78, 255), "console")
+enhanceButton(sendAnnouncementButton, Color3.fromRGB(156, 78, 255), "send")
+enhanceButton(savePromotionButton, Color3.fromRGB(0, 151, 255), "link")
+enhanceButton(configUi.rarityButton, Color3.fromRGB(102, 73, 215), "tag")
+enhanceButton(configUi.saveButton, Color3.fromRGB(0, 151, 255), "check")
+enhanceButton(configUi.newButton, Color3.fromRGB(94, 73, 184), "plus")
+enhanceButton(configUi.deleteButton, Color3.fromRGB(218, 35, 78), "trash")
+enhanceButton(configUi.saveWebhookButton, Color3.fromRGB(0, 151, 255), "route")
+enhanceButton(configUi.clearWebhookButton, Color3.fromRGB(218, 35, 78), "broom")
+enhanceButton(copyConsoleButton, Color3.fromRGB(156, 78, 255), "copy")
 enhanceButton(logJumpButton, Color3.fromRGB(156, 78, 255), nil)
 enhanceButton(consoleJumpButton, Color3.fromRGB(218, 35, 78), nil)
 
