@@ -15,7 +15,7 @@ local files = {
 
 local source = ""
 for _, fileName in ipairs(files) do
-	source = source .. "\n" .. game:HttpGet(base .. fileName .. "?v=2.0.0-webhook3")
+	source = source .. "\n" .. game:HttpGet(base .. fileName .. "?v=2.0.0-webhook4")
 end
 
 local compile = loadstring or load
