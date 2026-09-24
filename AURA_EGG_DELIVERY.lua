@@ -88,6 +88,7 @@ local message = replaceRarityWithMention(text)
 local eggMentioned
 message, eggMentioned = replaceEggNameWithMention(message)
 local eggEmoji, eggMention = getEggDisplayData(text)
+ local rarityEmoji = getRarityEmoji(text)
 	local countValue = math.max(1, math.floor(tonumber(count) or 1))
 	local countPrefix = "X" .. tostring(countValue) .. " "
 
@@ -113,8 +114,9 @@ end
 	end
 
 return string.format(
-		"> %s\n━━━━━━━━━━━━━━━━━━━━\n- **Spawned:** <t:%d:R>\n━━━━━━━━━━━━━━━━━━━━%s",
+		"> %s\n━━━━━━━━━━━━━━━━━━━━\n- %s **Spawned:** <t:%d:R>\n━━━━━━━━━━━━━━━━━━━━%s",
 		headline,
+		rarityEmoji,
 		tonumber(spawnedAt) or os.time(),
 		joinLine
 )
