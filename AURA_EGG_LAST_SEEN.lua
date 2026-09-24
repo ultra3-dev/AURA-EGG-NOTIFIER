@@ -28,7 +28,7 @@ if onDone then onDone(false) end
 return
 end
 
-		local webhookUrl = CONFIG.WebhookURL
+		local webhookUrl = getConfiguredMainWebhookUrl()
 		if payload.components then
 			webhookUrl = webhookUrl
 				.. (webhookUrl:find("?", 1, true) and "&" or "?")
@@ -216,8 +216,20 @@ local function buildLastSeenPayload(referenceTime)
 	}
 end
 
-local function getWebhookBaseUrl()
+local function getConfiguredMainWebhookUrl()
+	local configured = tostring(configState.webhooks.main or "")
+	if configured ~= "" and not configured:find("PASTE_", 1, true) then return configured end
+	return tostring(CONFIG.WebhookURL or "")
+end
+
+local function getConfiguredLastSeenWebhookUrl()
+	local configured = tostring(configState.webhooks.lastSeen or "")
+	if configured ~= "" and not configured:find("PASTE_", 1, true) then return configured end
 	return tostring(CONFIG.LastSeenWebhookURL or "")
+end
+
+local function getWebhookBaseUrl()
+	return getConfiguredLastSeenWebhookUrl()
 		:gsub("%?.*$", "")
 		:gsub("/+$", "")
 end
