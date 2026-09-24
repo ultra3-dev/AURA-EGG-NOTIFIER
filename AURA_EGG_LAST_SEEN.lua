@@ -147,7 +147,7 @@ local function formatLastSeenStatus(timestamp)
 		local now = os.time()
 		if parsed >= now - LAST_SEEN_ACTIVE_WINDOW and parsed <= now + LAST_SEEN_ACTIVE_WINDOW then
 			if lastSeenRefreshScheduler then lastSeenRefreshScheduler(parsed) end
-			return "Active Now"
+			return "**Active Now**"
 		end
 		return "<t:" .. tostring(math.floor(parsed)) .. ":R>"
 	end
@@ -167,7 +167,7 @@ local function buildLastSeenContainer(rarity)
 		end
 		table.insert(
 			lines,
-			entry.emoji .. " " .. entry.name .. " — " .. formatLastSeenStatus(timestamp)
+			entry.emoji .. " **" .. entry.name .. "** — " .. formatLastSeenStatus(timestamp)
 		)
 	end
 
@@ -178,7 +178,7 @@ local function buildLastSeenContainer(rarity)
 			{
 				type = 10,
 				content = string.format(
-"# %s %s — Last seen\n-# %d registradas",
+"# %s %s — Last Seen\n-# %d registradas",
 					style.emoji,
 					rarity,
 					registered
@@ -198,7 +198,7 @@ local function buildLastSeenPayload(referenceTime)
 	local components = {
 		{
 			type = 10,
-			content = "### AURA — Last seen"
+			content = "### 🥚 AURA — Last Seen"
 		},
 		buildLastSeenSeparator("")
 	}
@@ -211,7 +211,7 @@ local function buildLastSeenPayload(referenceTime)
 		components,
 		{
 			type = 10,
-			content = "-# AURA • Last Seen • Actualizado <t:"
+			content = "-# Last Seen • AURA FAMILY X • Actualizado <t:"
 				.. tostring(math.floor(tonumber(referenceTime) or os.time()))
 				.. ":R>"
 		}
