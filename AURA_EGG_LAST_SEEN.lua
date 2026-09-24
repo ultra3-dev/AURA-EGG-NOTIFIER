@@ -822,10 +822,11 @@ end
 
 configUi.rarityButton.MouseButton1Click:Connect(function()
 	local current = 1
-	for index, value in ipairs(CONFIG_RARITY_OPTIONS) do
+	local options = {"Secret", "Eternal", "Divine"}
+	for index, value in ipairs(options) do
 		if value == configUi.rarityValue then current = index break end
 	end
-	configUi.rarityValue = CONFIG_RARITY_OPTIONS[current % #CONFIG_RARITY_OPTIONS + 1]
+	configUi.rarityValue = options[current % #options + 1]
 	configUi.rarityButton.Text = "RAREZA: " .. configUi.rarityValue:upper()
 end)
 
