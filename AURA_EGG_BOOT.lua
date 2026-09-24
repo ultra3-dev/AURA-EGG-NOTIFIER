@@ -82,6 +82,7 @@ version = 1,
 entries = {},
 webhooks = {main = "", lastSeen = ""}
 }
+local CONFIG_RARITY_OPTIONS = {"Secret", "Eternal", "Divine"}
 local configSelectedKey = nil
 
 if playerGui:FindFirstChild("EggDetectorStealth") then
@@ -1248,47 +1249,65 @@ configUi.webhookHelp.TextWrapped = true
 configUi.webhookHelp.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookHelp.Parent = configUi.webhookPanel
 
-configUi.mainWebhookBox = Instance.new("TextBox")
-configUi.mainWebhookBox.Position = UDim2.new(0, 10, 0, 76)
-configUi.mainWebhookBox.Size = UDim2.new(1, -20, 0, 30)
-configUi.mainWebhookBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
-configUi.mainWebhookBox.BorderSizePixel = 0
-configUi.mainWebhookBox.ClipsDescendants = true
-configUi.mainWebhookBox.ClearTextOnFocus = false
-configUi.mainWebhookBox.PlaceholderText = "MAIN WEBHOOK  //  https://discord.com/api/webhooks/..."
-configUi.mainWebhookBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
-configUi.mainWebhookBox.Text = ""
-configUi.mainWebhookBox.TextColor3 = Color3.fromRGB(245, 235, 255)
-configUi.mainWebhookBox.Font = Enum.Font.Code
-configUi.mainWebhookBox.TextSize = 8
-configUi.mainWebhookBox.TextXAlignment = Enum.TextXAlignment.Left
-local mainWebhookPadding = Instance.new("UIPadding")
-mainWebhookPadding.PaddingLeft = UDim.new(0, 28)
-mainWebhookPadding.PaddingRight = UDim.new(0, 8)
-mainWebhookPadding.Parent = configUi.mainWebhookBox
-createCanvasIcon(configUi.mainWebhookBox, "endpoint", Color3.fromRGB(0, 174, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
-configUi.mainWebhookBox.Parent = configUi.webhookPanel
+local function createWebhookInput(name, yOffset, placeholder, iconKind, iconColor)
+	local shell = Instance.new("Frame")
+	shell.Name = name .. "Shell"
+	shell.Position = UDim2.new(0, 10, 0, yOffset)
+	shell.Size = UDim2.new(1, -20, 0, 30)
+	shell.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
+	shell.BorderSizePixel = 0
+	shell.ClipsDescendants = true
+	shell.Parent = configUi.webhookPanel
 
-configUi.lastSeenWebhookBox = Instance.new("TextBox")
-configUi.lastSeenWebhookBox.Position = UDim2.new(0, 10, 0, 121)
-configUi.lastSeenWebhookBox.Size = UDim2.new(1, -20, 0, 30)
-configUi.lastSeenWebhookBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
-configUi.lastSeenWebhookBox.BorderSizePixel = 0
-configUi.lastSeenWebhookBox.ClipsDescendants = true
-configUi.lastSeenWebhookBox.ClearTextOnFocus = false
-configUi.lastSeenWebhookBox.PlaceholderText = "LAST SEEN WEBHOOK  //  https://discord.com/api/webhooks/..."
-configUi.lastSeenWebhookBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
-configUi.lastSeenWebhookBox.Text = ""
-configUi.lastSeenWebhookBox.TextColor3 = Color3.fromRGB(245, 235, 255)
-configUi.lastSeenWebhookBox.Font = Enum.Font.Code
-configUi.lastSeenWebhookBox.TextSize = 8
-configUi.lastSeenWebhookBox.TextXAlignment = Enum.TextXAlignment.Left
-local lastSeenWebhookPadding = Instance.new("UIPadding")
-lastSeenWebhookPadding.PaddingLeft = UDim.new(0, 28)
-lastSeenWebhookPadding.PaddingRight = UDim.new(0, 8)
-lastSeenWebhookPadding.Parent = configUi.lastSeenWebhookBox
-createCanvasIcon(configUi.lastSeenWebhookBox, "clock", Color3.fromRGB(171, 92, 255), UDim2.new(0, 14, 0, 14), UDim2.new(0, 14, 0.5, 0), "WebhookInputIcon")
-configUi.lastSeenWebhookBox.Parent = configUi.webhookPanel
+	local shellCorner = Instance.new("UICorner")
+	shellCorner.CornerRadius = UDim.new(0, 6)
+	shellCorner.Parent = shell
+
+	local box = Instance.new("TextBox")
+	box.Name = name
+	box.Position = UDim2.new(0, 32, 0, 0)
+	box.Size = UDim2.new(1, -40, 1, 0)
+	box.BackgroundTransparency = 1
+	box.BorderSizePixel = 0
+	box.ClipsDescendants = true
+	box.ClearTextOnFocus = false
+	box.PlaceholderText = placeholder
+	box.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
+	box.Text = ""
+	box.TextColor3 = Color3.fromRGB(245, 235, 255)
+	box.Font = Enum.Font.Code
+	box.TextSize = 8
+	box.TextXAlignment = Enum.TextXAlignment.Left
+	box.ZIndex = 2
+	box.Parent = shell
+
+	createCanvasIcon(
+		shell,
+		iconKind,
+		iconColor,
+		UDim2.new(0, 14, 0, 14),
+		UDim2.new(0, 14, 0.5, 0),
+		"WebhookInputIcon"
+	)
+
+	return box
+end
+
+configUi.mainWebhookBox = createWebhookInput(
+	"MainWebhook",
+	76,
+	"MAIN WEBHOOK  //  https://discord.com/api/webhooks/...",
+	"endpoint",
+	Color3.fromRGB(0, 174, 255)
+)
+
+configUi.lastSeenWebhookBox = createWebhookInput(
+	"LastSeenWebhook",
+	121,
+	"LAST SEEN WEBHOOK  //  https://discord.com/api/webhooks/...",
+	"clock",
+	Color3.fromRGB(171, 92, 255)
+)
 
 configUi.saveWebhookButton = Instance.new("TextButton")
 configUi.saveWebhookButton.Position = UDim2.new(0, 10, 0, 166)
@@ -2031,6 +2050,18 @@ loadTogglePosition()
 loadLastSeenState()
 loadPromotionState()
 loadConfigState()
+
+-- Migra también archivos creados por versiones anteriores. Nunca permitas
+-- que una rareza antigua vuelva a aparecer en el editor de configuración.
+local configStateChanged = false
+for _, entry in ipairs(configState.entries) do
+	local normalizedRarity = normalizeConfiguredRarity(entry.rarity)
+	if entry.rarity ~= normalizedRarity then
+		entry.rarity = normalizedRarity
+		configStateChanged = true
+	end
+end
+if configStateChanged then saveConfigState() end
 
 configUi.mainWebhookBox.Text = configState.webhooks.main or ""
 configUi.lastSeenWebhookBox.Text = configState.webhooks.lastSeen or ""
