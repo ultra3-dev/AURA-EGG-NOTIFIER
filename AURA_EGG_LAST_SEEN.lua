@@ -1,4 +1,4 @@
--- AURA EGG 2.0.0 // LAST SEEN + CONFIG SERVICES
+-- AURA EGG 2.0.2 ULTRA // LAST SEEN + CONFIG SERVICES
 local function getHttpStatusCode(response)
 local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
 local statusCode = tonumber(rawStatus)
@@ -709,10 +709,10 @@ local function renderConfigList()
 			separator.BackgroundColor3 = Color3.fromRGB(38, 25, 61)
 			separator.BorderSizePixel = 0
 			separator.Text = "━━  " .. rarity:upper() .. "  //  " .. tostring(#catalog) .. " PETS  ━━"
-			separator.TextColor3 = rarity == "Divine" and Color3.fromRGB(255, 214, 92)
-				or rarity == "Eternal" and Color3.fromRGB(207, 139, 255)
-				or rarity == "Secret" and Color3.fromRGB(218, 218, 232)
-				or Color3.fromRGB(151, 255, 204)
+			separator.TextColor3 = rarity == "Divine" and Color3.fromRGB(0, 198, 255)
+				or rarity == "Eternal" and Color3.fromRGB(171, 92, 255)
+				or rarity == "Secret" and Color3.fromRGB(245, 248, 255)
+				or Color3.fromRGB(110, 180, 255)
 			separator.Font = Enum.Font.Code
 			separator.TextSize = 8
 			separator.TextXAlignment = Enum.TextXAlignment.Left
@@ -740,7 +740,7 @@ local function renderConfigList()
 				and Color3.fromRGB(101, 51, 144)
 				or Color3.fromRGB(29, 21, 45)
 			row.BorderSizePixel = 0
-			row.Text = entry.emoji .. "  " .. entry.name .. "  •  " .. rarity
+			row.Text = "◆  " .. entry.name .. "  //  " .. rarity
 			row.TextColor3 = Color3.fromRGB(242, 235, 252)
 			row.Font = Enum.Font.Code
 			row.TextSize = 9
