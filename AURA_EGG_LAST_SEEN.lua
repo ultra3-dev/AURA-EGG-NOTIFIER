@@ -685,8 +685,8 @@ local function selectConfigEntry(entry)
 	configUi.nameBox.Text = entry.name
 	configUi.roleBox.Text = entry.roleId
 	configUi.emojiBox.Text = entry.emoji
-	configUi.rarityValue = entry.rarity
-	configUi.rarityButton.Text = "RAREZA: " .. entry.rarity:upper()
+	configUi.rarityValue = normalizeConfiguredRarity(entry.rarity)
+	configUi.rarityButton.Text = "RAREZA: " .. configUi.rarityValue:upper()
 	configUi.deleteButton.Text = "DELETE: " .. entry.name:upper()
 end
 
@@ -821,12 +821,11 @@ local function saveConfigEditor()
 end
 
 configUi.rarityButton.MouseButton1Click:Connect(function()
-local options = {"Secret", "Eternal", "Divine"}
 	local current = 1
-	for index, value in ipairs(options) do
+	for index, value in ipairs(CONFIG_RARITY_OPTIONS) do
 		if value == configUi.rarityValue then current = index break end
 	end
-	configUi.rarityValue = options[current % #options + 1]
+	configUi.rarityValue = CONFIG_RARITY_OPTIONS[current % #CONFIG_RARITY_OPTIONS + 1]
 	configUi.rarityButton.Text = "RAREZA: " .. configUi.rarityValue:upper()
 end)
 
