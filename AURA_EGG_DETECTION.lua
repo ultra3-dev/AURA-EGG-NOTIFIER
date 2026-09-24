@@ -210,41 +210,41 @@ end
 -- Estado inicial solicitado. Solo se aplica una vez; después los valores
 -- quedan en AuraEggNotifier_LastSeen.json y cada spawn nuevo los reemplaza.
 local LAST_SEEN_INITIAL_TIMES = {
-	kitsune = 1790161950,
-	worldburner = 1790109978,
-	nightflame = 1790013065,
+	kitsune = 1790161802,
+	worldburner = 1790247303,
+	nightflame = 1790241903,
 	unicorn = 1789980058,
 	archangel = 1789440624,
 
-	mosasaurus = 1790211433,
-	onitiger = 1790205075,
-	elmaja = 1790202668,
-	gorillaking = 1790202073,
-	eternallunardragon = 1790194870,
-	icedragon = 1790179616,
-	skeletonhorse = 1790178988,
+	mosasaurus = 1790262603,
+	onitiger = 1790265003,
+	elmaja = 1790202602,
+	gorillaking = 1790237703,
+	eternallunardragon = 1790258402,
+	icedragon = 1790248503,
+	skeletonhorse = 1790262903,
 	lavadragon = 1790116272,
 	pegasus = 1790112971,
-	phoenix = 1790083267,
+	phoenix = 1790251504,
 
-	razorfang = 1790211366,
-	kraken = 1790211076,
-	tralaledon = 1790209870,
-	cosmicskeletonboss = 1790208678,
-	trex = 1790206872,
-	purejellyfish = 1790206570,
-	gargoyle = 1790205682,
-	centaur = 1790204776,
-	yeti = 1790199974,
-	cosmicdragon = 1790199369,
-	stag = 1790198167,
-	mutantshark = 1790195778,
-	cerberus = 1790176788,
-	kingsnake = 1789967163
+	razorfang = 1790265302,
+	kraken = 1790260803,
+	tralaledon = 1790248503,
+	cosmicskeletonboss = 1790256903,
+	trex = 1790264103,
+	purejellyfish = 1790267404,
+	gargoyle = 1790264103,
+	centaur = 1790264703,
+	yeti = 1790267104,
+	cosmicdragon = 1790264103,
+	stag = 1790259903,
+	mutantshark = 1790264703,
+	cerberus = 1790265603,
+	kingsnake = 1790227502
 }
 
--- Baseline fijado: solo se migra una vez a la versión 6.
-local LAST_SEEN_INITIAL_TIMES_VERSION = 6
+-- Baseline actualizado: solo se migra una vez a la versión 7.
+local LAST_SEEN_INITIAL_TIMES_VERSION = 7
 local LAST_SEEN_ACTIVE_WINDOW = 300
 
 local function seedLastSeenState()
@@ -256,13 +256,15 @@ local function seedLastSeenState()
 		for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
 			local existing = tonumber(lastSeenState.entries[entry.key])
 			local initial = LAST_SEEN_INITIAL_TIMES[entry.key]
-			if not lastSeenState.seeded then
-				if existing == nil then
-					lastSeenState.entries[entry.key] = initial
+			if initial then
+				if not lastSeenState.seeded then
+					if existing == nil then
+						lastSeenState.entries[entry.key] = initial
+					end
+				elseif needsInitialTimeMigration then
+					-- Usa los nuevos valores sin retroceder una detección más reciente.
+					lastSeenState.entries[entry.key] = math.max(existing or initial, initial)
 				end
-			elseif needsInitialTimeMigration then
-				-- Version 6 fija exactamente el baseline proporcionado, una sola vez.
-				lastSeenState.entries[entry.key] = initial
 			end
 		end
 	end
