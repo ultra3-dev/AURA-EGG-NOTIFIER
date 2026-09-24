@@ -1,4 +1,4 @@
--- AURA EGG 2.0.0 // BOOT + UI
+-- AURA EGG 2.0.2 ULTRA // BOOT + UI
 --[[
 	🥚 EGG DETECTOR - ULTRA MEGA HYPER-VELOCITY ADVANCED EDITION
 	================================================================
@@ -40,7 +40,7 @@ LastSeenMessageID = "1552117304609738823",
 		"skeleton horse",
 		"pegasus",
 	},
-	Version = "2.0.0"
+	Version = "2.0.2 ULTRA"
 }
 
 local Players = game:GetService("Players")
@@ -100,7 +100,7 @@ panel.Name = "EggLogPanel"
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.new(0.5, 0, 0.5, 0)
 panel.Size = UDim2.new(0, 390, 0, 420)
-panel.BackgroundColor3 = Color3.fromRGB(42, 25, 64)
+panel.BackgroundColor3 = Color3.fromRGB(8, 14, 31)
 panel.BackgroundTransparency = 0.04
 panel.BorderSizePixel = 0
 panel.Parent = screenGui
@@ -114,7 +114,7 @@ panelCorner.CornerRadius = UDim.new(0, 14)
 panelCorner.Parent = panel
 
 local panelStroke = Instance.new("UIStroke")
-panelStroke.Color = Color3.fromRGB(174, 85, 255)
+panelStroke.Color = Color3.fromRGB(0, 174, 255)
 panelStroke.Thickness = 2
 panelStroke.Transparency = 0.08
 panelStroke.Parent = panel
@@ -122,7 +122,7 @@ panelStroke.Parent = panel
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
 topBar.Size = UDim2.new(1, 0, 0, 62)
-topBar.BackgroundColor3 = Color3.fromRGB(60, 33, 91)
+topBar.BackgroundColor3 = Color3.fromRGB(20, 18, 54)
 topBar.BorderSizePixel = 0
 topBar.Parent = panel
 
@@ -252,7 +252,7 @@ local subtitle = Instance.new("TextLabel")
 subtitle.Position = UDim2.new(0, 19, 0, 34)
 subtitle.Size = UDim2.new(1, -70, 0, 16)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "WEBHOOK 2.0.0  //  MODULAR LIVE"
+subtitle.Text = "WEBHOOK 2.0.2 ULTRA  //  MODULAR LIVE"
 subtitle.TextColor3 = Color3.fromRGB(151, 255, 204)
 subtitle.Font = Enum.Font.Code
 subtitle.TextSize = 10
@@ -290,13 +290,13 @@ local logPanel = Instance.new("ScrollingFrame")
 logPanel.Name = "Log"
 logPanel.Position = UDim2.new(0, 12, 0, 100)
 logPanel.Size = UDim2.new(1, -24, 1, -150)
-logPanel.BackgroundColor3 = Color3.fromRGB(29, 19, 45)
+logPanel.BackgroundColor3 = Color3.fromRGB(7, 12, 26)
 logPanel.BackgroundTransparency = 0.05
 logPanel.BorderSizePixel = 0
 logPanel.CanvasSize = UDim2.new(0, 0, 0, 0)
 logPanel.AutomaticCanvasSize = Enum.AutomaticSize.None
 logPanel.ScrollBarThickness = 4
-logPanel.ScrollBarImageColor3 = Color3.fromRGB(170, 80, 255)
+logPanel.ScrollBarImageColor3 = Color3.fromRGB(0, 174, 255)
 logPanel.ScrollingDirection = Enum.ScrollingDirection.Y
 logPanel.ClipsDescendants = true
 logPanel.Parent = panel
@@ -358,8 +358,8 @@ local function updateLogJumpVisibility()
 	local maximum = math.max(0, logPanel.CanvasSize.Y.Offset - logPanel.AbsoluteWindowSize.Y)
 	local current = logPanel.CanvasPosition.Y
 	logJumpButton.Visible = logPanel.Visible
-		and maximum > 4
-		and current < maximum - 4
+		and maximum > 120
+		and current < maximum - 80
 end
 
 local function refreshLogCanvas()
@@ -387,11 +387,11 @@ navigation.Parent = panel
 
 local function styleTab(button, active)
 	button.BackgroundColor3 = active
-		and Color3.fromRGB(122, 57, 177)
-		or Color3.fromRGB(57, 34, 80)
+		and Color3.fromRGB(0, 128, 255)
+		or Color3.fromRGB(16, 24, 48)
 	button.TextColor3 = active
 		and Color3.fromRGB(255, 235, 255)
-		or Color3.fromRGB(171, 145, 198)
+		or Color3.fromRGB(137, 160, 198)
 
 	local label = button:FindFirstChild("TabLabel")
 	if label then
@@ -450,7 +450,7 @@ promotionTab.Size = UDim2.new(0, 72, 1, 0)
 promotionTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 promotionTab.BorderSizePixel = 0
 promotionTab.Text = ""
-promotionTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+promotionTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 promotionTab.Font = Enum.Font.Code
 promotionTab.TextSize = 14
 promotionTab.TextXAlignment = Enum.TextXAlignment.Center
@@ -490,7 +490,7 @@ announcerTab.Size = UDim2.new(0, 88, 1, 0)
 announcerTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 announcerTab.BorderSizePixel = 0
 announcerTab.Text = ""
-announcerTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+announcerTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 announcerTab.Font = Enum.Font.Code
 announcerTab.TextSize = 14
 announcerTab.TextXAlignment = Enum.TextXAlignment.Center
@@ -531,7 +531,7 @@ configUi.tab.Size = UDim2.new(0, 72, 1, 0)
 configUi.tab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 configUi.tab.BorderSizePixel = 0
 configUi.tab.Text = ""
-configUi.tab.TextColor3 = Color3.fromRGB(171, 145, 198)
+configUi.tab.TextColor3 = Color3.fromRGB(137, 160, 198)
 configUi.tab.Font = Enum.Font.Code
 configUi.tab.TextSize = 14
 configUi.tab.TextXAlignment = Enum.TextXAlignment.Center
@@ -571,7 +571,7 @@ configUi.webhookTab.Size = UDim2.new(0, 88, 1, 0)
 configUi.webhookTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 configUi.webhookTab.BorderSizePixel = 0
 configUi.webhookTab.Text = ""
-configUi.webhookTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+configUi.webhookTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 configUi.webhookTab.Font = Enum.Font.Code
 configUi.webhookTab.TextSize = 14
 configUi.webhookTab.TextXAlignment = Enum.TextXAlignment.Center
@@ -605,7 +605,7 @@ consoleTab.Size = UDim2.new(0, 24, 1, 0)
 consoleTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 consoleTab.BorderSizePixel = 0
 consoleTab.Text = ""
-consoleTab.TextColor3 = Color3.fromRGB(171, 145, 198)
+consoleTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 consoleTab.AutoButtonColor = false
 consoleTab.Parent = navigation
 
@@ -933,7 +933,7 @@ configUi.panel = Instance.new("Frame")
 configUi.panel.Name = "ConfigPanel"
 configUi.panel.Position = UDim2.new(0, 12, 0, 100)
 configUi.panel.Size = UDim2.new(1, -24, 1, -150)
-configUi.panel.BackgroundColor3 = Color3.fromRGB(23, 16, 38)
+configUi.panel.BackgroundColor3 = Color3.fromRGB(9, 15, 32)
 configUi.panel.BackgroundTransparency = 0
 configUi.panel.BorderSizePixel = 0
 configUi.panel.Visible = false
@@ -968,8 +968,8 @@ configUi.help.Parent = configUi.panel
 configUi.list = Instance.new("ScrollingFrame")
 configUi.list.Name = "PetRegistry"
 configUi.list.Position = UDim2.new(0, 10, 0, 49)
-configUi.list.Size = UDim2.new(1, -20, 0, 120)
-configUi.list.BackgroundColor3 = Color3.fromRGB(15, 11, 27)
+configUi.list.Size = UDim2.new(1, -20, 0, 72)
+configUi.list.BackgroundColor3 = Color3.fromRGB(5, 9, 20)
 configUi.list.BorderSizePixel = 0
 configUi.list.CanvasSize = UDim2.new(0, 0, 0, 0)
 configUi.list.ScrollBarThickness = 3
@@ -994,9 +994,9 @@ configUi.listLayout.Parent = configUi.listBody
 
 configUi.nameBox = Instance.new("TextBox")
 configUi.nameBox.Name = "PetName"
-configUi.nameBox.Position = UDim2.new(0, 10, 0, 177)
-configUi.nameBox.Size = UDim2.new(1, -20, 0, 26)
-configUi.nameBox.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.nameBox.Position = UDim2.new(0, 10, 0, 128)
+configUi.nameBox.Size = UDim2.new(0.5, -15, 0, 27)
+configUi.nameBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.nameBox.BorderSizePixel = 0
 configUi.nameBox.ClearTextOnFocus = false
 configUi.nameBox.PlaceholderText = "PET NAME  //  exact game text"
@@ -1010,9 +1010,9 @@ configUi.nameBox.Parent = configUi.panel
 
 configUi.roleBox = Instance.new("TextBox")
 configUi.roleBox.Name = "PetRoleId"
-configUi.roleBox.Position = UDim2.new(0, 10, 0, 208)
-configUi.roleBox.Size = UDim2.new(1, -20, 0, 26)
-configUi.roleBox.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.roleBox.Position = UDim2.new(0.5, 5, 0, 128)
+configUi.roleBox.Size = UDim2.new(0.5, -15, 0, 27)
+configUi.roleBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.roleBox.BorderSizePixel = 0
 configUi.roleBox.ClearTextOnFocus = false
 configUi.roleBox.PlaceholderText = "ROLE ID  //  123456789 or <@&123456789>"
@@ -1026,9 +1026,9 @@ configUi.roleBox.Parent = configUi.panel
 
 configUi.emojiBox = Instance.new("TextBox")
 configUi.emojiBox.Name = "PetEmoji"
-configUi.emojiBox.Position = UDim2.new(0, 10, 0, 239)
-configUi.emojiBox.Size = UDim2.new(0.5, -15, 0, 26)
-configUi.emojiBox.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.emojiBox.Position = UDim2.new(0, 10, 0, 159)
+configUi.emojiBox.Size = UDim2.new(0.5, -15, 0, 27)
+configUi.emojiBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.emojiBox.BorderSizePixel = 0
 configUi.emojiBox.ClearTextOnFocus = false
 configUi.emojiBox.PlaceholderText = "EMOJI  //  <:Pet:id>"
@@ -1042,9 +1042,9 @@ configUi.emojiBox.Parent = configUi.panel
 
 configUi.rarityButton = Instance.new("TextButton")
 configUi.rarityButton.Name = "PetRarity"
-configUi.rarityButton.Position = UDim2.new(0.5, 5, 0, 239)
-configUi.rarityButton.Size = UDim2.new(0.5, -15, 0, 26)
-configUi.rarityButton.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.rarityButton.Position = UDim2.new(0.5, 5, 0, 159)
+configUi.rarityButton.Size = UDim2.new(0.5, -15, 0, 27)
+configUi.rarityButton.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.rarityButton.BorderSizePixel = 0
 configUi.rarityButton.Text = "RAREZA: SECRET  >"
 configUi.rarityButton.TextColor3 = Color3.fromRGB(245, 235, 255)
@@ -1060,9 +1060,9 @@ configUi.rarityPadding.Parent = configUi.rarityButton
 
 configUi.saveButton = Instance.new("TextButton")
 configUi.saveButton.Name = "SavePetConfig"
-configUi.saveButton.Position = UDim2.new(0, 10, 0, 270)
-configUi.saveButton.Size = UDim2.new(0.5, -15, 0, 27)
-configUi.saveButton.BackgroundColor3 = Color3.fromRGB(126, 63, 191)
+configUi.saveButton.Position = UDim2.new(0, 10, 0, 190)
+configUi.saveButton.Size = UDim2.new(0.5, -15, 0, 28)
+configUi.saveButton.BackgroundColor3 = Color3.fromRGB(0, 132, 255)
 configUi.saveButton.BorderSizePixel = 0
 configUi.saveButton.Text = "SAVE  //  APPLY"
 configUi.saveButton.TextColor3 = Color3.fromRGB(255, 245, 255)
@@ -1073,9 +1073,9 @@ configUi.saveButton.Parent = configUi.panel
 
 configUi.newButton = Instance.new("TextButton")
 configUi.newButton.Name = "NewPetConfig"
-configUi.newButton.Position = UDim2.new(0.5, 5, 0, 270)
-configUi.newButton.Size = UDim2.new(0.5, -15, 0, 27)
-configUi.newButton.BackgroundColor3 = Color3.fromRGB(59, 42, 83)
+configUi.newButton.Position = UDim2.new(0.5, 5, 0, 190)
+configUi.newButton.Size = UDim2.new(0.5, -15, 0, 28)
+configUi.newButton.BackgroundColor3 = Color3.fromRGB(28, 36, 68)
 configUi.newButton.BorderSizePixel = 0
 configUi.newButton.Text = "NEW  //  CLEAR"
 configUi.newButton.TextColor3 = Color3.fromRGB(245, 235, 255)
@@ -1086,9 +1086,9 @@ configUi.newButton.Parent = configUi.panel
 
 configUi.deleteButton = Instance.new("TextButton")
 configUi.deleteButton.Name = "DeletePetConfig"
-configUi.deleteButton.Position = UDim2.new(0, 10, 0, 301)
+configUi.deleteButton.Position = UDim2.new(0, 10, 0, 222)
 configUi.deleteButton.Size = UDim2.new(1, -20, 0, 24)
-configUi.deleteButton.BackgroundColor3 = Color3.fromRGB(74, 31, 56)
+configUi.deleteButton.BackgroundColor3 = Color3.fromRGB(92, 20, 45)
 configUi.deleteButton.BorderSizePixel = 0
 configUi.deleteButton.Text = "RESET SELECTED OVERRIDE"
 configUi.deleteButton.TextColor3 = Color3.fromRGB(255, 181, 205)
@@ -1101,7 +1101,7 @@ configUi.webhookPanel = Instance.new("Frame")
 configUi.webhookPanel.Name = "WebhookPanel"
 configUi.webhookPanel.Position = UDim2.new(0, 12, 0, 100)
 configUi.webhookPanel.Size = UDim2.new(1, -24, 1, -150)
-configUi.webhookPanel.BackgroundColor3 = Color3.fromRGB(23, 16, 38)
+configUi.webhookPanel.BackgroundColor3 = Color3.fromRGB(9, 15, 32)
 configUi.webhookPanel.BorderSizePixel = 0
 configUi.webhookPanel.Visible = false
 configUi.webhookPanel.Parent = panel
@@ -1136,7 +1136,7 @@ configUi.webhookHelp.Parent = configUi.webhookPanel
 configUi.mainWebhookBox = Instance.new("TextBox")
 configUi.mainWebhookBox.Position = UDim2.new(0, 10, 0, 76)
 configUi.mainWebhookBox.Size = UDim2.new(1, -20, 0, 30)
-configUi.mainWebhookBox.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.mainWebhookBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.mainWebhookBox.BorderSizePixel = 0
 configUi.mainWebhookBox.ClearTextOnFocus = false
 configUi.mainWebhookBox.PlaceholderText = "MAIN WEBHOOK  //  https://discord.com/api/webhooks/..."
@@ -1151,7 +1151,7 @@ configUi.mainWebhookBox.Parent = configUi.webhookPanel
 configUi.lastSeenWebhookBox = Instance.new("TextBox")
 configUi.lastSeenWebhookBox.Position = UDim2.new(0, 10, 0, 121)
 configUi.lastSeenWebhookBox.Size = UDim2.new(1, -20, 0, 30)
-configUi.lastSeenWebhookBox.BackgroundColor3 = Color3.fromRGB(42, 29, 65)
+configUi.lastSeenWebhookBox.BackgroundColor3 = Color3.fromRGB(17, 24, 48)
 configUi.lastSeenWebhookBox.BorderSizePixel = 0
 configUi.lastSeenWebhookBox.ClearTextOnFocus = false
 configUi.lastSeenWebhookBox.PlaceholderText = "LAST SEEN WEBHOOK  //  https://discord.com/api/webhooks/..."
@@ -1166,7 +1166,7 @@ configUi.lastSeenWebhookBox.Parent = configUi.webhookPanel
 configUi.saveWebhookButton = Instance.new("TextButton")
 configUi.saveWebhookButton.Position = UDim2.new(0, 10, 0, 166)
 configUi.saveWebhookButton.Size = UDim2.new(0.5, -15, 0, 29)
-configUi.saveWebhookButton.BackgroundColor3 = Color3.fromRGB(126, 63, 191)
+configUi.saveWebhookButton.BackgroundColor3 = Color3.fromRGB(0, 132, 255)
 configUi.saveWebhookButton.BorderSizePixel = 0
 configUi.saveWebhookButton.Text = "SAVE  //  WEBHOOKS"
 configUi.saveWebhookButton.TextColor3 = Color3.fromRGB(255, 245, 255)
@@ -1178,7 +1178,7 @@ configUi.saveWebhookButton.Parent = configUi.webhookPanel
 configUi.clearWebhookButton = Instance.new("TextButton")
 configUi.clearWebhookButton.Position = UDim2.new(0.5, 5, 0, 166)
 configUi.clearWebhookButton.Size = UDim2.new(0.5, -15, 0, 29)
-configUi.clearWebhookButton.BackgroundColor3 = Color3.fromRGB(74, 31, 56)
+configUi.clearWebhookButton.BackgroundColor3 = Color3.fromRGB(92, 20, 45)
 configUi.clearWebhookButton.BorderSizePixel = 0
 configUi.clearWebhookButton.Text = "CLEAR  //  DISABLE"
 configUi.clearWebhookButton.TextColor3 = Color3.fromRGB(255, 181, 205)
@@ -1300,11 +1300,21 @@ local consoleJumpCorner = Instance.new("UICorner")
 consoleJumpCorner.CornerRadius = UDim.new(1, 0)
 consoleJumpCorner.Parent = consoleJumpButton
 
+local function updateConsoleJumpVisibility()
+	local maximum = math.max(0, consoleScroll.CanvasSize.Y.Offset - consoleScroll.AbsoluteWindowSize.Y)
+	local current = consoleScroll.CanvasPosition.Y
+	consoleJumpButton.Visible = consolePanel.Visible and maximum > 120 and current < maximum - 80
+end
+
+consoleScroll:GetPropertyChangedSignal("CanvasPosition"):Connect(updateConsoleJumpVisibility)
+consoleScroll:GetPropertyChangedSignal("CanvasSize"):Connect(updateConsoleJumpVisibility)
+updateConsoleJumpVisibility()
+
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "SystemStatus"
 statusLabel.Position = UDim2.new(0, 12, 1, -50)
 statusLabel.Size = UDim2.new(1, -24, 0, 38)
-statusLabel.BackgroundColor3 = Color3.fromRGB(58, 36, 82)
+statusLabel.BackgroundColor3 = Color3.fromRGB(15, 23, 48)
 statusLabel.BackgroundTransparency = 0.04
 statusLabel.TextColor3 = Color3.fromRGB(99, 255, 154)
 statusLabel.Font = Enum.Font.Code
@@ -2199,7 +2209,7 @@ local function setActiveSection(section)
 	configUi.webhookPanel.Visible = showWebhook
 	announcementPanel.Visible = section == "ANNOUNCER"
 	consolePanel.Visible = section == "CONSOLE"
-	consoleJumpButton.Visible = section == "CONSOLE"
+	updateConsoleJumpVisibility()
 	styleTab(logTab, showLog)
 	styleTab(promotionTab, showPromotions)
 	styleTab(announcerTab, section == "ANNOUNCER")
