@@ -10,6 +10,8 @@ local numericStatus = tostring(rawStatus or ""):match("%d%d%d")
 return tonumber(numericStatus) or 0
 end
 
+local getConfiguredMainWebhookUrl
+
 local function sendWebhookPayload(payload, successText, onDone)
 if scriptStopped then
 if onDone then onDone(false) end
@@ -28,10 +30,15 @@ if onDone then onDone(false) end
 return
 end
 
-		local webhookUrl = getConfiguredMainWebhookUrl()
+		local webhookUrl = tostring(getConfiguredMainWebhookUrl() or "")
+		if webhookUrl == "" or string.find(webhookUrl, "PASTE_", 1, true) then
+			updateStatus("WEBHOOK // MAIN URL NOT CONFIGURED", Color3.fromRGB(255, 92, 133))
+			if onDone then onDone(false) end
+			return
+		end
 		if payload.components then
 			webhookUrl = webhookUrl
-				.. (webhookUrl:find("?", 1, true) and "&" or "?")
+				.. (string.find(tostring(webhookUrl), "?", 1, true) and "&" or "?")
 				.. "with_components=true"
 		end
 
@@ -216,15 +223,15 @@ local function buildLastSeenPayload(referenceTime)
 	}
 end
 
-local function getConfiguredMainWebhookUrl()
+getConfiguredMainWebhookUrl = function()
 	local configured = tostring(configState.webhooks.main or "")
-	if configured ~= "" and not configured:find("PASTE_", 1, true) then return configured end
+	if configured ~= "" and not string.find(configured, "PASTE_", 1, true) then return configured end
 	return tostring(CONFIG.WebhookURL or "")
 end
 
 local function getConfiguredLastSeenWebhookUrl()
 	local configured = tostring(configState.webhooks.lastSeen or "")
-	if configured ~= "" and not configured:find("PASTE_", 1, true) then return configured end
+	if configured ~= "" and not string.find(configured, "PASTE_", 1, true) then return configured end
 	return tostring(CONFIG.LastSeenWebhookURL or "")
 end
 
@@ -236,12 +243,12 @@ end
 
 local function isLastSeenWebhookConfigured()
 	local url = getWebhookBaseUrl()
-	return url ~= "" and not url:find("PASTE_", 1, true)
+	return url ~= "" and not string.find(url, "PASTE_", 1, true)
 end
 
 local function appendWebhookQuery(url, query)
 	return url
-		.. (url:find("?", 1, true) and "&" or "?")
+		.. (string.find(tostring(url), "?", 1, true) and "&" or "?")
 		.. query
 end
 
