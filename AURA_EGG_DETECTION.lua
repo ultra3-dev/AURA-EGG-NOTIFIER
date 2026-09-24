@@ -60,8 +60,8 @@ end
 -- los que todavía no tienen fecha quedan como "No registrada".
 local LAST_SEEN_RARITY_ORDER = {"Divine", "Eternal", "Secret"}
 local LAST_SEEN_STYLES = {
-	Divine = {
-		emoji = "<:Divine:1551677738411574794>",
+Divine = {
+emoji = "<:Divine:1551677739411574794>",
 		color = 0xFFD700,
 		separator = "divine"
 	},
@@ -275,7 +275,7 @@ end
 seedLastSeenState()
 
 local RARITY_EMOJI_BY_KEY = {
-	divine = "<:Divine:1551677738411574794>",
+ divine = "<:Divine:1551677739411574794>",
 	eternal = "<:Eternal:1551677658327162940>",
 	secret = "<:Secret:1551677570389643395>"
 }
