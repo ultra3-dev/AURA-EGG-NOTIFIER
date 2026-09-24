@@ -1930,7 +1930,7 @@ local function normalizeConfiguredRarity(value)
 	if lower == "divine" then return "Divine" end
 	if lower == "eternal" then return "Eternal" end
 	if lower == "secret" then return "Secret" end
-	return raw:sub(1, 1):upper() .. raw:sub(2)
+	return "Secret"
 end
 
 local function normalizeConfiguredEntry(raw)
