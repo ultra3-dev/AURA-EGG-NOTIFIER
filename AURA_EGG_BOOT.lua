@@ -1265,8 +1265,8 @@ local function createWebhookInput(name, yOffset, placeholder, iconKind, iconColo
 
 	local box = Instance.new("TextBox")
 	box.Name = name
-	box.Position = UDim2.new(0, 32, 0, 0)
-	box.Size = UDim2.new(1, -40, 1, 0)
+	box.Position = UDim2.new(0, 44, 0, 0)
+	box.Size = UDim2.new(1, -52, 1, 0)
 	box.BackgroundTransparency = 1
 	box.BorderSizePixel = 0
 	box.ClipsDescendants = true
@@ -1278,7 +1278,7 @@ local function createWebhookInput(name, yOffset, placeholder, iconKind, iconColo
 	box.Font = Enum.Font.Code
 	box.TextSize = 8
 	box.TextXAlignment = Enum.TextXAlignment.Left
-	box.ZIndex = 2
+	box.ZIndex = 1
 	box.Parent = shell
 
 	createCanvasIcon(
@@ -2130,8 +2130,29 @@ local function enhanceButton(button, accent, iconKind)
 	end
 	corner.CornerRadius = UDim.new(0, 8)
 
-	if iconKind and not button:FindFirstChild("UltraButtonIcon") then
-		createCanvasIcon(button, iconKind, Color3.fromRGB(255, 255, 255), UDim2.new(0, 13, 0, 13), UDim2.new(0, 14, 0.5, 0), "UltraButtonIcon")
+	if iconKind then
+		local textPadding = button:FindFirstChildOfClass("UIPadding")
+		if not textPadding then
+			textPadding = Instance.new("UIPadding")
+			textPadding.Name = "IconTextPadding"
+			textPadding.Parent = button
+		end
+		textPadding.PaddingLeft = UDim.new(0, 36)
+		textPadding.PaddingRight = UDim.new(0, 8)
+		button.TextXAlignment = Enum.TextXAlignment.Left
+
+		local icon = button:FindFirstChild("UltraButtonIcon")
+		if not icon then
+			icon = createCanvasIcon(
+				button,
+				iconKind,
+				Color3.fromRGB(255, 255, 255),
+				UDim2.new(0, 16, 0, 16),
+				UDim2.new(0, 16, 0.5, 0),
+				"UltraButtonIcon"
+			)
+		end
+		icon.ZIndex = button.ZIndex + 2
 	end
 
 	local function setPressed(pressed)
