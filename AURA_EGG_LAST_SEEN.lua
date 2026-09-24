@@ -673,47 +673,96 @@ end
 
 local function renderConfigList()
 	for _, child in ipairs(configUi.listBody:GetChildren()) do
-		if child:IsA("TextButton") then child:Destroy() end
+		if child:IsA("GuiObject") then child:Destroy() end
 	end
-	for index, entry in ipairs(configState.entries) do
-		local row = Instance.new("TextButton")
-		row.Name = "ConfigRow_" .. tostring(index)
-		row.LayoutOrder = index
-		row.Size = UDim2.new(1, -4, 0, 27)
-		row.BackgroundColor3 = Color3.fromRGB(54, 32, 78)
-		row.BorderSizePixel = 0
-		row.Text = entry.emoji .. "  " .. entry.name .. "  //  " .. entry.rarity .. "  //  <@&" .. entry.roleId .. ">"
-		row.TextColor3 = Color3.fromRGB(245, 235, 255)
-		row.Font = Enum.Font.Code
-		row.TextSize = 9
-		row.TextXAlignment = Enum.TextXAlignment.Left
-		row.AutoButtonColor = false
-		row.Parent = configUi.listBody
-		local rowPadding = Instance.new("UIPadding")
-		rowPadding.PaddingLeft = UDim.new(0, 8)
-		rowPadding.PaddingRight = UDim.new(0, 8)
-		rowPadding.Parent = row
-		local rowCorner = Instance.new("UICorner")
-		rowCorner.CornerRadius = UDim.new(0, 5)
-		rowCorner.Parent = row
-		row.MouseButton1Click:Connect(function()
-			selectConfigEntry(entry)
-			updateStatus("CONFIG // EDITING " .. entry.name, Color3.fromRGB(214, 165, 255))
-		end)
+
+	local layoutOrder = 0
+	local totalEntries = 0
+	local function getRoleId(entryKey)
+		for _, roleEntry in ipairs(EGG_ROLE_MENTIONS) do
+			local roleKey = roleEntry.name:lower():gsub("[^a-z0-9]", "")
+			if roleKey == entryKey then return roleEntry.roleId end
+		end
+		return ""
 	end
-	if #configState.entries == 0 then
+
+	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
+		local catalog = LAST_SEEN_CATALOG[rarity] or {}
+		if #catalog > 0 then
+			layoutOrder = layoutOrder + 1
+			local separator = Instance.new("TextLabel")
+			separator.Name = "RaritySeparator_" .. rarity
+			separator.LayoutOrder = layoutOrder
+			separator.Size = UDim2.new(1, -6, 0, 20)
+			separator.BackgroundColor3 = Color3.fromRGB(38, 25, 61)
+			separator.BorderSizePixel = 0
+			separator.Text = "━━  " .. rarity:upper() .. "  //  " .. tostring(#catalog) .. " PETS  ━━"
+			separator.TextColor3 = rarity == "Divine" and Color3.fromRGB(255, 214, 92)
+				or rarity == "Eternal" and Color3.fromRGB(207, 139, 255)
+				or rarity == "Secret" and Color3.fromRGB(218, 218, 232)
+				or Color3.fromRGB(151, 255, 204)
+			separator.Font = Enum.Font.Code
+			separator.TextSize = 8
+			separator.TextXAlignment = Enum.TextXAlignment.Left
+			separator.Parent = configUi.listBody
+			local separatorPadding = Instance.new("UIPadding")
+			separatorPadding.PaddingLeft = UDim.new(0, 8)
+			separatorPadding.Parent = separator
+		end
+
+		for _, catalogEntry in ipairs(catalog) do
+			layoutOrder = layoutOrder + 1
+			totalEntries = totalEntries + 1
+			local entry = {
+				name = catalogEntry.name,
+				key = catalogEntry.key,
+				emoji = catalogEntry.emoji,
+				rarity = rarity,
+				roleId = getRoleId(catalogEntry.key)
+			}
+			local row = Instance.new("TextButton")
+			row.Name = "Pet_" .. entry.key
+			row.LayoutOrder = layoutOrder
+			row.Size = UDim2.new(1, -6, 0, 25)
+			row.BackgroundColor3 = configSelectedKey == entry.key
+				and Color3.fromRGB(101, 51, 144)
+				or Color3.fromRGB(29, 21, 45)
+			row.BorderSizePixel = 0
+			row.Text = entry.emoji .. "  " .. entry.name .. "  •  " .. rarity
+			row.TextColor3 = Color3.fromRGB(242, 235, 252)
+			row.Font = Enum.Font.Code
+			row.TextSize = 9
+			row.TextXAlignment = Enum.TextXAlignment.Left
+			row.AutoButtonColor = false
+			row.Parent = configUi.listBody
+			local rowPadding = Instance.new("UIPadding")
+			rowPadding.PaddingLeft = UDim.new(0, 8)
+			rowPadding.PaddingRight = UDim.new(0, 8)
+			rowPadding.Parent = row
+			local rowCorner = Instance.new("UICorner")
+			rowCorner.CornerRadius = UDim.new(0, 5)
+			rowCorner.Parent = row
+			row.MouseButton1Click:Connect(function()
+				selectConfigEntry(entry)
+				updateStatus("CONFIG // EDITING " .. entry.name, Color3.fromRGB(214, 165, 255))
+			end)
+		end
+	end
+
+	if totalEntries == 0 then
 		local empty = Instance.new("TextLabel")
 		empty.Size = UDim2.new(1, -8, 0, 27)
 		empty.BackgroundTransparency = 1
-		empty.Text = "NO CUSTOM PETS // ADD ONE BELOW"
+		empty.Text = "NO PETS REGISTERED // ADD ONE BELOW"
 		empty.TextColor3 = Color3.fromRGB(160, 133, 185)
 		empty.Font = Enum.Font.Code
 		empty.TextSize = 9
 		empty.TextXAlignment = Enum.TextXAlignment.Left
 		empty.Parent = configUi.listBody
 	end
-	configUi.listBody.Size = UDim2.new(1, -6, 0, math.max(30, configUi.listLayout.AbsoluteContentSize.Y))
-	configUi.list.CanvasSize = UDim2.new(0, 0, 0, configUi.listLayout.AbsoluteContentSize.Y + 5)
+
+	configUi.listBody.Size = UDim2.new(1, -8, 0, math.max(30, configUi.listLayout.AbsoluteContentSize.Y))
+	configUi.list.CanvasSize = UDim2.new(0, 0, 0, configUi.listLayout.AbsoluteContentSize.Y + 8)
 end
 
 configUi.listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
