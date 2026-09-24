@@ -61,17 +61,17 @@ end
 local LAST_SEEN_RARITY_ORDER = {"Divine", "Eternal", "Secret"}
 local LAST_SEEN_STYLES = {
 	Divine = {
-		emoji = "<:Divine:1551677739411574794>",
+		emoji = "<:Divine:1544772470714671164>",
 		color = 0xFFD700,
 		separator = "divine"
 	},
 	Eternal = {
-		emoji = "<:Eternal:1551677658327162940>",
+		emoji = "<:Eternal:1544772400435040386>",
 		color = 0x9B30FF,
 		separator = "eternal"
 	},
 	Secret = {
-		emoji = "<:Secret:1551677570389643395>",
+		emoji = "<:Secret:1544772359083393054>",
 		color = 0x010101,
 		separator = "secret"
 	}
@@ -82,39 +82,39 @@ local LAST_SEEN_ASSET_BASE_URL =
 
 local LAST_SEEN_CATALOG = {
 	Divine = {
-		{name = "Nightflame", key = "nightflame", emoji = "<:Nightflame:1551671258419044443>"},
-		{name = "Unicorn", key = "unicorn", emoji = "<:Unicorn:1551671338048032898>"},
-		{name = "World Burner", key = "worldburner", emoji = "<:World_Burner:1551671096422572222>"},
-		{name = "Kitsune", key = "kitsune", emoji = "<:Kitsune:1551671214408204438>"},
-		{name = "ArchAngel", key = "archangel", emoji = "<:ArchAngel:1551671132652839032>"}
+		{name = "Kitsune", key = "kitsune", emoji = "<:kitsune:1544967674126401556>"},
+		{name = "World Burner", key = "worldburner", emoji = "<:World_Burner:1548394528300470412>"},
+		{name = "Nightflame", key = "nightflame", emoji = "<:nightflame:1544967676302983219>"},
+		{name = "Unicorn", key = "unicorn", emoji = "<:unicorn:1544967186311946250>"},
+		{name = "ArchAngel", key = "archangel", emoji = "<:ArchAngel:1548394517785219204>"}
 	},
 	Eternal = {
-		{name = "El Maja", key = "elmaja", emoji = "<:El_Maja:1551670796710187128>"},
-		{name = "Oni Tiger", key = "onitiger", emoji = "<:Oni_Tiger:1551670714241650698>"},
-		{name = "Phoenix", key = "phoenix", emoji = "<:Phoenix:1551671600523386890>"},
-		{name = "Gorilla King", key = "gorillaking", emoji = "<:Gorilla_King:1551670961906913280>"},
-		{name = "Skeleton Horse", key = "skeletonhorse", emoji = "<:Skeleton_Horse:1551670754125283328>"},
-		{name = "Lava Dragon", key = "lavadragon", emoji = "<:Lava_Dragon:1551670919846436975>"},
-		{name = "Pegasus", key = "pegasus", emoji = "<:Pegasus:1551670885033836605>"},
-		{name = "Mosasaurus", key = "mosasaurus", emoji = "<:Mosasaurus:1551671548019081316>"},
-		{name = "Eternal Lunar Dragon", key = "eternallunardragon", emoji = "<:Eternal_Lunar_Dragon:1551671047118528683>"},
-		{name = "Ice Dragon", key = "icedragon", emoji = "<:Ice_Dragon:1551670998003351682>"}
+		{name = "Mosasaurus", key = "mosasaurus", emoji = "<:Mosasaurus:1544970968487960597>"},
+		{name = "Oni Tiger", key = "onitiger", emoji = "<:OniTiger:1544971740839419904>"},
+		{name = "El Maja", key = "elmaja", emoji = "<:ElMaja:1544970956403900496>"},
+		{name = "Gorilla King", key = "gorillaking", emoji = "<:GorillaKing:1544971698690850877>"},
+		{name = "Eternal Lunar Dragon", key = "eternallunardragon", emoji = "<:lunar:1544970966537474119>"},
+		{name = "Ice Dragon", key = "icedragon", emoji = "<:IceDragon:1544970958572359780>"},
+		{name = "Skeleton Horse", key = "skeletonhorse", emoji = "<:Skeleton_Horse:1548394526190870691>"},
+		{name = "Lava Dragon", key = "lavadragon", emoji = "<:LavaDragon:1544971686548348968>"},
+		{name = "Pegasus", key = "pegasus", emoji = "<:Pegasus:1548394519354019922>"},
+		{name = "Phoenix", key = "phoenix", emoji = "<:Phoenix:1544970975743840316>"}
 	},
 	Secret = {
-		{name = "Stag", key = "stag", emoji = "<:Stag:1551670264050352188>"},
-		{name = "Pure Jellyfish", key = "purejellyfish", emoji = "<:Pure_Jellyfish:1551670502186291241>"},
-		{name = "RazorFang", key = "razorfang", emoji = "<:RazorFang:1551670065387020359>"},
-		{name = "Gargoyle", key = "gargoyle", emoji = "<:Gargoyle:1551670608280944640>"},
-		{name = "Cosmic Skeleton Boss", key = "cosmicskeletonboss", emoji = "<:Cosmic_Skeleton_Boss:1551670370203861102>"},
-		{name = "Tralaledon", key = "tralaledon", emoji = "<:Tralaledon:1551670147801026672>"},
-		{name = "Cerberus", key = "cerberus", emoji = "<:Cerberus:1551670182680731709>"},
-		{name = "Mutant Shark", key = "mutantshark", emoji = "<:MutantShark:1551670224493744258>"},
-		{name = "Cosmic Dragon", key = "cosmicdragon", emoji = "<:Cosmic_Dragon:1551670415972241458>"},
-		{name = "TRex", key = "trex", emoji = "<:TRex:1551670552232595618>"},
-		{name = "Yeti", key = "yeti", emoji = "<:Yeti:1551670658897940481>"},
-		{name = "Kraken", key = "kraken", emoji = "<:Kraken:1551670466090111027>"},
-		{name = "Centaur", key = "centaur", emoji = "<:Centaur:1551670291749670922>"},
-		{name = "King Snake", key = "kingsnake", emoji = "<:King_Snake:1551670106675879936>"}
+		{name = "RazorFang", key = "razorfang", emoji = "<:RazorFang:1548394523506245662>"},
+		{name = "Kraken", key = "kraken", emoji = "<:Kraken:1544970964159172700>"},
+		{name = "Tralaledon", key = "tralaledon", emoji = "<:Tralaledon:1544970980667953222>"},
+		{name = "Cosmic Skeleton Boss", key = "cosmicskeletonboss", emoji = "<:CosmicSkeletonBoss:1544970954399031357>"},
+		{name = "TRex", key = "trex", emoji = "<:TRex:1544970982685679637>"},
+		{name = "Pure Jellyfish", key = "purejellyfish", emoji = "<:Pure_Jellyfish:1548394521547767889>"},
+		{name = "Gargoyle", key = "gargoyle", emoji = "<:Gargoyle:1548396246044254378>"},
+		{name = "Centaur", key = "centaur", emoji = "<:Centaur:1548396244127195309>"},
+		{name = "Yeti", key = "yeti", emoji = "<:Yeti:1544970985315504190>"},
+		{name = "Cosmic Dragon", key = "cosmicdragon", emoji = "<:CosmicDragon:1544970952411193394>"},
+		{name = "Stag", key = "stag", emoji = "<:Stag:1544970977799180319>"},
+		{name = "Mutant Shark", key = "mutantshark", emoji = "<:MutantShark:1544970970547101698>"},
+		{name = "Cerberus", key = "cerberus", emoji = "<:Cerberus:1544970950389538916>"},
+		{name = "King Snake", key = "kingsnake", emoji = "<:KingSnake:1544970960594014268>"}
 	}
 }
 
@@ -210,40 +210,41 @@ end
 -- Estado inicial solicitado. Solo se aplica una vez; después los valores
 -- quedan en AuraEggNotifier_LastSeen.json y cada spawn nuevo los reemplaza.
 local LAST_SEEN_INITIAL_TIMES = {
+	kitsune = 1790161950,
+	worldburner = 1790109978,
 	nightflame = 1790013065,
 	unicorn = 1789980058,
-	worldburner = 1790109978,
-	kitsune = 1790111312,
 	archangel = 1789440624,
 
-	elmaja = 1790107876,
-	onitiger = 1790133728,
-	phoenix = 1790083267,
-	gorillaking = 1790092905,
-	skeletonhorse = 1790123767,
+	mosasaurus = 1790211433,
+	onitiger = 1790205075,
+	elmaja = 1790202668,
+	gorillaking = 1790202073,
+	eternallunardragon = 1790194870,
+	icedragon = 1790179616,
+	skeletonhorse = 1790178988,
 	lavadragon = 1790116272,
 	pegasus = 1790112971,
-	mosasaurus = 1790091667,
-	eternallunardragon = 1790134868,
-	icedragon = 1790100992,
+	phoenix = 1790083267,
 
-	stag = 1790124968,
-	purejellyfish = 1790130971,
-	razorfang = 1790116572,
-	gargoyle = 1790136072,
-	cosmicskeletonboss = 1790117227,
-	tralaledon = 1790134925,
-	cerberus = 1790128575,
-	mutantshark = 1790125870,
-	cosmicdragon = 1790131041,
-	trex = 1790127379,
-	yeti = 1790133722,
-	kraken = 1790132762,
-	centaur = 1790136974,
+	razorfang = 1790211366,
+	kraken = 1790211076,
+	tralaledon = 1790209870,
+	cosmicskeletonboss = 1790208678,
+	trex = 1790206872,
+	purejellyfish = 1790206570,
+	gargoyle = 1790205682,
+	centaur = 1790204776,
+	yeti = 1790199974,
+	cosmicdragon = 1790199369,
+	stag = 1790198167,
+	mutantshark = 1790195778,
+	cerberus = 1790176788,
 	kingsnake = 1789967163
 }
 
-local LAST_SEEN_INITIAL_TIMES_VERSION = 5
+-- Baseline fijado: solo se migra una vez a la versión 6.
+local LAST_SEEN_INITIAL_TIMES_VERSION = 6
 local LAST_SEEN_ACTIVE_WINDOW = 300
 
 local function seedLastSeenState()
@@ -259,8 +260,8 @@ local function seedLastSeenState()
 				if existing == nil then
 					lastSeenState.entries[entry.key] = initial
 				end
-			elseif needsInitialTimeMigration and (existing == nil or existing < initial) then
-				-- Actual spawns newer than the supplied baseline are preserved.
+			elseif needsInitialTimeMigration then
+				-- Version 6 fija exactamente el baseline proporcionado, una sola vez.
 				lastSeenState.entries[entry.key] = initial
 			end
 		end
