@@ -82,7 +82,6 @@ version = 1,
 entries = {},
 webhooks = {main = "", lastSeen = ""}
 }
-local CONFIG_RARITY_OPTIONS = {"Secret", "Eternal", "Divine"}
 local configSelectedKey = nil
 
 if playerGui:FindFirstChild("EggDetectorStealth") then
@@ -1259,9 +1258,8 @@ local function createWebhookInput(name, yOffset, placeholder, iconKind, iconColo
 	shell.ClipsDescendants = true
 	shell.Parent = configUi.webhookPanel
 
-	local shellCorner = Instance.new("UICorner")
+	local shellCorner = Instance.new("UICorner", shell)
 	shellCorner.CornerRadius = UDim.new(0, 6)
-	shellCorner.Parent = shell
 
 	local box = Instance.new("TextBox")
 	box.Name = name
@@ -2051,18 +2049,6 @@ loadLastSeenState()
 loadPromotionState()
 loadConfigState()
 
--- Migra también archivos creados por versiones anteriores. Nunca permitas
--- que una rareza antigua vuelva a aparecer en el editor de configuración.
-local configStateChanged = false
-for _, entry in ipairs(configState.entries) do
-	local normalizedRarity = normalizeConfiguredRarity(entry.rarity)
-	if entry.rarity ~= normalizedRarity then
-		entry.rarity = normalizedRarity
-		configStateChanged = true
-	end
-end
-if configStateChanged then saveConfigState() end
-
 configUi.mainWebhookBox.Text = configState.webhooks.main or ""
 configUi.lastSeenWebhookBox.Text = configState.webhooks.lastSeen or ""
 if configState.webhooks.main ~= "" or configState.webhooks.lastSeen ~= "" then
@@ -2131,19 +2117,18 @@ local function enhanceButton(button, accent, iconKind)
 	corner.CornerRadius = UDim.new(0, 8)
 
 	if iconKind then
-		local textPadding = button:FindFirstChildOfClass("UIPadding")
-		if not textPadding then
-			textPadding = Instance.new("UIPadding")
-			textPadding.Name = "IconTextPadding"
-			textPadding.Parent = button
+		corner = button:FindFirstChildOfClass("UIPadding")
+		if not corner then
+			corner = Instance.new("UIPadding")
+			corner.Name = "IconTextPadding"
+			corner.Parent = button
 		end
-		textPadding.PaddingLeft = UDim.new(0, 36)
-		textPadding.PaddingRight = UDim.new(0, 8)
+		corner.PaddingLeft = UDim.new(0, 36)
+		corner.PaddingRight = UDim.new(0, 8)
 		button.TextXAlignment = Enum.TextXAlignment.Left
 
-		local icon = button:FindFirstChild("UltraButtonIcon")
-		if not icon then
-			icon = createCanvasIcon(
+		if not button:FindFirstChild("UltraButtonIcon") then
+			createCanvasIcon(
 				button,
 				iconKind,
 				Color3.fromRGB(255, 255, 255),
@@ -2152,7 +2137,7 @@ local function enhanceButton(button, accent, iconKind)
 				"UltraButtonIcon"
 			)
 		end
-		icon.ZIndex = button.ZIndex + 2
+		button:FindFirstChild("UltraButtonIcon").ZIndex = button.ZIndex + 2
 	end
 
 	local function setPressed(pressed)
