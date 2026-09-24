@@ -144,6 +144,11 @@ local lastSeenRefreshTimers = {}
 local function formatLastSeenStatus(timestamp)
 	local parsed = tonumber(timestamp)
 	if parsed and parsed > 0 then
+		local now = os.time()
+		if parsed >= now - LAST_SEEN_ACTIVE_WINDOW and parsed <= now + LAST_SEEN_ACTIVE_WINDOW then
+			if lastSeenRefreshScheduler then lastSeenRefreshScheduler(parsed) end
+			return "**Active Now**"
+		end
 		return "<t:" .. tostring(math.floor(parsed)) .. ":R>"
 	end
 	return "*No registrada*"
