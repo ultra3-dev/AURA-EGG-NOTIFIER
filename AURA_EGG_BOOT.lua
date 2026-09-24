@@ -206,6 +206,22 @@ local function createCanvasIcon(parent, kind, color, size, position, name)
 		local diamond = shape("SparkDiamond", UDim2.new(0.42, 0, 0.42, 0), UDim2.new(0.5, 0, 0.5, 0), 45)
 		round(diamond, 0.12)
 		shape("SparkCore", UDim2.new(0.15, 0, 0.15, 0), UDim2.new(0.5, 0, 0.5, 0), 0)
+	elseif kind == "money" then
+		local bill = shape("MoneyBill", UDim2.new(0.82, 0, 0.54, 0), UDim2.new(0.5, 0, 0.5, 0), -8, 1)
+		round(bill, 0.14)
+		outline(bill, 1.15)
+		local seal = shape("MoneySeal", UDim2.new(0.22, 0, 0.22, 0), UDim2.new(0.5, 0, 0.5, 0))
+		round(seal, 0.5)
+		shape("MoneyStem", UDim2.new(0, 1.6, 0.30, 0), UDim2.new(0.5, 0, 0.5, 0))
+		shape("MoneyTop", UDim2.new(0.14, 0, 0, 1.5), UDim2.new(0.5, 0, 0.37, 0))
+		shape("MoneyBottom", UDim2.new(0.14, 0, 0, 1.5), UDim2.new(0.5, 0, 0.63, 0))
+	elseif kind == "megaphone" then
+		local horn = shape("MegaphoneHorn", UDim2.new(0.48, 0, 0.60, 0), UDim2.new(0.62, 0, 0.45, 0), -25, 1)
+		round(horn, 0.16)
+		outline(horn, 1.1)
+		shape("MegaphoneHandle", UDim2.new(0.16, 0, 0.34, 0), UDim2.new(0.35, 0, 0.68, 0), -25)
+		shape("MegaphoneSoundA", UDim2.new(0.18, 0, 0, 1.6), UDim2.new(0.80, 0, 0.31, 0), -25)
+		shape("MegaphoneSoundB", UDim2.new(0.25, 0, 0, 1.6), UDim2.new(0.88, 0, 0.51, 0), -25)
 	elseif kind == "system" then
 		local ring = shape("SystemRing", UDim2.new(0.7, 0, 0.7, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
 		round(ring, 0.5)
@@ -558,7 +574,7 @@ promotionTab.Parent = navigation
 
 local promotionTabIcon = createCanvasIcon(
 promotionTab,
-"spark",
+"money",
 promotionTab.TextColor3,
 UDim2.new(0, 16, 0, 16),
 UDim2.new(0, 15, 0.5, 0),
@@ -598,7 +614,7 @@ announcerTab.Parent = navigation
 
 local announcerTabIcon = createCanvasIcon(
 	announcerTab,
-	"announce",
+"megaphone",
 	announcerTab.TextColor3,
 	UDim2.new(0, 16, 0, 16),
 	UDim2.new(0, 15, 0.5, 0),
@@ -1456,16 +1472,65 @@ toggleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
 toggleButton.Font = Enum.Font.GothamBold
 toggleButton.TextSize = 24
 toggleButton.AutoButtonColor = false
+toggleButton.ClipsDescendants = true
 toggleButton.ZIndex = 20
 toggleButton.Parent = screenGui
 
-createCanvasIcon(
-	toggleButton,
-	"power",
-	Color3.fromRGB(238, 201, 255),
-	UDim2.new(0, 24, 0, 24),
-	UDim2.new(0.5, 0, 0.5, 0)
-)
+local SCRIPT_ICON_URL = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/151cc038510f603b832be34568d8097a66048c1a/assets/aura-egg-script-icon.png"
+local function resolveScriptIconAsset()
+	local assetResolver = getsynasset or getcustomasset
+	if type(assetResolver) ~= "function" or type(writefile) ~= "function" then
+		return nil
+	end
+
+	local localPath = "AURA_EGG_SCRIPT_ICON.png"
+	local present = false
+	if type(isfile) == "function" then
+		pcall(function() present = isfile(localPath) end)
+	end
+
+	if not present and httpRequest then
+		local downloaded, response = pcall(function()
+			return httpRequest({
+				Url = SCRIPT_ICON_URL,
+				Method = "GET"
+			})
+		end)
+		local body = downloaded and response and (response.Body or response.body)
+		if type(body) == "string" and #body > 0 then
+			pcall(writefile, localPath, body)
+		end
+	end
+
+	local resolved, asset = pcall(assetResolver, localPath)
+	return resolved and asset or nil
+end
+
+local scriptIconAsset = resolveScriptIconAsset()
+if scriptIconAsset then
+	local scriptIcon = Instance.new("ImageLabel")
+	scriptIcon.Name = "AURAEggScriptIcon"
+	scriptIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	scriptIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
+	scriptIcon.Size = UDim2.new(1, -6, 1, -6)
+	scriptIcon.BackgroundTransparency = 1
+	scriptIcon.BorderSizePixel = 0
+	scriptIcon.Image = scriptIconAsset
+	scriptIcon.ScaleType = Enum.ScaleType.Fit
+	scriptIcon.ZIndex = toggleButton.ZIndex + 1
+	scriptIcon.Parent = toggleButton
+	local scriptIconCorner = Instance.new("UICorner")
+	scriptIconCorner.CornerRadius = UDim.new(1, 0)
+	scriptIconCorner.Parent = scriptIcon
+else
+	createCanvasIcon(
+		toggleButton,
+		"egg",
+		Color3.fromRGB(238, 201, 255),
+		UDim2.new(0, 24, 0, 24),
+		UDim2.new(0.5, 0, 0.5, 0)
+	)
+end
 
 local toggleCorner = Instance.new("UICorner")
 toggleCorner.CornerRadius = UDim.new(1, 0)
