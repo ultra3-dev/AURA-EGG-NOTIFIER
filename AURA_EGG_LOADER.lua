@@ -5,7 +5,7 @@ local env = (type(getgenv) == "function" and getgenv()) or _G
 env.AURA_EGG_WEBHOOK = env.AURA_EGG_WEBHOOK or "PASTE_MAIN_DISCORD_WEBHOOK_HERE"
 env.AURA_EGG_LAST_SEEN_WEBHOOK = env.AURA_EGG_LAST_SEEN_WEBHOOK or "PASTE_LAST_SEEN_DISCORD_WEBHOOK_HERE"
 
-local base = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/main/"
+local base = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/5a46bb23220f790e88fa9f22caf0ca4107866a03/"
 local files = {
 	"AURA_EGG_BOOT.lua",
 	"AURA_EGG_DETECTION.lua",
@@ -15,7 +15,7 @@ local files = {
 
 local source = ""
 for _, fileName in ipairs(files) do
-	source = source .. "\n" .. game:HttpGet(base .. fileName .. "?v=2.0.0-webhook4")
+	source = source .. "\n" .. game:HttpGet(base .. fileName)
 end
 
 local compile = loadstring or load
