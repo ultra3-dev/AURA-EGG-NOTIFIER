@@ -150,178 +150,52 @@ function createCanvasIcon(parent, kind, color, size, position, name)
 	root.ZIndex = parent.ZIndex + 1
 	root.Parent = parent
 
-	local function shape(shapeName, shapeSize, shapePosition, rotation, transparency)
-		local part = Instance.new("Frame")
-		part.Name = shapeName
-		part.AnchorPoint = Vector2.new(0.5, 0.5)
-		part.Position = shapePosition
-		part.Size = shapeSize
-		part.BackgroundColor3 = color
-		part.BackgroundTransparency = transparency or 0
-		part.BorderSizePixel = 0
-		part.Rotation = rotation or 0
-		part.ZIndex = root.ZIndex
-		part:SetAttribute("CanvasPart", true)
-		part.Parent = root
-		return part
-	end
+local emojiByKind = {
+close = "❌",
+egg = "🥚",
+log = "📜",
+announce = "📣",
+spark = "✨",
+money = "💰",
+megaphone = "📢",
+system = "🟢",
+console = "🖥️",
+sliders = "🎚️",
+webhook = "🔗",
+terminal = "💻",
+check = "✅",
+plus = "➕",
+trash = "🗑️",
+send = "📤",
+link = "🔗",
+tag = "🏷️",
+copy = "📋",
+clock = "🕒",
+route = "🔀",
+broom = "🧹",
+endpoint = "📍",
+power = "🔐",
+down = "⬇️"
+}
 
-	local function round(part, radius)
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(radius or 0.35, 0)
-		corner.Parent = part
-	end
-
-	local function outline(part, thickness)
-		local stroke = Instance.new("UIStroke")
-		stroke.Color = color
-		stroke.Thickness = thickness or 1.2
-		stroke.Transparency = 0
-		stroke:SetAttribute("CanvasPart", true)
-		stroke.Parent = part
-	end
-
-	if kind == "close" then
-		shape("CloseLineA", UDim2.new(0, 2, 0, 15), UDim2.new(0.5, 0, 0.5, 0), 45)
-		shape("CloseLineB", UDim2.new(0, 2, 0, 15), UDim2.new(0.5, 0, 0.5, 0), -45)
-	elseif kind == "egg" then
-		local egg = shape("EggShell", UDim2.new(0.58, 0, 0.76, 0), UDim2.new(0.5, 0, 0.53, 0))
-		round(egg, 0.5)
-		outline(egg, 1.25)
-		local shine = shape("EggShine", UDim2.new(0.12, 0, 0.18, 0), UDim2.new(0.36, 0, 0.34, 0), 0, 0)
-		round(shine, 0.5)
-	elseif kind == "log" then
-		local sheet = shape("LogSheet", UDim2.new(0.58, 0, 0.72, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
-		round(sheet, 0.12)
-		outline(sheet, 1.15)
-		shape("LogLineA", UDim2.new(0.32, 0, 0, 1.5), UDim2.new(0.5, 0, 0.38, 0))
-		shape("LogLineB", UDim2.new(0.32, 0, 0, 1.5), UDim2.new(0.5, 0, 0.53, 0))
-		shape("LogLineC", UDim2.new(0.22, 0, 0, 1.5), UDim2.new(0.45, 0, 0.68, 0))
-	elseif kind == "announce" then
-		local barA = shape("AnnounceBarA", UDim2.new(0, 2.5, 0.32, 0), UDim2.new(0.25, 0, 0.68, 0))
-		local barB = shape("AnnounceBarB", UDim2.new(0, 2.5, 0.52, 0), UDim2.new(0.5, 0, 0.58, 0))
-		local barC = shape("AnnounceBarC", UDim2.new(0, 2.5, 0.72, 0), UDim2.new(0.75, 0, 0.48, 0))
-		round(barA, 0.5)
-		round(barB, 0.5)
-		round(barC, 0.5)
-	elseif kind == "spark" then
-		local diamond = shape("SparkDiamond", UDim2.new(0.42, 0, 0.42, 0), UDim2.new(0.5, 0, 0.5, 0), 45)
-		round(diamond, 0.12)
-		shape("SparkCore", UDim2.new(0.15, 0, 0.15, 0), UDim2.new(0.5, 0, 0.5, 0), 0)
-	elseif kind == "money" then
-		local bill = shape("MoneyBill", UDim2.new(0.82, 0, 0.54, 0), UDim2.new(0.5, 0, 0.5, 0), -8, 1)
-		round(bill, 0.14)
-		outline(bill, 1.15)
-		local seal = shape("MoneySeal", UDim2.new(0.22, 0, 0.22, 0), UDim2.new(0.5, 0, 0.5, 0))
-		round(seal, 0.5)
-		shape("MoneyStem", UDim2.new(0, 1.6, 0.30, 0), UDim2.new(0.5, 0, 0.5, 0))
-		shape("MoneyTop", UDim2.new(0.14, 0, 0, 1.5), UDim2.new(0.5, 0, 0.37, 0))
-		shape("MoneyBottom", UDim2.new(0.14, 0, 0, 1.5), UDim2.new(0.5, 0, 0.63, 0))
-	elseif kind == "megaphone" then
-		local horn = shape("MegaphoneHorn", UDim2.new(0.48, 0, 0.60, 0), UDim2.new(0.62, 0, 0.45, 0), -25, 1)
-		round(horn, 0.16)
-		outline(horn, 1.1)
-		shape("MegaphoneHandle", UDim2.new(0.16, 0, 0.34, 0), UDim2.new(0.35, 0, 0.68, 0), -25)
-		shape("MegaphoneSoundA", UDim2.new(0.18, 0, 0, 1.6), UDim2.new(0.80, 0, 0.31, 0), -25)
-		shape("MegaphoneSoundB", UDim2.new(0.25, 0, 0, 1.6), UDim2.new(0.88, 0, 0.51, 0), -25)
-	elseif kind == "system" then
-		local ring = shape("SystemRing", UDim2.new(0.7, 0, 0.7, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
-		round(ring, 0.5)
-		outline(ring, 1.15)
-		local core = shape("SystemCore", UDim2.new(0.22, 0, 0.22, 0), UDim2.new(0.5, 0, 0.5, 0))
-		round(core, 0.5)
-	elseif kind == "console" then
-		local screen = shape("ConsoleScreen", UDim2.new(0.78, 0, 0.62, 0), UDim2.new(0.5, 0, 0.48, 0), 0, 1)
-		round(screen, 0.12)
-		outline(screen, 1.1)
-		shape("ConsolePrompt", UDim2.new(0.18, 0, 0, 1.5), UDim2.new(0.31, 0, 0.52, 0))
-		shape("ConsoleLineA", UDim2.new(0.36, 0, 0, 1.5), UDim2.new(0.56, 0, 0.39, 0))
-		shape("ConsoleLineB", UDim2.new(0.28, 0, 0, 1.5), UDim2.new(0.52, 0, 0.63, 0))
-	elseif kind == "sliders" then
-		for index, data in ipairs({{0.34, 0.32}, {0.58, 0.50}, {0.78, 0.68}}) do
-			local line = shape("SliderLine" .. index, UDim2.new(0.72, 0, 0, 1.5), UDim2.new(0.5, 0, data[1], 0))
-			round(line, 0.5)
-			local knob = shape("SliderKnob" .. index, UDim2.new(0.16, 0, 0.16, 0), UDim2.new(data[2], 0, data[1], 0))
-			round(knob, 0.5)
-		end
-	elseif kind == "webhook" then
-		local left = shape("WebhookLeft", UDim2.new(0.34, 0, 0.34, 0), UDim2.new(0.35, 0, 0.43, 0), 45, 1)
-		local right = shape("WebhookRight", UDim2.new(0.34, 0, 0.34, 0), UDim2.new(0.65, 0, 0.57, 0), 45, 1)
-		round(left, 0.25)
-		round(right, 0.25)
-		outline(left, 1.1)
-		outline(right, 1.1)
-		shape("WebhookBridge", UDim2.new(0.28, 0, 0, 2), UDim2.new(0.5, 0, 0.5, 0), -35)
-	elseif kind == "terminal" then
-		local terminal = shape("TerminalShell", UDim2.new(0.78, 0, 0.64, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
-		round(terminal, 0.1)
-		outline(terminal, 1.1)
-		shape("TerminalChevronA", UDim2.new(0.16, 0, 0, 1.8), UDim2.new(0.34, 0, 0.48, 0), 35)
-		shape("TerminalChevronB", UDim2.new(0.16, 0, 0, 1.8), UDim2.new(0.43, 0, 0.52, 0), -35)
-		shape("TerminalCursor", UDim2.new(0.18, 0, 0, 1.8), UDim2.new(0.66, 0, 0.62, 0))
-	elseif kind == "check" then
-		shape("CheckA", UDim2.new(0, 2.2, 0, 8), UDim2.new(0.38, 0, 0.58, 0), -45)
-		shape("CheckB", UDim2.new(0, 2.2, 0, 13), UDim2.new(0.62, 0, 0.43, 0), 45)
-	elseif kind == "plus" then
-		local horizontal = shape("PlusHorizontal", UDim2.new(0.68, 0, 0, 2.2), UDim2.new(0.5, 0, 0.5, 0))
-		local vertical = shape("PlusVertical", UDim2.new(0, 2.2, 0.68, 0), UDim2.new(0.5, 0, 0.5, 0))
-		round(horizontal, 0.5)
-		round(vertical, 0.5)
-	elseif kind == "trash" then
-		local bin = shape("TrashBin", UDim2.new(0.52, 0, 0.58, 0), UDim2.new(0.5, 0, 0.57, 0))
-		round(bin, 0.12)
-		shape("TrashLid", UDim2.new(0.68, 0, 0, 2), UDim2.new(0.5, 0, 0.25, 0))
-		shape("TrashHandle", UDim2.new(0.24, 0, 0, 2), UDim2.new(0.5, 0, 0.17, 0))
-	elseif kind == "send" then
-		local plane = shape("SendPlane", UDim2.new(0.7, 0, 0.42, 0), UDim2.new(0.52, 0, 0.48, 0), -25)
-		round(plane, 0.12)
-		shape("SendCut", UDim2.new(0.1, 0, 0.42, 0), UDim2.new(0.35, 0, 0.57, 0), 25, 0.35)
-	elseif kind == "link" then
-		local link = shape("LinkBody", UDim2.new(0.68, 0, 0.22, 0), UDim2.new(0.5, 0, 0.5, 0), -25, 1)
-		round(link, 0.5)
-		outline(link, 1.2)
-		shape("LinkCut", UDim2.new(0.16, 0, 0.3, 0), UDim2.new(0.5, 0, 0.5, 0), -25, 1)
-	elseif kind == "tag" then
-		local tag = shape("TagBody", UDim2.new(0.62, 0, 0.56, 0), UDim2.new(0.47, 0, 0.52, 0), 0, 1)
-		round(tag, 0.12)
-		outline(tag, 1.1)
-		local tagHole = shape("TagHole", UDim2.new(0.14, 0, 0.14, 0), UDim2.new(0.27, 0, 0.35, 0))
-		round(tagHole, 0.5)
-	elseif kind == "copy" then
-		local back = shape("CopyBack", UDim2.new(0.54, 0, 0.62, 0), UDim2.new(0.58, 0, 0.42, 0), 0, 1)
-		round(back, 0.1)
-		outline(back, 1.1)
-		local front = shape("CopyFront", UDim2.new(0.54, 0, 0.62, 0), UDim2.new(0.42, 0, 0.58, 0))
-		round(front, 0.1)
-	elseif kind == "clock" then
-		local clock = shape("ClockRing", UDim2.new(0.76, 0, 0.76, 0), UDim2.new(0.5, 0, 0.5, 0), 0, 1)
-		round(clock, 0.5)
-		outline(clock, 1.1)
-		shape("ClockHandA", UDim2.new(0, 1.7, 0.27, 0), UDim2.new(0.5, 0, 0.39, 0))
-		shape("ClockHandB", UDim2.new(0.26, 0, 0, 1.7), UDim2.new(0.58, 0, 0.54, 0), 35)
-	elseif kind == "route" then
-		local routeLine = shape("RouteLine", UDim2.new(0.62, 0, 0, 2), UDim2.new(0.5, 0, 0.5, 0))
-		round(routeLine, 0.5)
-		local routeStart = shape("RouteStart", UDim2.new(0.2, 0, 0.2, 0), UDim2.new(0.2, 0, 0.5, 0))
-		local routeEnd = shape("RouteEnd", UDim2.new(0.2, 0, 0.2, 0), UDim2.new(0.8, 0, 0.5, 0))
-		round(routeStart, 0.5)
-		round(routeEnd, 0.5)
-	elseif kind == "broom" then
-		shape("BroomHandle", UDim2.new(0, 2, 0.76, 0), UDim2.new(0.6, 0, 0.42, 0), 35)
-		local brush = shape("BroomBrush", UDim2.new(0.52, 0, 0.18, 0), UDim2.new(0.3, 0, 0.68, 0), -20)
-		round(brush, 0.35)
-	elseif kind == "endpoint" then
-		local node = shape("EndpointNode", UDim2.new(0.62, 0, 0.62, 0), UDim2.new(0.5, 0, 0.5, 0), 45, 1)
-		round(node, 0.2)
-		outline(node, 1.1)
-		local endpointCore = shape("EndpointCore", UDim2.new(0.2, 0, 0.2, 0), UDim2.new(0.5, 0, 0.5, 0))
-		round(endpointCore, 0.5)
-	elseif kind == "power" then
-		local ring = shape("PowerRing", UDim2.new(0.76, 0, 0.76, 0), UDim2.new(0.5, 0, 0.54, 0), 0, 1)
-		round(ring, 0.5)
-		outline(ring, 1.3)
-		shape("PowerStem", UDim2.new(0, 2, 0.42, 0), UDim2.new(0.5, 0, 0.28, 0))
-	end
+local emoji = Instance.new("TextLabel")
+emoji.Name = "CanvasEmoji"
+emoji.AnchorPoint = Vector2.new(0.5, 0.5)
+emoji.Position = UDim2.new(0.5, 0, 0.5, 0)
+emoji.Size = UDim2.new(1, 0, 1, 0)
+emoji.BackgroundTransparency = 1
+emoji.BorderSizePixel = 0
+emoji.Text = emojiByKind[kind] or "•"
+emoji.TextColor3 = color
+emoji.Font = Enum.Font.SourceSansBold
+emoji.TextScaled = true
+emoji.TextWrapped = false
+emoji.TextXAlignment = Enum.TextXAlignment.Center
+emoji.TextYAlignment = Enum.TextYAlignment.Center
+emoji.TextStrokeTransparency = 1
+emoji.ZIndex = root.ZIndex
+emoji:SetAttribute("CanvasPart", true)
+emoji.Parent = root
 
 	return root
 end
@@ -329,10 +203,12 @@ end
 function tintCanvasIcon(root, color)
 	for _, item in ipairs(root:GetDescendants()) do
 		if item:GetAttribute("CanvasPart") then
-			if item:IsA("Frame") then
-				item.BackgroundColor3 = color
-			elseif item:IsA("UIStroke") then
-				item.Color = color
+if item:IsA("TextLabel") then
+item.TextColor3 = color
+elseif item:IsA("Frame") then
+item.BackgroundColor3 = color
+elseif item:IsA("UIStroke") then
+item.Color = color
 			end
 		end
 	end
@@ -428,7 +304,7 @@ logJumpButton.Size = UDim2.new(0, 32, 0, 32)
 logJumpButton.BackgroundColor3 = Color3.fromRGB(122, 57, 177)
 logJumpButton.BackgroundTransparency = 0.04
 logJumpButton.BorderSizePixel = 0
-logJumpButton.Text = "↓"
+logJumpButton.Text = ""
 logJumpButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 logJumpButton.Font = Enum.Font.GothamBold
 logJumpButton.TextSize = 20
@@ -439,6 +315,14 @@ logJumpButton.Parent = panel
 local logJumpCorner = Instance.new("UICorner")
 logJumpCorner.CornerRadius = UDim.new(1, 0)
 logJumpCorner.Parent = logJumpButton
+createCanvasIcon(
+logJumpButton,
+"down",
+Color3.fromRGB(255, 240, 255),
+UDim2.new(0, 19, 0, 19),
+UDim2.new(0.5, 0, 0.5, 0),
+"JumpIcon"
+)
 
 local logBody = Instance.new("TextLabel")
 logBody.Name = "PersistentEggHistory"
@@ -1433,7 +1317,7 @@ consoleJumpButton.Size = UDim2.new(0, 32, 0, 32)
 consoleJumpButton.BackgroundColor3 = Color3.fromRGB(162, 54, 99)
 consoleJumpButton.BackgroundTransparency = 0.04
 consoleJumpButton.BorderSizePixel = 0
-consoleJumpButton.Text = "↓"
+consoleJumpButton.Text = ""
 consoleJumpButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 consoleJumpButton.Font = Enum.Font.GothamBold
 consoleJumpButton.TextSize = 20
@@ -1445,6 +1329,14 @@ consoleJumpButton.Parent = consolePanel
 local consoleJumpCorner = Instance.new("UICorner")
 consoleJumpCorner.CornerRadius = UDim.new(1, 0)
 consoleJumpCorner.Parent = consoleJumpButton
+createCanvasIcon(
+consoleJumpButton,
+"down",
+Color3.fromRGB(255, 240, 255),
+UDim2.new(0, 19, 0, 19),
+UDim2.new(0.5, 0, 0.5, 0),
+"JumpIcon"
+)
 
 local function updateConsoleJumpVisibility()
 	local maximum = math.max(0, consoleScroll.CanvasSize.Y.Offset - consoleScroll.AbsoluteWindowSize.Y)
@@ -1495,53 +1387,6 @@ toggleButton.ClipsDescendants = true
 toggleButton.ZIndex = 20
 toggleButton.Parent = screenGui
 
-local SCRIPT_ICON_URL = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/151cc038510f603b832be34568d8097a66048c1a/assets/aura-egg-script-icon.png"
-local function resolveScriptIconAsset()
-	local assetResolver = getsynasset or getcustomasset
-	if type(assetResolver) ~= "function" or type(writefile) ~= "function" then
-		return nil
-	end
-
-	local localPath = "AURA_EGG_SCRIPT_ICON.png"
-	local present = false
-	if type(isfile) == "function" then
-		pcall(function() present = isfile(localPath) end)
-	end
-
-	if not present and httpRequest then
-		local downloaded, response = pcall(function()
-			return httpRequest({
-				Url = SCRIPT_ICON_URL,
-				Method = "GET"
-			})
-		end)
-		local body = downloaded and response and (response.Body or response.body)
-		if type(body) == "string" and #body > 0 then
-			pcall(writefile, localPath, body)
-		end
-	end
-
-	local resolved, asset = pcall(assetResolver, localPath)
-	return resolved and asset or nil
-end
-
-local scriptIconAsset = resolveScriptIconAsset()
-if scriptIconAsset then
-	local scriptIcon = Instance.new("ImageLabel")
-	scriptIcon.Name = "AURAEggScriptIcon"
-	scriptIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-	scriptIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
-	scriptIcon.Size = UDim2.new(1, -6, 1, -6)
-	scriptIcon.BackgroundTransparency = 1
-	scriptIcon.BorderSizePixel = 0
-	scriptIcon.Image = scriptIconAsset
-	scriptIcon.ScaleType = Enum.ScaleType.Fit
-	scriptIcon.ZIndex = toggleButton.ZIndex + 1
-	scriptIcon.Parent = toggleButton
-	local scriptIconCorner = Instance.new("UICorner")
-	scriptIconCorner.CornerRadius = UDim.new(1, 0)
-	scriptIconCorner.Parent = scriptIcon
-else
 	createCanvasIcon(
 		toggleButton,
 		"egg",
@@ -1549,7 +1394,6 @@ else
 		UDim2.new(0, 24, 0, 24),
 		UDim2.new(0.5, 0, 0.5, 0)
 	)
-end
 
 local toggleCorner = Instance.new("UICorner")
 toggleCorner.CornerRadius = UDim.new(1, 0)
