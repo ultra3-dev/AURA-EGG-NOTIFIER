@@ -177,8 +177,8 @@ local function buildLastSeenContainer(rarity)
 		components = {
 			{
 				type = 10,
-content = string.format(
-"### %s %s - Last seen\n-# %d registradas",
+				content = string.format(
+"# %s %s — Last seen\n-# %d registradas",
 					style.emoji,
 					rarity,
 					registered
@@ -198,9 +198,9 @@ local function buildLastSeenPayload(referenceTime)
 	local components = {
 		{
 			type = 10,
-			content = "🥚 Glacian — Last Seen"
+			content = "### AURA — Last seen"
 		},
-		buildLastSeenSeparator("glacian")
+		buildLastSeenSeparator("")
 	}
 
 	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
@@ -211,7 +211,7 @@ local function buildLastSeenPayload(referenceTime)
 		components,
 		{
 			type = 10,
-			content = "-# Last Seen • AURA FAMILY X • Actualizado <t:"
+			content = "-# AURA • Last Seen • Actualizado <t:"
 				.. tostring(math.floor(tonumber(referenceTime) or os.time()))
 				.. ":R>"
 		}
