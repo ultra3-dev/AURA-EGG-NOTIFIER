@@ -177,8 +177,8 @@ local function buildLastSeenContainer(rarity)
 		components = {
 			{
 				type = 10,
-				content = string.format(
-					"%s %s — Last Seen\n-# %d registradas",
+content = string.format(
+"### %s %s - Last seen\n-# %d registradas",
 					style.emoji,
 					rarity,
 					registered
