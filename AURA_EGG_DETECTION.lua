@@ -4,13 +4,7 @@ local function runNotifierRuntime()
 local RARITY_ORDER = {
 	{keyword = "divine", rank = 1, roleId = "1544734510665699389"},
 	{keyword = "eternal", rank = 2, roleId = "1544734452054229173"},
-	{keyword = "secret", rank = 3, roleId = "1544734376640782346"},
-	{keyword = "mythical", rank = 4},
-	{keyword = "mythic", rank = 4},
-	{keyword = "legendary", rank = 5},
-	{keyword = "cosmic", rank = 6},
-	{keyword = "rare", rank = 7},
-	{keyword = "common", rank = 8}
+	{keyword = "secret", rank = 3, roleId = "1544734376640782346"}
 }
 
 -- Roles de cada huevo. El nombre se reemplaza por una mención real.
