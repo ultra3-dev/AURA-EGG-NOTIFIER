@@ -25,11 +25,11 @@ local CONFIG = {
 		or "PASTE_A_LAST_SEEN_DISCORD_WEBHOOK_HERE",
 LastSeenMessageID = "1552117304609738823",
 	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
-	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid"},
+	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid", "infinite yield possible"},
 	DisplayTime = 120,
 	MaxNotifications = 2000,
 	ConsoleMaxLines = 2500,
-	PriorityWindow = 0.35,
+	PriorityWindow = 0.121,
 	MaxPriorityQueue = 12,
 	ServerRefreshInterval = 15,
 	AccessKey = "#3003AURA-FAMILY-X333***#ULTRA",
@@ -101,8 +101,8 @@ local panel = Instance.new("Frame")
 panel.Name = "EggLogPanel"
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.new(0.5, 0, 0.5, 0)
-panel.Size = UDim2.new(0, 390, 0, 420)
-panel.BackgroundColor3 = Color3.fromRGB(8, 14, 31)
+panel.Size = UDim2.new(0, 880, 0, 540)
+panel.BackgroundColor3 = Color3.fromRGB(8, 11, 23)
 panel.BackgroundTransparency = 0.04
 panel.BorderSizePixel = 0
 panel.Parent = screenGui
@@ -116,15 +116,15 @@ panelCorner.CornerRadius = UDim.new(0, 14)
 panelCorner.Parent = panel
 
 local panelStroke = Instance.new("UIStroke")
-panelStroke.Color = Color3.fromRGB(0, 174, 255)
-panelStroke.Thickness = 2
+panelStroke.Color = Color3.fromRGB(132, 78, 255)
+panelStroke.Thickness = 1.5
 panelStroke.Transparency = 0.08
 panelStroke.Parent = panel
 
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1, 0, 0, 62)
-topBar.BackgroundColor3 = Color3.fromRGB(20, 18, 54)
+topBar.Size = UDim2.new(1, 0, 0, 72)
+topBar.BackgroundColor3 = Color3.fromRGB(17, 16, 39)
 topBar.BorderSizePixel = 0
 topBar.Parent = panel
 
@@ -217,22 +217,22 @@ end
 
 local header = Instance.new("TextLabel")
 header.Name = "Header"
-header.Position = UDim2.new(0, 18, 0, 10)
-header.Size = UDim2.new(1, -70, 0, 22)
+header.Position = UDim2.new(0, 68, 0, 8)
+header.Size = UDim2.new(1, -126, 0, 24)
 header.BackgroundTransparency = 1
-header.Text = "AURA EGG NOTIFIER ACTIVATED"
-header.TextColor3 = Color3.fromRGB(235, 204, 255)
+header.Text = "AURA EGG NOTIFIER"
+header.TextColor3 = Color3.fromRGB(247, 242, 255)
 header.Font = Enum.Font.GothamBold
-header.TextSize = 16
+header.TextSize = 18
 header.TextXAlignment = Enum.TextXAlignment.Left
 header.Parent = topBar
 
 local subtitle = Instance.new("TextLabel")
-subtitle.Position = UDim2.new(0, 19, 0, 34)
-subtitle.Size = UDim2.new(1, -70, 0, 16)
+subtitle.Position = UDim2.new(0, 70, 0, 36)
+subtitle.Size = UDim2.new(1, -128, 0, 16)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "WEBHOOK 2.0.2 ULTRA  //  MODULAR LIVE"
-subtitle.TextColor3 = Color3.fromRGB(151, 255, 204)
+subtitle.Text = "DIVINE  >  ETERNAL  >  SECRET  //  121 MS WINDOW"
+subtitle.TextColor3 = Color3.fromRGB(169, 148, 224)
 subtitle.Font = Enum.Font.Code
 subtitle.TextSize = 10
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -374,11 +374,11 @@ navigation.Parent = panel
 
 local function styleTab(button, active)
 	button.BackgroundColor3 = active
-		and Color3.fromRGB(0, 128, 255)
-		or Color3.fromRGB(16, 24, 48)
+		and Color3.fromRGB(111, 57, 222)
+		or Color3.fromRGB(17, 22, 40)
 	button.TextColor3 = active
-		and Color3.fromRGB(255, 235, 255)
-		or Color3.fromRGB(137, 160, 198)
+		and Color3.fromRGB(255, 255, 255)
+		or Color3.fromRGB(160, 165, 190)
 
 	local label = button:FindFirstChild("TabLabel")
 	if label then
@@ -392,7 +392,7 @@ local function styleTab(button, active)
 
 	local gradient = button:FindFirstChild("TabGradient")
 	if gradient then gradient:Destroy() end
-	button.BackgroundColor3 = active and Color3.fromRGB(0, 128, 255) or Color3.fromRGB(16, 24, 48)
+	button.BackgroundColor3 = active and Color3.fromRGB(111, 57, 222) or Color3.fromRGB(17, 22, 40)
 
 	local stroke = button:FindFirstChild("TabStroke")
 	if not stroke then
@@ -400,9 +400,9 @@ local function styleTab(button, active)
 		stroke.Name = "TabStroke"
 		stroke.Parent = button
 	end
-	stroke.Color = active and Color3.fromRGB(0, 198, 255) or Color3.fromRGB(38, 62, 101)
-	stroke.Thickness = active and 1.5 or 1
-	stroke.Transparency = active and 0.05 or 0.35
+	stroke.Color = active and Color3.fromRGB(176, 137, 255) or Color3.fromRGB(43, 49, 72)
+	stroke.Thickness = active and 1.25 or 1
+	stroke.Transparency = active and 0.05 or 0.25
 end
 
 local logTab = Instance.new("TextButton")
@@ -618,6 +618,19 @@ local consoleTabIcon = createCanvasIcon(
 	UDim2.new(0.5, 0, 0.5, 0),
 	"TabIcon"
 )
+
+local consoleTabLabel = Instance.new("TextLabel")
+consoleTabLabel.Name = "TabLabel"
+consoleTabLabel.Position = UDim2.new(0, 30, 0, 0)
+consoleTabLabel.Size = UDim2.new(1, -34, 1, 0)
+consoleTabLabel.BackgroundTransparency = 1
+consoleTabLabel.Text = "CONSOLE"
+consoleTabLabel.TextColor3 = consoleTab.TextColor3
+consoleTabLabel.Font = Enum.Font.Code
+consoleTabLabel.TextSize = 9
+consoleTabLabel.TextXAlignment = Enum.TextXAlignment.Left
+consoleTabLabel.TextYAlignment = Enum.TextYAlignment.Center
+consoleTabLabel.Parent = consoleTab
 
 local consoleTabCorner = Instance.new("UICorner")
 consoleTabCorner.CornerRadius = UDim.new(0, 6)
@@ -1372,12 +1385,156 @@ local statusCorner = Instance.new("UICorner")
 statusCorner.CornerRadius = UDim.new(0, 8)
 statusCorner.Parent = statusLabel
 
+local navigationDivider = Instance.new("Frame")
+navigationDivider.Name = "NavigationDivider"
+navigationDivider.BackgroundColor3 = Color3.fromRGB(58, 49, 91)
+navigationDivider.BackgroundTransparency = 0.35
+navigationDivider.BorderSizePixel = 0
+navigationDivider.Visible = false
+navigationDivider.Parent = panel
+
+local navigationItems = {
+	{button = logTab, label = logTabLabel, icon = logTabIcon, x = 0, width = 60, labelSize = 13},
+	{button = promotionTab, label = promotionTabLabel, icon = promotionTabIcon, x = 62, width = 72, labelSize = 10},
+	{button = announcerTab, label = announcerTabLabel, icon = announcerTabIcon, x = 138, width = 88, labelSize = 9},
+	{button = configUi.tab, label = configUi.tabLabel, icon = configUi.tabIcon, x = 230, width = 72, labelSize = 9},
+	{button = configUi.webhookTab, label = configUi.webhookTabLabel, icon = configUi.webhookTabIcon, x = 306, width = 88, labelSize = 8},
+	{button = consoleTab, label = consoleTabLabel, icon = consoleTabIcon, x = 398, width = 24, labelSize = 9, iconCentered = true}
+}
+
+local contentPanels = {
+	logPanel,
+	promotionPanel,
+	announcementPanel,
+	configUi.panel,
+	configUi.webhookPanel,
+	consolePanel
+}
+
+local function applyResponsiveLayout()
+	local viewport = screenGui.AbsoluteSize
+	if viewport.X <= 0 or viewport.Y <= 0 then
+		local camera = workspace.CurrentCamera
+		if camera then viewport = camera.ViewportSize end
+	end
+	if viewport.X <= 0 or viewport.Y <= 0 then return end
+
+	local compact = viewport.X < 900 or viewport.Y < 600
+	if compact then
+		panel.Size = UDim2.fromOffset(
+			math.max(280, math.min(390, viewport.X - 24)),
+			math.max(260, math.min(420, viewport.Y - 24))
+		)
+		panelScale.Scale = 1
+		topBar.Size = UDim2.new(1, 0, 0, 62)
+		navigation.Position = UDim2.new(0, 12, 0, 64)
+		navigation.Size = UDim2.new(1, -24, 0, 28)
+		navigation.CanvasSize = UDim2.new(0, 430, 0, 0)
+		navigation.ScrollingDirection = Enum.ScrollingDirection.X
+		navigation.ScrollBarThickness = 0
+		navigationDivider.Visible = false
+
+		for _, item in ipairs(navigationItems) do
+			item.button.Position = UDim2.new(0, item.x, 0, 0)
+			item.button.Size = UDim2.new(0, item.width, 1, 0)
+			item.icon.Position = item.iconCentered
+				and UDim2.new(0.5, 0, 0.5, 0)
+				or UDim2.new(0, 15, 0.5, 0)
+			item.label.Position = UDim2.new(0, 30, 0, 0)
+			item.label.Size = UDim2.new(1, -34, 1, 0)
+			item.label.Font = Enum.Font.Code
+			item.label.TextSize = item.labelSize
+			item.label.Visible = not item.iconCentered
+		end
+
+		for _, section in ipairs(contentPanels) do
+			section.Position = UDim2.new(0, 12, 0, 100)
+			section.Size = UDim2.new(1, -24, 1, -150)
+		end
+		statusLabel.Position = UDim2.new(0, 12, 1, -50)
+		statusLabel.Size = UDim2.new(1, -24, 0, 38)
+	else
+		panel.Size = UDim2.fromOffset(
+			math.min(880, viewport.X - 32),
+			math.min(540, viewport.Y - 32)
+		)
+		panelScale.Scale = 1
+		topBar.Size = UDim2.new(1, 0, 0, 72)
+		navigation.Position = UDim2.new(0, 12, 0, 84)
+		navigation.Size = UDim2.new(0, 142, 1, -146)
+		navigation.CanvasSize = UDim2.new(0, 0, 0, #navigationItems * 44 - 6)
+		navigation.ScrollingDirection = Enum.ScrollingDirection.Y
+		navigation.ScrollBarThickness = 2
+		navigation.ScrollBarImageColor3 = Color3.fromRGB(126, 91, 198)
+		navigationDivider.Position = UDim2.new(0, 160, 0, 82)
+		navigationDivider.Size = UDim2.new(0, 1, 1, -144)
+		navigationDivider.Visible = true
+
+		for index, item in ipairs(navigationItems) do
+			item.button.Position = UDim2.new(0, 0, 0, (index - 1) * 44)
+			item.button.Size = UDim2.new(1, -4, 0, 38)
+			item.icon.Position = UDim2.new(0, 18, 0.5, 0)
+			item.label.Position = UDim2.new(0, 38, 0, 0)
+			item.label.Size = UDim2.new(1, -44, 1, 0)
+			item.label.Font = Enum.Font.GothamMedium
+			item.label.TextSize = 10
+			item.label.Visible = true
+		end
+
+		for _, section in ipairs(contentPanels) do
+			section.Position = UDim2.new(0, 174, 0, 84)
+			section.Size = UDim2.new(1, -186, 1, -146)
+		end
+		statusLabel.Position = UDim2.new(0, 174, 1, -50)
+		statusLabel.Size = UDim2.new(1, -186, 0, 38)
+	end
+end
+
+local sectionStrokeColor = Color3.fromRGB(49, 43, 75)
+for _, section in ipairs(contentPanels) do
+	section.BackgroundColor3 = Color3.fromRGB(12, 16, 31)
+	section.BackgroundTransparency = 0.02
+	local stroke = section:FindFirstChild("SectionStroke")
+	if not stroke then
+		stroke = Instance.new("UIStroke")
+		stroke.Name = "SectionStroke"
+		stroke.Parent = section
+	end
+	stroke.Color = sectionStrokeColor
+	stroke.Thickness = 1
+	stroke.Transparency = 0.28
+end
+
+for _, item in ipairs(panel:GetDescendants()) do
+	if item:IsA("TextBox") and item.BackgroundTransparency < 1 then
+		item.BackgroundColor3 = Color3.fromRGB(18, 23, 41)
+		item.TextColor3 = Color3.fromRGB(245, 242, 255)
+		item.PlaceholderColor3 = Color3.fromRGB(139, 143, 167)
+		local corner = item:FindFirstChildOfClass("UICorner")
+		if not corner then
+			corner = Instance.new("UICorner")
+			corner.Parent = item
+		end
+		corner.CornerRadius = UDim.new(0, 7)
+	end
+end
+
+styleTab(logTab, true)
+styleTab(promotionTab, false)
+styleTab(announcerTab, false)
+styleTab(configUi.tab, false)
+styleTab(configUi.webhookTab, false)
+styleTab(consoleTab, false)
+
+screenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyResponsiveLayout)
+applyResponsiveLayout()
+
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "ToggleButton"
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.Position = UDim2.new(1, -48, 0.5, 0)
 toggleButton.Size = UDim2.new(0, 50, 0, 50)
-toggleButton.BackgroundColor3 = Color3.fromRGB(62, 31, 96)
+toggleButton.BackgroundColor3 = Color3.fromRGB(35, 25, 64)
 toggleButton.BorderSizePixel = 0
 toggleButton.Text = ""
 toggleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
@@ -1419,6 +1576,47 @@ return resolved and asset or nil
 end
 
 local scriptIconAsset = resolveScriptIconAsset()
+local brandIconFrame = Instance.new("Frame")
+brandIconFrame.Name = "ScriptBrandIcon"
+brandIconFrame.Position = UDim2.new(0, 16, 0, 10)
+brandIconFrame.Size = UDim2.new(0, 40, 0, 40)
+brandIconFrame.BackgroundColor3 = Color3.fromRGB(25, 21, 48)
+brandIconFrame.BorderSizePixel = 0
+brandIconFrame.Parent = topBar
+local brandIconCorner = Instance.new("UICorner")
+brandIconCorner.CornerRadius = UDim.new(0, 10)
+brandIconCorner.Parent = brandIconFrame
+local brandIconStroke = Instance.new("UIStroke")
+brandIconStroke.Color = Color3.fromRGB(132, 78, 255)
+brandIconStroke.Thickness = 1.25
+brandIconStroke.Transparency = 0.15
+brandIconStroke.Parent = brandIconFrame
+
+if scriptIconAsset then
+	local brandIcon = Instance.new("ImageLabel")
+	brandIcon.Name = "ScriptBrandImage"
+	brandIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	brandIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
+	brandIcon.Size = UDim2.new(1, -4, 1, -4)
+	brandIcon.BackgroundTransparency = 1
+	brandIcon.BorderSizePixel = 0
+	brandIcon.Image = scriptIconAsset
+	brandIcon.ScaleType = Enum.ScaleType.Fit
+	brandIcon.ZIndex = brandIconFrame.ZIndex + 1
+	brandIcon.Parent = brandIconFrame
+else
+	local brandIconFallback = Instance.new("TextLabel")
+	brandIconFallback.Name = "ScriptBrandFallback"
+	brandIconFallback.Size = UDim2.new(1, 0, 1, 0)
+	brandIconFallback.BackgroundTransparency = 1
+	brandIconFallback.Text = "</>"
+	brandIconFallback.TextColor3 = Color3.fromRGB(208, 183, 255)
+	brandIconFallback.Font = Enum.Font.Code
+	brandIconFallback.TextSize = 14
+	brandIconFallback.ZIndex = brandIconFrame.ZIndex + 1
+	brandIconFallback.Parent = brandIconFrame
+end
+
 if scriptIconAsset then
 local scriptIcon = Instance.new("ImageLabel")
 scriptIcon.Name = "AURAEggScriptIcon"
@@ -1435,13 +1633,18 @@ local scriptIconCorner = Instance.new("UICorner")
 scriptIconCorner.CornerRadius = UDim.new(1, 0)
 scriptIconCorner.Parent = scriptIcon
 else
-createCanvasIcon(
-toggleButton,
-"egg",
-Color3.fromRGB(238, 201, 255),
-UDim2.new(0, 24, 0, 24),
-UDim2.new(0.5, 0, 0.5, 0)
-)
+	local scriptGlyph = Instance.new("TextLabel")
+	scriptGlyph.Name = "ScriptIconFallback"
+	scriptGlyph.AnchorPoint = Vector2.new(0.5, 0.5)
+	scriptGlyph.Position = UDim2.new(0.5, 0, 0.5, 0)
+	scriptGlyph.Size = UDim2.new(1, -6, 1, -6)
+	scriptGlyph.BackgroundTransparency = 1
+	scriptGlyph.Text = "</>"
+	scriptGlyph.TextColor3 = Color3.fromRGB(238, 223, 255)
+	scriptGlyph.Font = Enum.Font.Code
+	scriptGlyph.TextSize = 14
+	scriptGlyph.ZIndex = toggleButton.ZIndex + 1
+	scriptGlyph.Parent = toggleButton
 end
 
 local toggleCorner = Instance.new("UICorner")
@@ -1449,8 +1652,8 @@ toggleCorner.CornerRadius = UDim.new(1, 0)
 toggleCorner.Parent = toggleButton
 
 local toggleStroke = Instance.new("UIStroke")
-toggleStroke.Color = Color3.fromRGB(190, 90, 255)
-toggleStroke.Thickness = 2
+toggleStroke.Color = Color3.fromRGB(150, 105, 255)
+toggleStroke.Thickness = 1.75
 toggleStroke.Parent = toggleButton
 
 local badge = Instance.new("TextLabel")
@@ -2075,17 +2278,17 @@ if oldPadding then oldPadding:Destroy() end
 end
 
 enhanceButton(panelClose, Color3.fromRGB(255, 78, 128))
-enhanceButton(sendAnnouncementButton, Color3.fromRGB(156, 78, 255))
-enhanceButton(savePromotionButton, Color3.fromRGB(0, 151, 255))
-enhanceButton(configUi.rarityButton, Color3.fromRGB(102, 73, 215))
-enhanceButton(configUi.saveButton, Color3.fromRGB(0, 151, 255))
-enhanceButton(configUi.newButton, Color3.fromRGB(94, 73, 184))
+enhanceButton(sendAnnouncementButton, Color3.fromRGB(132, 77, 244))
+enhanceButton(savePromotionButton, Color3.fromRGB(132, 77, 244))
+enhanceButton(configUi.rarityButton, Color3.fromRGB(111, 81, 205))
+enhanceButton(configUi.saveButton, Color3.fromRGB(132, 77, 244))
+enhanceButton(configUi.newButton, Color3.fromRGB(75, 62, 120))
 enhanceButton(configUi.deleteButton, Color3.fromRGB(218, 35, 78))
-enhanceButton(configUi.saveWebhookButton, Color3.fromRGB(0, 151, 255))
+enhanceButton(configUi.saveWebhookButton, Color3.fromRGB(132, 77, 244))
 enhanceButton(configUi.clearWebhookButton, Color3.fromRGB(218, 35, 78))
-enhanceButton(copyConsoleButton, Color3.fromRGB(156, 78, 255))
-enhanceButton(logJumpButton, Color3.fromRGB(156, 78, 255))
-enhanceButton(consoleJumpButton, Color3.fromRGB(218, 35, 78))
+enhanceButton(copyConsoleButton, Color3.fromRGB(132, 77, 244))
+enhanceButton(logJumpButton, Color3.fromRGB(132, 77, 244))
+enhanceButton(consoleJumpButton, Color3.fromRGB(132, 77, 244))
 
 local activeCards = {}
 local layoutCounter = 0
