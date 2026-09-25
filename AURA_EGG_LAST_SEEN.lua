@@ -126,6 +126,9 @@ local function getLastSeenAssetUrl(name)
 end
 
 local function buildLastSeenSeparator(name)
+	if name == "aura" then
+		return {type = 10, content = "━━━━━━━━━━━━━━ ✦ AURA ✦ ━━━━━━━━━━━━━━"}
+	end
 	if not name or name == "" then
 		return {type = 10, content = "━━━━━━━━━━━━━━━━━━━━━━━━"}
 	end
@@ -157,14 +160,25 @@ end
 local function buildLastSeenContainer(rarity)
 	local style = LAST_SEEN_STYLES[rarity] or {emoji = "◈", color = 0xB48CFF, separator = ""}
 	local catalog = LAST_SEEN_CATALOG[rarity] or {}
+	local orderedEntries = {}
 	local lines = {}
 	local registered = 0
 
-	for _, entry in ipairs(catalog) do
-		local timestamp = lastSeenState.entries[entry.key]
-		if tonumber(timestamp) then
-			registered = registered + 1
+	for index, entry in ipairs(catalog) do
+		local timestamp = tonumber(lastSeenState.entries[entry.key]) or 0
+		table.insert(orderedEntries, {entry = entry, timestamp = timestamp, index = index})
+	end
+	table.sort(orderedEntries, function(a, b)
+		if a.timestamp == b.timestamp then
+			return a.index < b.index
 		end
+		return a.timestamp > b.timestamp
+	end)
+
+	for _, row in ipairs(orderedEntries) do
+		local entry = row.entry
+		local timestamp = row.timestamp > 0 and row.timestamp or nil
+		if timestamp then registered = registered + 1 end
 		table.insert(
 			lines,
 			entry.emoji .. " **" .. entry.name .. "** — " .. formatLastSeenStatus(timestamp)
@@ -200,7 +214,7 @@ local function buildLastSeenPayload(referenceTime)
 			type = 10,
 			content = "### 🥚 AURA — Last Seen"
 		},
-		buildLastSeenSeparator("")
+		buildLastSeenSeparator("aura")
 	}
 
 	for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
