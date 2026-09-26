@@ -342,7 +342,6 @@ appendConsoleEntry("AURA EGG NOTIFIER ACTIVATED", "MessageInfo", "SCRIPT")
 updateStatus("SYSTEM VERSION: " .. CONFIG.Version .. " // READY", Color3.fromRGB(99, 255, 154))
 scheduleLastSeenUpdate()
 print("AURA EGG NOTIFIER ACTIVATED")
-end
 
 
 runNotifierRuntime()
