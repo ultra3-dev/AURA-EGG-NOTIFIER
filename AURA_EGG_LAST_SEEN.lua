@@ -221,6 +221,10 @@ local function buildLastSeenPayload(referenceTime)
 	end
 
 	local components = {
+{
+type = 10,
+content = "# 🥚 AURA — Last Seen"
+},
 		buildLastSeenSeparator("aura")
 	}
 
@@ -331,6 +335,145 @@ local statusCode = getHttpStatusCode(response)
 	end)
 end
 
+local function getRemoteMessageTimestamp(message)
+local rawTimestamp = type(message) == "table"
+and (message.edited_timestamp or message.timestamp)
+or nil
+if type(rawTimestamp) ~= "string" or rawTimestamp == "" then
+return 0
+end
+
+if DateTime and type(DateTime.fromIsoDate) == "function" then
+local ok, dateTime = pcall(function()
+return DateTime.fromIsoDate(rawTimestamp)
+end)
+if ok and dateTime then
+return tonumber(dateTime.UnixTimestamp) or 0
+end
+end
+
+return 0
+end
+
+local function collectRemoteTextDisplays(components, output)
+if type(components) ~= "table" then return end
+
+for _, component in pairs(components) do
+if type(component) == "table" then
+if type(component.content) == "string" then
+table.insert(output, component.content)
+end
+if type(component.components) == "table" then
+collectRemoteTextDisplays(component.components, output)
+end
+end
+end
+end
+
+local function mergeRemoteLastSeenContent(message)
+if type(message) ~= "table" then return false end
+
+local remoteEditedAt = getRemoteMessageTimestamp(message)
+local now = os.time()
+local remoteActiveAt = 0
+if remoteEditedAt > 0
+and math.abs(remoteEditedAt - now) <= LAST_SEEN_ACTIVE_WINDOW then
+remoteActiveAt = remoteEditedAt
+end
+
+local textDisplays = {}
+collectRemoteTextDisplays(message.components, textDisplays)
+local changed = false
+
+for _, content in ipairs(textDisplays) do
+local footerTimestamp = tonumber(content:match("Actualizado%s+<t:(%d+):R>"))
+if footerTimestamp
+and footerTimestamp > (tonumber(lastSeenState.lastUpdatedAt) or 0) then
+lastSeenState.lastUpdatedAt = footerTimestamp
+changed = true
+end
+
+for line in content:gmatch("[^\r\n]+") do
+local timestamp = tonumber(line:match("<t:(%d+):R>"))
+if not timestamp
+and line:find("Active Now", 1, true)
+and remoteActiveAt > 0 then
+timestamp = remoteActiveAt
+end
+
+if timestamp and timestamp > 0 then
+for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
+for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
+if line:find(entry.name, 1, true) then
+local localTimestamp = tonumber(lastSeenState.entries[entry.key]) or 0
+if timestamp > localTimestamp then
+lastSeenState.entries[entry.key] = timestamp
+lastSeenState.lastUpdatedAt = math.max(
+tonumber(lastSeenState.lastUpdatedAt) or 0,
+timestamp
+)
+changed = true
+end
+end
+end
+end
+end
+end
+end
+
+return changed
+end
+
+local function syncLastSeenStateFromRemote()
+if scriptStopped or not isLastSeenWebhookConfigured() then
+return false
+end
+
+local baseUrl = getWebhookBaseUrl()
+local webhookKey = getLastSeenWebhookKey(baseUrl)
+local configuredMessageId = tostring(CONFIG.LastSeenMessageID or "")
+local messageId = lastSeenState.messageIds[webhookKey]
+or lastSeenState.messageId
+or (configuredMessageId ~= "" and configuredMessageId or nil)
+if not messageId or messageId == "" then
+return false
+end
+
+local requestOk, response = pcall(function()
+return httpRequest({
+Url = baseUrl .. "/messages/" .. tostring(messageId),
+Method = "GET",
+Headers = {
+["Accept"] = "application/json",
+["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+}
+})
+end)
+if not requestOk or not response then
+return false
+end
+
+local statusCode = getHttpStatusCode(response)
+if statusCode < 200 or statusCode >= 300 then
+return false
+end
+
+local remoteMessage = decodeWebhookResponse(response)
+if not remoteMessage then
+return false
+end
+
+lastSeenState.messageId = tostring(messageId)
+lastSeenState.messageIds[webhookKey] = tostring(messageId)
+local changed = mergeRemoteLastSeenContent(remoteMessage)
+if changed then
+saveLastSeenState()
+else
+scheduleLastSeenStateSave()
+end
+return true
+end
+
 local function upsertLastSeenMessage(payload, onDone)
 if scriptStopped then
 if onDone then onDone(false) end
@@ -431,8 +574,9 @@ while lastSeenUpdateQueued and not scriptStopped do
 			local succeeded = false
 local failureStatus = 0
 
-			upsertLastSeenMessage(
-				buildLastSeenPayload(os.time()),
+syncLastSeenStateFromRemote()
+upsertLastSeenMessage(
+buildLastSeenPayload(os.time()),
 function(ok, statusCode)
 					succeeded = ok
 failureStatus = tonumber(statusCode) or 0
@@ -495,6 +639,9 @@ local function recordLastSeenSpawn(text, spawnedAt)
 	scheduleLastSeenUpdate()
 	if lastSeenRefreshScheduler then lastSeenRefreshScheduler(timestamp) end
 end
+
+syncLastSeenStateFromRemote()
+seedLastSeenState()
 
 -- Envío individual y secuencial: cada huevo conserva su propio webhook.
 local function fireWebhookImmediate(payload, onDone)
