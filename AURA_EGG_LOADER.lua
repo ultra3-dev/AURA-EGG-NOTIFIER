@@ -1,11 +1,11 @@
--- AURA EGG NOTIFIER // MODULAR LOADER 2.2.2
+-- AURA EGG NOTIFIER // MODULAR LOADER 2.2.6
 -- Mantén los webhooks solo localmente. No los publiques.
 
 local env = (type(getgenv) == "function" and getgenv()) or _G
 env.AURA_EGG_WEBHOOK = env.AURA_EGG_WEBHOOK or "PASTE_MAIN_DISCORD_WEBHOOK_HERE"
 env.AURA_EGG_LAST_SEEN_WEBHOOK = env.AURA_EGG_LAST_SEEN_WEBHOOK or "PASTE_LAST_SEEN_DISCORD_WEBHOOK_HERE"
 
-local base = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/589262806eec4f5deae956cbb1a7e03d31d44f23/"
+local base = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/main/"
 local files = {
 	"AURA_EGG_BOOT.lua",
 	"AURA_EGG_DETECTION.lua",
@@ -15,7 +15,7 @@ local files = {
 
 local source = ""
 for _, fileName in ipairs(files) do
-source = source .. "\n" .. game:HttpGet(base .. fileName .. "?v=20260926-2.2.5")
+	source = source .. "\n" .. game:HttpGet(base .. fileName .. "?v=20260926-2.2.6")
 end
 
 local compile = loadstring or load
