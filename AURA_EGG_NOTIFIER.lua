@@ -4267,24 +4267,10 @@ end
 
 for line in content:gmatch("[^\r\n]+") do
 local timestamp = tonumber(line:match("<t:(%d+):R>"))
-
--- "Active Now" no trae la hora del spawn. Solo usamos la hora de edición
--- remota como respaldo cuando todavía no existe una hora local para ese huevo.
 if not timestamp
 and line:find("Active Now", 1, true)
-and remoteActiveAt > 0 then
-for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
-for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
-if line:find(entry.name, 1, true) then
-local localTimestamp = tonumber(lastSeenState.entries[entry.key]) or 0
-if localTimestamp <= 0 then
+and remoteActiveAt > 0 and (tonumber(lastSeenState.lastUpdatedAt) or 0) <= 0 then
 timestamp = remoteActiveAt
-end
-break
-end
-end
-if timestamp then break end
-end
 end
 
 if timestamp and timestamp > 0 then
