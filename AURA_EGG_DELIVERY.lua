@@ -1,4 +1,4 @@
--- AURA EGG 2.2.9 ULTRA // DELIVERY + EVENT LOOP
+-- AURA EGG 2.3.0 ULTRA // DELIVERY + EVENT LOOP
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
 		local payload = {
@@ -342,7 +342,3 @@ appendConsoleEntry("AURA EGG NOTIFIER ACTIVATED", "MessageInfo", "SCRIPT")
 updateStatus("SYSTEM VERSION: " .. CONFIG.Version .. " // READY", Color3.fromRGB(99, 255, 154))
 scheduleLastSeenUpdate()
 print("AURA EGG NOTIFIER ACTIVATED")
-end
-
-
-runNotifierRuntime()
