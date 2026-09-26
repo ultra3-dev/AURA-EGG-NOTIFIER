@@ -226,7 +226,7 @@ header.BackgroundTransparency = 1
 header.Text = "AURA EGG NOTIFIER  //  v" .. CONFIG.Version
 header.TextColor3 = Color3.fromRGB(247, 242, 255)
 header.Font = Enum.Font.GothamBold
-header.TextSize = 20
+header.TextSize = 22
 header.TextXAlignment = Enum.TextXAlignment.Left
 header.Parent = topBar
 
@@ -237,7 +237,7 @@ subtitle.BackgroundTransparency = 1
 subtitle.Text = "SYSTEM VERSION: " .. CONFIG.Version .. "  //  121 MS WINDOW"
 subtitle.TextColor3 = Color3.fromRGB(169, 148, 224)
 subtitle.Font = Enum.Font.Code
-subtitle.TextSize = 13
+subtitle.TextSize = 16
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
 subtitle.Parent = topBar
 
@@ -252,7 +252,7 @@ panelClose.BorderSizePixel = 0
 panelClose.Text = ""
 panelClose.TextColor3 = Color3.fromRGB(255, 111, 151)
 panelClose.Font = Enum.Font.GothamBold
-panelClose.TextSize = 24
+panelClose.TextSize = 26
 panelClose.AutoButtonColor = false
 panelClose.Parent = topBar
 
@@ -303,7 +303,7 @@ liveChipLabel.BackgroundTransparency = 1
 liveChipLabel.Text = "ONLINE"
 liveChipLabel.TextColor3 = Color3.fromRGB(160, 255, 217)
 liveChipLabel.Font = Enum.Font.GothamBold
-liveChipLabel.TextSize = 11
+liveChipLabel.TextSize = 14
 liveChipLabel.TextXAlignment = Enum.TextXAlignment.Left
 liveChipLabel.Parent = liveChip
 
@@ -365,7 +365,7 @@ logJumpButton.BorderSizePixel = 0
 logJumpButton.Text = ""
 logJumpButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 logJumpButton.Font = Enum.Font.GothamBold
-logJumpButton.TextSize = 22
+logJumpButton.TextSize = 24
 logJumpButton.AutoButtonColor = false
 logJumpButton.ZIndex = 10
 logJumpButton.Parent = panel
@@ -391,7 +391,7 @@ logBody.BackgroundTransparency = 1
 logBody.Text = ""
 logBody.TextColor3 = Color3.fromRGB(240, 240, 240)
 logBody.Font = Enum.Font.Code
-logBody.TextSize = 13
+logBody.TextSize = 16
 logBody.TextWrapped = true
 logBody.TextXAlignment = Enum.TextXAlignment.Left
 logBody.TextYAlignment = Enum.TextYAlignment.Top
@@ -406,7 +406,7 @@ logHeader.BackgroundTransparency = 1
 logHeader.Text = "LIVE EGG MONITOR"
 logHeader.TextColor3 = Color3.fromRGB(235, 240, 255)
 logHeader.Font = Enum.Font.GothamBold
-logHeader.TextSize = 14
+logHeader.TextSize = 17
 logHeader.TextXAlignment = Enum.TextXAlignment.Left
 logHeader.Parent = logPanel
 
@@ -418,7 +418,7 @@ logMeta.BackgroundTransparency = 1
 logMeta.Text = "LATEST FIRST  //  DIVINE > ETERNAL > SECRET  //  121 MS"
 logMeta.TextColor3 = Color3.fromRGB(142, 171, 224)
 logMeta.Font = Enum.Font.Code
-logMeta.TextSize = 11
+logMeta.TextSize = 14
 logMeta.TextXAlignment = Enum.TextXAlignment.Left
 logMeta.Parent = logPanel
 
@@ -517,7 +517,7 @@ logTab.BorderSizePixel = 0
 logTab.Text = ""
 logTab.TextColor3 = Color3.fromRGB(255, 235, 255)
 logTab.Font = Enum.Font.Code
-logTab.TextSize = 16
+logTab.TextSize = 18
 logTab.TextXAlignment = Enum.TextXAlignment.Center
 logTab.TextYAlignment = Enum.TextYAlignment.Center
 logTab.AutoButtonColor = false
@@ -539,7 +539,7 @@ logTabLabel.BackgroundTransparency = 1
 logTabLabel.Text = "LOG"
 logTabLabel.TextColor3 = logTab.TextColor3
 logTabLabel.Font = Enum.Font.Code
-logTabLabel.TextSize = 16
+logTabLabel.TextSize = 18
 logTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 logTabLabel.TextYAlignment = Enum.TextYAlignment.Center
 logTabLabel.Parent = logTab
@@ -557,7 +557,7 @@ promotionTab.BorderSizePixel = 0
 promotionTab.Text = ""
 promotionTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 promotionTab.Font = Enum.Font.Code
-promotionTab.TextSize = 16
+promotionTab.TextSize = 18
 promotionTab.TextXAlignment = Enum.TextXAlignment.Center
 promotionTab.TextYAlignment = Enum.TextYAlignment.Center
 promotionTab.AutoButtonColor = false
@@ -579,7 +579,7 @@ promotionTabLabel.BackgroundTransparency = 1
 promotionTabLabel.Text = "PROMO"
 promotionTabLabel.TextColor3 = promotionTab.TextColor3
 promotionTabLabel.Font = Enum.Font.Code
-promotionTabLabel.TextSize = 13
+promotionTabLabel.TextSize = 16
 promotionTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 promotionTabLabel.TextYAlignment = Enum.TextYAlignment.Center
 promotionTabLabel.Parent = promotionTab
@@ -597,7 +597,7 @@ announcerTab.BorderSizePixel = 0
 announcerTab.Text = ""
 announcerTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 announcerTab.Font = Enum.Font.Code
-announcerTab.TextSize = 16
+announcerTab.TextSize = 18
 announcerTab.TextXAlignment = Enum.TextXAlignment.Center
 announcerTab.TextYAlignment = Enum.TextYAlignment.Center
 announcerTab.AutoButtonColor = false
@@ -619,7 +619,7 @@ announcerTabLabel.BackgroundTransparency = 1
 announcerTabLabel.Text = "ANNOUNCER"
 announcerTabLabel.TextColor3 = announcerTab.TextColor3
 announcerTabLabel.Font = Enum.Font.Code
-announcerTabLabel.TextSize = 12
+announcerTabLabel.TextSize = 15
 announcerTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 announcerTabLabel.TextYAlignment = Enum.TextYAlignment.Center
 announcerTabLabel.Parent = announcerTab
@@ -638,7 +638,7 @@ configUi.tab.BorderSizePixel = 0
 configUi.tab.Text = ""
 configUi.tab.TextColor3 = Color3.fromRGB(137, 160, 198)
 configUi.tab.Font = Enum.Font.Code
-configUi.tab.TextSize = 16
+configUi.tab.TextSize = 18
 configUi.tab.TextXAlignment = Enum.TextXAlignment.Center
 configUi.tab.TextYAlignment = Enum.TextYAlignment.Center
 configUi.tab.AutoButtonColor = false
@@ -660,7 +660,7 @@ configUi.tabLabel.BackgroundTransparency = 1
 configUi.tabLabel.Text = "CONFIG"
 configUi.tabLabel.TextColor3 = configUi.tab.TextColor3
 configUi.tabLabel.Font = Enum.Font.Code
-configUi.tabLabel.TextSize = 12
+configUi.tabLabel.TextSize = 15
 configUi.tabLabel.TextXAlignment = Enum.TextXAlignment.Left
 configUi.tabLabel.TextYAlignment = Enum.TextYAlignment.Center
 configUi.tabLabel.Parent = configUi.tab
@@ -678,7 +678,7 @@ configUi.webhookTab.BorderSizePixel = 0
 configUi.webhookTab.Text = ""
 configUi.webhookTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 configUi.webhookTab.Font = Enum.Font.Code
-configUi.webhookTab.TextSize = 16
+configUi.webhookTab.TextSize = 18
 configUi.webhookTab.TextXAlignment = Enum.TextXAlignment.Center
 configUi.webhookTab.TextYAlignment = Enum.TextYAlignment.Center
 configUi.webhookTab.AutoButtonColor = false
@@ -693,7 +693,7 @@ configUi.webhookTabLabel.BackgroundTransparency = 1
 configUi.webhookTabLabel.Text = "WEBHOOK"
 configUi.webhookTabLabel.TextColor3 = configUi.webhookTab.TextColor3
 configUi.webhookTabLabel.Font = Enum.Font.Code
-configUi.webhookTabLabel.TextSize = 11
+configUi.webhookTabLabel.TextSize = 14
 configUi.webhookTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookTabLabel.TextYAlignment = Enum.TextYAlignment.Center
 configUi.webhookTabLabel.Parent = configUi.webhookTab
@@ -711,7 +711,7 @@ configUi.shareTab.BorderSizePixel = 0
 configUi.shareTab.Text = ""
 configUi.shareTab.TextColor3 = Color3.fromRGB(137, 160, 198)
 configUi.shareTab.Font = Enum.Font.Code
-configUi.shareTab.TextSize = 16
+configUi.shareTab.TextSize = 18
 configUi.shareTab.TextXAlignment = Enum.TextXAlignment.Center
 configUi.shareTab.TextYAlignment = Enum.TextYAlignment.Center
 configUi.shareTab.AutoButtonColor = false
@@ -733,7 +733,7 @@ configUi.shareTabLabel.BackgroundTransparency = 1
 configUi.shareTabLabel.Text = "BACKUP"
 configUi.shareTabLabel.TextColor3 = configUi.shareTab.TextColor3
 configUi.shareTabLabel.Font = Enum.Font.Code
-configUi.shareTabLabel.TextSize = 12
+configUi.shareTabLabel.TextSize = 15
 configUi.shareTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 configUi.shareTabLabel.TextYAlignment = Enum.TextYAlignment.Center
 configUi.shareTabLabel.Parent = configUi.shareTab
@@ -771,7 +771,7 @@ consoleTabLabel.BackgroundTransparency = 1
 consoleTabLabel.Text = "CONSOLE"
 consoleTabLabel.TextColor3 = consoleTab.TextColor3
 consoleTabLabel.Font = Enum.Font.Code
-consoleTabLabel.TextSize = 12
+consoleTabLabel.TextSize = 15
 consoleTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 consoleTabLabel.TextYAlignment = Enum.TextYAlignment.Center
 consoleTabLabel.Parent = consoleTab
@@ -800,7 +800,7 @@ configUi.shareHeader.BackgroundTransparency = 1
 configUi.shareHeader.Text = "BACKUP  //  PORTABLE CONFIGURATION"
 configUi.shareHeader.TextColor3 = Color3.fromRGB(240, 225, 255)
 configUi.shareHeader.Font = Enum.Font.GothamBold
-configUi.shareHeader.TextSize = 15
+configUi.shareHeader.TextSize = 18
 configUi.shareHeader.TextXAlignment = Enum.TextXAlignment.Left
 configUi.shareHeader.Parent = configUi.sharePanel
 
@@ -811,7 +811,7 @@ configUi.shareHelp.BackgroundTransparency = 1
 configUi.shareHelp.Text = "SAFE BACKUP  //  PET DATABASE + LAST SEEN + PROMOTION  //  WEBHOOKS AND KEYS EXCLUDED"
 configUi.shareHelp.TextColor3 = Color3.fromRGB(151, 255, 204)
 configUi.shareHelp.Font = Enum.Font.Code
-configUi.shareHelp.TextSize = 11
+configUi.shareHelp.TextSize = 14
 configUi.shareHelp.TextWrapped = true
 configUi.shareHelp.TextXAlignment = Enum.TextXAlignment.Left
 configUi.shareHelp.Parent = configUi.sharePanel
@@ -829,7 +829,7 @@ configUi.shareInput.PlaceholderColor3 = Color3.fromRGB(139, 143, 167)
 configUi.shareInput.Text = ""
 configUi.shareInput.TextColor3 = Color3.fromRGB(245, 242, 255)
 configUi.shareInput.Font = Enum.Font.Code
-configUi.shareInput.TextSize = 11
+configUi.shareInput.TextSize = 14
 configUi.shareInput.TextWrapped = true
 configUi.shareInput.TextXAlignment = Enum.TextXAlignment.Left
 configUi.shareInput.TextYAlignment = Enum.TextYAlignment.Top
@@ -842,7 +842,7 @@ configUi.shareStatus.BackgroundTransparency = 1
 configUi.shareStatus.Text = "STATUS // READY  //  NO WEBHOOKS IN BACKUP"
 configUi.shareStatus.TextColor3 = Color3.fromRGB(255, 193, 89)
 configUi.shareStatus.Font = Enum.Font.Code
-configUi.shareStatus.TextSize = 11
+configUi.shareStatus.TextSize = 14
 configUi.shareStatus.TextWrapped = true
 configUi.shareStatus.TextXAlignment = Enum.TextXAlignment.Left
 configUi.shareStatus.Parent = configUi.sharePanel
@@ -856,7 +856,7 @@ configUi.exportBackupButton.BorderSizePixel = 0
 configUi.exportBackupButton.Text = "EXPORT  //  COPY"
 configUi.exportBackupButton.TextColor3 = Color3.fromRGB(255, 245, 255)
 configUi.exportBackupButton.Font = Enum.Font.GothamBold
-configUi.exportBackupButton.TextSize = 12
+configUi.exportBackupButton.TextSize = 15
 configUi.exportBackupButton.AutoButtonColor = false
 configUi.exportBackupButton.Parent = configUi.sharePanel
 
@@ -869,7 +869,7 @@ configUi.importBackupButton.BorderSizePixel = 0
 configUi.importBackupButton.Text = "IMPORT  //  APPLY"
 configUi.importBackupButton.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.importBackupButton.Font = Enum.Font.GothamBold
-configUi.importBackupButton.TextSize = 12
+configUi.importBackupButton.TextSize = 15
 configUi.importBackupButton.AutoButtonColor = false
 configUi.importBackupButton.Parent = configUi.sharePanel
 
@@ -898,7 +898,7 @@ announcementHeader.BackgroundTransparency = 1
 announcementHeader.Text = "EMBED BUILDER // ANNOUNCEMENT CHANNEL"
 announcementHeader.TextColor3 = Color3.fromRGB(214, 165, 255)
 announcementHeader.Font = Enum.Font.Code
-announcementHeader.TextSize = 13
+announcementHeader.TextSize = 16
 announcementHeader.TextXAlignment = Enum.TextXAlignment.Left
 announcementHeader.Parent = announcementPanel
 
@@ -914,7 +914,7 @@ announcementTitle.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 announcementTitle.Text = ""
 announcementTitle.TextColor3 = Color3.fromRGB(245, 235, 255)
 announcementTitle.Font = Enum.Font.GothamBold
-announcementTitle.TextSize = 15
+announcementTitle.TextSize = 18
 announcementTitle.TextXAlignment = Enum.TextXAlignment.Left
 announcementTitle.Parent = announcementPanel
 
@@ -940,7 +940,7 @@ announcementBody.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 announcementBody.Text = ""
 announcementBody.TextColor3 = Color3.fromRGB(245, 235, 255)
 announcementBody.Font = Enum.Font.Gotham
-announcementBody.TextSize = 14
+announcementBody.TextSize = 17
 announcementBody.TextWrapped = true
 announcementBody.TextXAlignment = Enum.TextXAlignment.Left
 announcementBody.TextYAlignment = Enum.TextYAlignment.Top
@@ -963,7 +963,7 @@ announcementHint.BackgroundTransparency = 1
 announcementHint.Text = "EMBED  //  PURPLE CHANNEL  //  READY TO DISPATCH"
 announcementHint.TextColor3 = Color3.fromRGB(151, 255, 204)
 announcementHint.Font = Enum.Font.Code
-announcementHint.TextSize = 11
+announcementHint.TextSize = 14
 announcementHint.TextXAlignment = Enum.TextXAlignment.Left
 announcementHint.Parent = announcementPanel
 
@@ -976,7 +976,7 @@ sendAnnouncementButton.BorderSizePixel = 0
 sendAnnouncementButton.Text = "DISPATCH EMBED  //  WEBHOOK"
 sendAnnouncementButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 sendAnnouncementButton.Font = Enum.Font.GothamBold
-sendAnnouncementButton.TextSize = 14
+sendAnnouncementButton.TextSize = 17
 sendAnnouncementButton.AutoButtonColor = false
 sendAnnouncementButton.Parent = announcementPanel
 
@@ -1005,7 +1005,7 @@ promotionHeader.BackgroundTransparency = 1
 promotionHeader.Text = "PROMOTIONS // LINK BUTTON"
 promotionHeader.TextColor3 = Color3.fromRGB(214, 165, 255)
 promotionHeader.Font = Enum.Font.Code
-promotionHeader.TextSize = 13
+promotionHeader.TextSize = 16
 promotionHeader.TextXAlignment = Enum.TextXAlignment.Left
 promotionHeader.Parent = promotionPanel
 
@@ -1022,7 +1022,7 @@ promotionUrlBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 promotionUrlBox.Text = ""
 promotionUrlBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 promotionUrlBox.Font = Enum.Font.Code
-promotionUrlBox.TextSize = 13
+promotionUrlBox.TextSize = 16
 promotionUrlBox.TextXAlignment = Enum.TextXAlignment.Left
 promotionUrlBox.Parent = promotionPanel
 
@@ -1047,7 +1047,7 @@ promotionLabelBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 promotionLabelBox.Text = ""
 promotionLabelBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 promotionLabelBox.Font = Enum.Font.GothamBold
-promotionLabelBox.TextSize = 13
+promotionLabelBox.TextSize = 16
 promotionLabelBox.TextXAlignment = Enum.TextXAlignment.Left
 promotionLabelBox.Parent = promotionPanel
 
@@ -1072,7 +1072,7 @@ promotionUsesBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 promotionUsesBox.Text = ""
 promotionUsesBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 promotionUsesBox.Font = Enum.Font.Code
-promotionUsesBox.TextSize = 12
+promotionUsesBox.TextSize = 15
 promotionUsesBox.TextXAlignment = Enum.TextXAlignment.Left
 promotionUsesBox.Parent = promotionPanel
 
@@ -1097,7 +1097,7 @@ promotionEmojiBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 promotionEmojiBox.Text = ""
 promotionEmojiBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 promotionEmojiBox.Font = Enum.Font.Code
-promotionEmojiBox.TextSize = 13
+promotionEmojiBox.TextSize = 16
 promotionEmojiBox.TextXAlignment = Enum.TextXAlignment.Left
 promotionEmojiBox.Parent = promotionPanel
 
@@ -1119,7 +1119,7 @@ promotionRarityButton.BorderSizePixel = 0
 promotionRarityButton.Text = "RAREZA: TODAS"
 promotionRarityButton.TextColor3 = Color3.fromRGB(245, 235, 255)
 promotionRarityButton.Font = Enum.Font.Code
-promotionRarityButton.TextSize = 12
+promotionRarityButton.TextSize = 15
 promotionRarityButton.TextXAlignment = Enum.TextXAlignment.Left
 promotionRarityButton.AutoButtonColor = false
 promotionRarityButton.Parent = promotionPanel
@@ -1144,7 +1144,7 @@ promotionIntervalBox.PlaceholderColor3 = Color3.fromRGB(160, 133, 185)
 promotionIntervalBox.Text = ""
 promotionIntervalBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 promotionIntervalBox.Font = Enum.Font.Code
-promotionIntervalBox.TextSize = 12
+promotionIntervalBox.TextSize = 15
 promotionIntervalBox.TextXAlignment = Enum.TextXAlignment.Left
 promotionIntervalBox.Parent = promotionPanel
 
@@ -1163,7 +1163,7 @@ promotionHint.BackgroundTransparency = 1
 promotionHint.Text = "EMOJI // RARITY LIMIT // CONFIG SAVED"
 promotionHint.TextColor3 = Color3.fromRGB(151, 255, 204)
 promotionHint.Font = Enum.Font.Code
-promotionHint.TextSize = 11
+promotionHint.TextSize = 14
 promotionHint.TextXAlignment = Enum.TextXAlignment.Left
 promotionHint.Parent = promotionPanel
 
@@ -1176,7 +1176,7 @@ savePromotionButton.BorderSizePixel = 0
 savePromotionButton.Text = "SAVE PROMOTION  //  READY"
 savePromotionButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 savePromotionButton.Font = Enum.Font.GothamBold
-savePromotionButton.TextSize = 13
+savePromotionButton.TextSize = 16
 savePromotionButton.AutoButtonColor = false
 savePromotionButton.Parent = promotionPanel
 
@@ -1205,7 +1205,7 @@ configUi.header.BackgroundTransparency = 1
 configUi.header.Text = "PET REGISTRY  //  CONFIGURATION"
 configUi.header.TextColor3 = Color3.fromRGB(240, 225, 255)
 configUi.header.Font = Enum.Font.GothamBold
-configUi.header.TextSize = 15
+configUi.header.TextSize = 18
 configUi.header.TextXAlignment = Enum.TextXAlignment.Left
 configUi.header.Parent = configUi.panel
 
@@ -1216,7 +1216,7 @@ configUi.help.BackgroundTransparency = 1
 configUi.help.Text = "CURRENT PETS  //  CLICK TO EDIT  //  SAVED LOCALLY"
 configUi.help.TextColor3 = Color3.fromRGB(151, 255, 204)
 configUi.help.Font = Enum.Font.Code
-configUi.help.TextSize = 11
+configUi.help.TextSize = 14
 configUi.help.TextXAlignment = Enum.TextXAlignment.Left
 configUi.help.Parent = configUi.panel
 
@@ -1259,7 +1259,7 @@ configUi.nameBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
 configUi.nameBox.Text = ""
 configUi.nameBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.nameBox.Font = Enum.Font.Code
-configUi.nameBox.TextSize = 12
+configUi.nameBox.TextSize = 15
 configUi.nameBox.TextXAlignment = Enum.TextXAlignment.Left
 configUi.nameBox.Parent = configUi.panel
 
@@ -1275,7 +1275,7 @@ configUi.roleBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
 configUi.roleBox.Text = ""
 configUi.roleBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.roleBox.Font = Enum.Font.Code
-configUi.roleBox.TextSize = 12
+configUi.roleBox.TextSize = 15
 configUi.roleBox.TextXAlignment = Enum.TextXAlignment.Left
 configUi.roleBox.Parent = configUi.panel
 
@@ -1291,7 +1291,7 @@ configUi.emojiBox.PlaceholderColor3 = Color3.fromRGB(144, 121, 170)
 configUi.emojiBox.Text = ""
 configUi.emojiBox.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.emojiBox.Font = Enum.Font.Code
-configUi.emojiBox.TextSize = 12
+configUi.emojiBox.TextSize = 15
 configUi.emojiBox.TextXAlignment = Enum.TextXAlignment.Left
 configUi.emojiBox.Parent = configUi.panel
 
@@ -1304,7 +1304,7 @@ configUi.rarityButton.BorderSizePixel = 0
 configUi.rarityButton.Text = "RAREZA: SECRET  >"
 configUi.rarityButton.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.rarityButton.Font = Enum.Font.Code
-configUi.rarityButton.TextSize = 12
+configUi.rarityButton.TextSize = 15
 configUi.rarityButton.TextXAlignment = Enum.TextXAlignment.Left
 configUi.rarityButton.AutoButtonColor = false
 configUi.rarityButton.Parent = configUi.panel
@@ -1322,7 +1322,7 @@ configUi.saveButton.BorderSizePixel = 0
 configUi.saveButton.Text = "SAVE  //  APPLY"
 configUi.saveButton.TextColor3 = Color3.fromRGB(255, 245, 255)
 configUi.saveButton.Font = Enum.Font.GothamBold
-configUi.saveButton.TextSize = 12
+configUi.saveButton.TextSize = 15
 configUi.saveButton.AutoButtonColor = false
 configUi.saveButton.Parent = configUi.panel
 
@@ -1335,7 +1335,7 @@ configUi.newButton.BorderSizePixel = 0
 configUi.newButton.Text = "NEW  //  CLEAR"
 configUi.newButton.TextColor3 = Color3.fromRGB(245, 235, 255)
 configUi.newButton.Font = Enum.Font.GothamBold
-configUi.newButton.TextSize = 12
+configUi.newButton.TextSize = 15
 configUi.newButton.AutoButtonColor = false
 configUi.newButton.Parent = configUi.panel
 
@@ -1348,7 +1348,7 @@ configUi.deleteButton.BorderSizePixel = 0
 configUi.deleteButton.Text = "RESET SELECTED OVERRIDE"
 configUi.deleteButton.TextColor3 = Color3.fromRGB(255, 181, 205)
 configUi.deleteButton.Font = Enum.Font.GothamBold
-configUi.deleteButton.TextSize = 11
+configUi.deleteButton.TextSize = 14
 configUi.deleteButton.AutoButtonColor = false
 configUi.deleteButton.Parent = configUi.panel
 
@@ -1372,7 +1372,7 @@ configUi.webhookHeader.BackgroundTransparency = 1
 configUi.webhookHeader.Text = "WEBHOOK  //  DELIVERY ROUTING"
 configUi.webhookHeader.TextColor3 = Color3.fromRGB(240, 225, 255)
 configUi.webhookHeader.Font = Enum.Font.GothamBold
-configUi.webhookHeader.TextSize = 15
+configUi.webhookHeader.TextSize = 18
 configUi.webhookHeader.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookHeader.Parent = configUi.webhookPanel
 
@@ -1383,7 +1383,7 @@ configUi.webhookHelp.BackgroundTransparency = 1
 configUi.webhookHelp.Text = "LOCAL ONLY  //  SAVED ON DEVICE  //  NEVER UPLOAD WEBHOOKS"
 configUi.webhookHelp.TextColor3 = Color3.fromRGB(255, 193, 89)
 configUi.webhookHelp.Font = Enum.Font.Code
-configUi.webhookHelp.TextSize = 11
+configUi.webhookHelp.TextSize = 14
 configUi.webhookHelp.TextWrapped = true
 configUi.webhookHelp.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookHelp.Parent = configUi.webhookPanel
@@ -1414,7 +1414,7 @@ local function createWebhookInput(name, yOffset, placeholder, iconKind, iconColo
 	box.Text = ""
 	box.TextColor3 = Color3.fromRGB(245, 235, 255)
 	box.Font = Enum.Font.Code
-	box.TextSize = 11
+	box.TextSize = 14
 	box.TextXAlignment = Enum.TextXAlignment.Left
 	box.ZIndex = 1
 	box.Parent = shell
@@ -1455,7 +1455,7 @@ configUi.saveWebhookButton.BorderSizePixel = 0
 configUi.saveWebhookButton.Text = "SAVE  //  WEBHOOKS"
 configUi.saveWebhookButton.TextColor3 = Color3.fromRGB(255, 245, 255)
 configUi.saveWebhookButton.Font = Enum.Font.GothamBold
-configUi.saveWebhookButton.TextSize = 12
+configUi.saveWebhookButton.TextSize = 15
 configUi.saveWebhookButton.AutoButtonColor = false
 configUi.saveWebhookButton.Parent = configUi.webhookPanel
 
@@ -1467,7 +1467,7 @@ configUi.clearWebhookButton.BorderSizePixel = 0
 configUi.clearWebhookButton.Text = "CLEAR  //  DISABLE"
 configUi.clearWebhookButton.TextColor3 = Color3.fromRGB(255, 181, 205)
 configUi.clearWebhookButton.Font = Enum.Font.GothamBold
-configUi.clearWebhookButton.TextSize = 12
+configUi.clearWebhookButton.TextSize = 15
 configUi.clearWebhookButton.AutoButtonColor = false
 configUi.clearWebhookButton.Parent = configUi.webhookPanel
 
@@ -1478,7 +1478,7 @@ configUi.webhookStatus.BackgroundTransparency = 1
 configUi.webhookStatus.Text = "STATUS // NOT CONFIGURED"
 configUi.webhookStatus.TextColor3 = Color3.fromRGB(151, 255, 204)
 configUi.webhookStatus.Font = Enum.Font.Code
-configUi.webhookStatus.TextSize = 12
+configUi.webhookStatus.TextSize = 15
 configUi.webhookStatus.TextWrapped = true
 configUi.webhookStatus.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookStatus.Parent = configUi.webhookPanel
@@ -1504,7 +1504,7 @@ consoleHeader.BackgroundTransparency = 1
 consoleHeader.Text = "CONSOLE // GAME + SCRIPT STREAM"
 consoleHeader.TextColor3 = Color3.fromRGB(255, 111, 151)
 consoleHeader.Font = Enum.Font.Code
-consoleHeader.TextSize = 13
+consoleHeader.TextSize = 16
 consoleHeader.TextXAlignment = Enum.TextXAlignment.Left
 consoleHeader.Parent = consolePanel
 
@@ -1518,7 +1518,7 @@ copyConsoleButton.BorderSizePixel = 0
 copyConsoleButton.Text = "COPY ALL"
 copyConsoleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
 copyConsoleButton.Font = Enum.Font.GothamBold
-copyConsoleButton.TextSize = 12
+copyConsoleButton.TextSize = 15
 copyConsoleButton.AutoButtonColor = false
 copyConsoleButton.Parent = consolePanel
 
@@ -1557,7 +1557,7 @@ consoleBody.TextEditable = false
 consoleBody.Text = "AURA CONSOLE // READY\n"
 consoleBody.TextColor3 = Color3.fromRGB(221, 211, 232)
 consoleBody.Font = Enum.Font.Code
-consoleBody.TextSize = 13
+consoleBody.TextSize = 16
 consoleBody.TextWrapped = true
 consoleBody.TextXAlignment = Enum.TextXAlignment.Left
 consoleBody.TextYAlignment = Enum.TextYAlignment.Top
@@ -1574,7 +1574,7 @@ consoleJumpButton.BorderSizePixel = 0
 consoleJumpButton.Text = ""
 consoleJumpButton.TextColor3 = Color3.fromRGB(255, 240, 255)
 consoleJumpButton.Font = Enum.Font.GothamBold
-consoleJumpButton.TextSize = 22
+consoleJumpButton.TextSize = 24
 consoleJumpButton.AutoButtonColor = false
 consoleJumpButton.ZIndex = 10
 consoleJumpButton.Visible = false
@@ -1610,7 +1610,7 @@ statusLabel.BackgroundColor3 = Color3.fromRGB(15, 23, 48)
 statusLabel.BackgroundTransparency = 0.04
 statusLabel.TextColor3 = Color3.fromRGB(99, 255, 154)
 statusLabel.Font = Enum.Font.Code
-statusLabel.TextSize = 16
+statusLabel.TextSize = 18
 statusLabel.RichText = true
 statusLabel.TextXAlignment = Enum.TextXAlignment.Left
 statusLabel.TextYAlignment = Enum.TextYAlignment.Center
@@ -1634,13 +1634,13 @@ navigationDivider.Visible = false
 navigationDivider.Parent = panel
 
 local navigationItems = {
-	{button = logTab, label = logTabLabel, icon = logTabIcon, x = 0, width = 60, labelSize = 16},
-	{button = promotionTab, label = promotionTabLabel, icon = promotionTabIcon, x = 62, width = 72, labelSize = 13},
-	{button = announcerTab, label = announcerTabLabel, icon = announcerTabIcon, x = 138, width = 88, labelSize = 12},
-	{button = configUi.tab, label = configUi.tabLabel, icon = configUi.tabIcon, x = 230, width = 72, labelSize = 12},
-	{button = configUi.webhookTab, label = configUi.webhookTabLabel, icon = configUi.webhookTabIcon, x = 306, width = 88, labelSize = 11},
-{button = configUi.shareTab, label = configUi.shareTabLabel, icon = configUi.shareTabIcon, x = 398, width = 100, labelSize = 12},
-{button = consoleTab, label = consoleTabLabel, icon = consoleTabIcon, x = 504, width = 92, labelSize = 12}
+	{button = logTab, label = logTabLabel, icon = logTabIcon, x = 0, width = 60, labelSize = 18},
+	{button = promotionTab, label = promotionTabLabel, icon = promotionTabIcon, x = 62, width = 72, labelSize = 16},
+	{button = announcerTab, label = announcerTabLabel, icon = announcerTabIcon, x = 138, width = 88, labelSize = 15},
+	{button = configUi.tab, label = configUi.tabLabel, icon = configUi.tabIcon, x = 230, width = 72, labelSize = 15},
+	{button = configUi.webhookTab, label = configUi.webhookTabLabel, icon = configUi.webhookTabIcon, x = 306, width = 88, labelSize = 14},
+{button = configUi.shareTab, label = configUi.shareTabLabel, icon = configUi.shareTabIcon, x = 398, width = 100, labelSize = 15},
+{button = consoleTab, label = consoleTabLabel, icon = consoleTabIcon, x = 504, width = 92, labelSize = 15}
 }
 
 local contentPanels = {
@@ -1658,7 +1658,7 @@ local function stylePanelHeading(parent, label, iconKind, id, accent, yOffset, d
 	label.Size = UDim2.new(1, -(rightInset or 52), 0, 18)
 	label.TextColor3 = Color3.fromRGB(235, 240, 255)
 	label.Font = Enum.Font.GothamBold
-	label.TextSize = 14
+	label.TextSize = 17
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.TextYAlignment = Enum.TextYAlignment.Center
 
@@ -1766,8 +1766,8 @@ local function applyResponsiveLayout()
 	liveChip.Visible = not compact
 	header.Size = UDim2.new(1, compact and -126 or -230, 0, 24)
 	subtitle.Size = UDim2.new(1, compact and -128 or -230, 0, 16)
-header.TextSize = compact and 16 or 20
-subtitle.TextSize = compact and 10 or 12
+header.TextSize = compact and 18 or 22
+subtitle.TextSize = compact and 12 or 14
 	if compact then
 		panel.Size = UDim2.fromOffset(390, 420)
 		panelScale.Scale = math.max(0.72, math.min(1, math.min(
@@ -1829,7 +1829,7 @@ navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 			item.label.Position = UDim2.new(0, 38, 0, 0)
 			item.label.Size = UDim2.new(1, -44, 1, 0)
 			item.label.Font = Enum.Font.GothamMedium
-			item.label.TextSize = 13
+			item.label.TextSize = 16
 			item.label.Visible = true
 		end
 
@@ -1954,7 +1954,7 @@ toggleButton.BorderSizePixel = 0
 toggleButton.Text = ""
 toggleButton.TextColor3 = Color3.fromRGB(238, 201, 255)
 toggleButton.Font = Enum.Font.GothamBold
-toggleButton.TextSize = 26
+toggleButton.TextSize = 28
 toggleButton.AutoButtonColor = false
 toggleButton.ClipsDescendants = true
 toggleButton.ZIndex = 20
@@ -2027,7 +2027,7 @@ else
 	brandIconFallback.Text = "</>"
 	brandIconFallback.TextColor3 = Color3.fromRGB(208, 183, 255)
 	brandIconFallback.Font = Enum.Font.Code
-	brandIconFallback.TextSize = 16
+	brandIconFallback.TextSize = 18
 	brandIconFallback.ZIndex = brandIconFrame.ZIndex + 1
 	brandIconFallback.Parent = brandIconFrame
 end
@@ -2057,7 +2057,7 @@ else
 	scriptGlyph.Text = "</>"
 	scriptGlyph.TextColor3 = Color3.fromRGB(238, 223, 255)
 	scriptGlyph.Font = Enum.Font.Code
-	scriptGlyph.TextSize = 16
+	scriptGlyph.TextSize = 18
 	scriptGlyph.ZIndex = toggleButton.ZIndex + 1
 	scriptGlyph.Parent = toggleButton
 end
@@ -2081,7 +2081,7 @@ badge.BorderSizePixel = 0
 badge.Text = "0"
 badge.TextColor3 = Color3.fromRGB(255, 255, 255)
 badge.Font = Enum.Font.GothamBold
-badge.TextSize = 15
+badge.TextSize = 18
 badge.Visible = false
 badge.ZIndex = 21
 badge.Parent = toggleButton
@@ -2157,7 +2157,7 @@ accessEyebrow.BackgroundTransparency = 1
 accessEyebrow.Text = "AURA // DEVICE AUTHORIZATION  //  v" .. CONFIG.Version
 accessEyebrow.TextColor3 = Color3.fromRGB(94, 205, 255)
 accessEyebrow.Font = Enum.Font.Code
-accessEyebrow.TextSize = 13
+accessEyebrow.TextSize = 16
 accessEyebrow.TextXAlignment = Enum.TextXAlignment.Left
 accessEyebrow.ZIndex = 102
 accessEyebrow.Parent = accessCard
@@ -2169,7 +2169,7 @@ accessTitle.BackgroundTransparency = 1
 accessTitle.Text = "WELCOME TO AURA"
 accessTitle.TextColor3 = Color3.fromRGB(236, 246, 255)
 accessTitle.Font = Enum.Font.GothamBold
-accessTitle.TextSize = 20
+accessTitle.TextSize = 22
 accessTitle.TextXAlignment = Enum.TextXAlignment.Left
 accessTitle.ZIndex = 102
 accessTitle.Parent = accessCard
@@ -2181,7 +2181,7 @@ accessDescription.BackgroundTransparency = 1
 accessDescription.Text = "ONE-TIME SETUP // THIS DEVICE ONLY"
 accessDescription.TextColor3 = Color3.fromRGB(159, 170, 202)
 accessDescription.Font = Enum.Font.Code
-accessDescription.TextSize = 12
+accessDescription.TextSize = 15
 accessDescription.TextXAlignment = Enum.TextXAlignment.Left
 accessDescription.ZIndex = 102
 accessDescription.Parent = accessCard
@@ -2198,7 +2198,7 @@ accessInput.PlaceholderColor3 = Color3.fromRGB(108, 126, 166)
 accessInput.Text = ""
 accessInput.TextColor3 = Color3.fromRGB(236, 246, 255)
 accessInput.Font = Enum.Font.Code
-accessInput.TextSize = 14
+accessInput.TextSize = 17
 accessInput.TextXAlignment = Enum.TextXAlignment.Left
 accessInput.ZIndex = 102
 accessInput.Parent = accessCard
@@ -2221,7 +2221,7 @@ accessButton.BorderSizePixel = 0
 accessButton.Text = "AUTHORIZE  >  ENTER SYSTEM"
 accessButton.TextColor3 = Color3.fromRGB(239, 251, 255)
 accessButton.Font = Enum.Font.GothamBold
-accessButton.TextSize = 13
+accessButton.TextSize = 16
 accessButton.AutoButtonColor = false
 accessButton.ZIndex = 102
 accessButton.Parent = accessCard
@@ -2237,7 +2237,7 @@ accessStatus.BackgroundTransparency = 1
 accessStatus.Text = "STATUS: LOCKED"
 accessStatus.TextColor3 = Color3.fromRGB(255, 193, 89)
 accessStatus.Font = Enum.Font.Code
-accessStatus.TextSize = 12
+accessStatus.TextSize = 15
 accessStatus.TextXAlignment = Enum.TextXAlignment.Left
 accessStatus.ZIndex = 102
 accessStatus.Parent = accessCard
@@ -2343,7 +2343,8 @@ version = 2,
 messageIds = {},
 	entries = {},
 	seeded = false,
-	seedVersion = 0
+	seedVersion = 0,
+	lastUpdatedAt = 0
 }
 
 local sharedLastSeenMessageId = auraRuntime.AURA_EGG_NOTIFIER_LAST_SEEN_MESSAGE_ID
@@ -2411,6 +2412,17 @@ end
 	end
 	if tonumber(decoded.seedVersion) then
 		lastSeenState.seedVersion = tonumber(decoded.seedVersion)
+	end
+	if tonumber(decoded.lastUpdatedAt) then
+		lastSeenState.lastUpdatedAt = tonumber(decoded.lastUpdatedAt)
+	end
+	if not lastSeenState.lastUpdatedAt or lastSeenState.lastUpdatedAt <= 0 then
+		for _, timestamp in pairs(lastSeenState.entries or {}) do
+			local parsedTimestamp = tonumber(timestamp)
+			if parsedTimestamp and parsedTimestamp > lastSeenState.lastUpdatedAt then
+				lastSeenState.lastUpdatedAt = parsedTimestamp
+			end
+		end
 	end
 end
 
