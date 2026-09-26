@@ -1,5 +1,6 @@
--- AURA EGG 2.3.0 ULTRA // DETECTION + CATALOG
+-- AURA EGG 2.2.8 ULTRA // DETECTION + CATALOG
 -- Rango de mayor a menor rareza. Los empates conservan el orden detectado.
+local function runNotifierRuntime()
 local RARITY_ORDER = {
 	{keyword = "divine", rank = 1, roleId = "1544734510665699389"},
 	{keyword = "eternal", rank = 2, roleId = "1544734452054229173"},
