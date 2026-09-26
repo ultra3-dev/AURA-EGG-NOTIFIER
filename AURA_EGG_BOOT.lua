@@ -112,7 +112,7 @@ panel.Parent = screenGui
 local panelScale = Instance.new("UIScale")
 panelScale.Scale = 1
 panelScale.Parent = panel
-local panelTargetScale = 1
+auraRuntime.AURA_EGG_PANEL_TARGET_SCALE = 1
 
 local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 14)
@@ -1769,14 +1769,12 @@ local function applyResponsiveLayout()
 header.TextSize = compact and 14 or 18
 subtitle.TextSize = compact and 8 or 10
 	if compact then
-		local compactWidth = 390
-		local compactHeight = 420
-		panel.Size = UDim2.fromOffset(compactWidth, compactHeight)
-		panelTargetScale = math.max(0.72, math.min(1, math.min(
-			(viewport.X - 24) / compactWidth,
-			(viewport.Y - 24) / compactHeight
+		panel.Size = UDim2.fromOffset(390, 420)
+		panelScale.Scale = math.max(0.72, math.min(1, math.min(
+			(viewport.X - 24) / 390,
+			(viewport.Y - 24) / 420
 		)))
-		panelScale.Scale = panelTargetScale
+		auraRuntime.AURA_EGG_PANEL_TARGET_SCALE = panelScale.Scale
 		panel.Position = UDim2.new(0.5, 0, 0.5, 0)
 		topBar.Size = UDim2.new(1, 0, 0, 62)
 		navigation.Position = UDim2.new(0, 12, 0, 64)
@@ -1806,14 +1804,12 @@ navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 		statusLabel.Position = UDim2.new(0, 12, 1, -50)
 		statusLabel.Size = UDim2.new(1, -24, 0, 38)
 	else
-		local desktopWidth = 880
-		local desktopHeight = 540
-		panel.Size = UDim2.fromOffset(desktopWidth, desktopHeight)
-		panelTargetScale = math.max(0.72, math.min(1, math.min(
-			(viewport.X - 32) / desktopWidth,
-			(viewport.Y - 32) / desktopHeight
+		panel.Size = UDim2.fromOffset(880, 540)
+		panelScale.Scale = math.max(0.72, math.min(1, math.min(
+			(viewport.X - 32) / 880,
+			(viewport.Y - 32) / 540
 		)))
-		panelScale.Scale = panelTargetScale
+		auraRuntime.AURA_EGG_PANEL_TARGET_SCALE = panelScale.Scale
 		panel.Position = UDim2.new(0.5, 0, 0.5, viewport.Y < 560 and 22 or 0)
 		topBar.Size = UDim2.new(1, 0, 0, 72)
 		navigation.Position = UDim2.new(0, 12, 0, 84)
@@ -3316,22 +3312,20 @@ function setPanelVisible(visible)
 	panelOpen = visible
 	if visible then
 		panel.Visible = true
-		local targetScale = panelTargetScale
-		panelScale.Scale = targetScale * 0.92
+		panelScale.Scale = auraRuntime.AURA_EGG_PANEL_TARGET_SCALE * 0.92
 		TweenService:Create(
 			panelScale,
 			TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-			{Scale = targetScale}
+			{Scale = auraRuntime.AURA_EGG_PANEL_TARGET_SCALE}
 		):Play()
 		unreadCount = 0
 		updateBadge()
 	else
 		local closingPanel = panel
-		local targetScale = panelTargetScale
 		local animation = TweenService:Create(
 			panelScale,
 			TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-			{Scale = targetScale * 0.92}
+			{Scale = auraRuntime.AURA_EGG_PANEL_TARGET_SCALE * 0.92}
 		)
 		animation:Play()
 		task.delay(0.15, function()
