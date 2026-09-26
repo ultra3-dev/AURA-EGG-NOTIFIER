@@ -1,4 +1,4 @@
--- AURA EGG 2.2.7 ULTRA // LAST SEEN + CONFIG SERVICES
+-- AURA EGG 2.2.8 ULTRA // LAST SEEN + CONFIG SERVICES
 local function getHttpStatusCode(response)
 local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
 local statusCode = tonumber(rawStatus)
@@ -899,7 +899,7 @@ end
 			separator.Text = "━━  " .. rarity:upper() .. "  //  " .. tostring(#catalog) .. " PETS  ━━"
 			separator.TextColor3 = rarityColor
 			separator.Font = Enum.Font.Code
-separator.TextSize = 10
+			separator.TextSize = 20
 			separator.TextXAlignment = Enum.TextXAlignment.Left
 			separator.Parent = configUi.listBody
 			local separatorPadding = Instance.new("UIPadding")
