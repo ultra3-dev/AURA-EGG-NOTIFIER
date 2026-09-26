@@ -83,21 +83,56 @@ local startupServerName = tostring(game.Name or "CURRENT SERVER")
 local startupPayload = {
 flags = 32768,
 components = {{
+type = 17,
+accent_color = 0x8B5CF6,
+components = {
+{
 type = 10,
-content = "## 🥚 AURA EGG NOTIFIER ACTIVATED\n"
-.. "> **HELLO AURA FAMILY X, I'M READY :)**\n\n"
-.. "**AURA EGG NOTIFIER IS READY TO SEND NOTIFICATIONS IN** `"
+content = "## 🥚 AURA EGG NOTIFIER ACTIVATED"
+},
+{
+type = 10,
+content = "> **HELLO AURA FAMILY X, I'M READY :)**"
+},
+{
+type = 14,
+divider = true,
+spacing = 2
+},
+{
+type = 10,
+content = "**AURA EGG NOTIFIER IS READY TO SEND NOTIFICATIONS IN** `"
 .. startupServerName
 .. "`\n"
 .. "__SYSTEM VERSION:__ `"
 .. CONFIG.Version
-.. "`\n\n"
-.. "-# *Fast detection* • **clean delivery** • __local state__\n"
-.. "> `Markdown online`  ~~legacy boot text retired~~\n\n"
-.. "```js\n"
+.. "`"
+},
+{
+type = 10,
+content = "-# *Fast detection* • **clean delivery** • __local state__"
+},
+{
+type = 10,
+content = "> `Markdown online`  ~~legacy boot text retired~~"
+},
+{
+type = 10,
+content = "```js\n"
 .. "console.log(\"AURA EGG NOTIFIER ACTIVATED\");\n"
 .. "console.log(\"Ready to send notifications\");\n"
 .. "```"
+},
+{
+type = 14,
+divider = true,
+spacing = 2
+},
+{
+type = 10,
+content = "**By: ULTRA3_DEV**"
+}
+}
 }}
 }
 fireWebhookImmediate(startupPayload)
