@@ -36,7 +36,12 @@ local lineNumber = 0
 for line in (source .. "\n"):gmatch("([^\n]*)\n") do
 lineNumber = lineNumber + 1
 if linesToPromote[lineNumber] then
+local indentation, variableName = line:match("^(%s*)local%s+([%a_][%w_]*)%s*$")
+if indentation and variableName then
+line = indentation .. variableName .. " = nil"
+else
 line = line:gsub("^(%s*)local%s+", "%1", 1)
+end
 end
 table.insert(output, line)
 end
@@ -44,7 +49,7 @@ return table.concat(output, "\n")
 end
 
 for _, fileName in ipairs(files) do
-local source = game:HttpGet(base .. fileName .. "?v=2.3.0-GOAT")
+local source = game:HttpGet(base .. fileName .. "?v=2.3.0-GOAT-2")
 source = promoteModuleLocals(source, fileName)
 
 local chunk, compileError = compile(source, "@AURA_EGG/" .. fileName)
