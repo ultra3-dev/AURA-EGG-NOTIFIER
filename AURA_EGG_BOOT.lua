@@ -1,4 +1,4 @@
--- AURA EGG 2.0.2 ULTRA // BOOT + UI
+-- AURA EGG 2.2.2 ULTRA // BOOT + UI
 --[[
 	🥚 EGG DETECTOR - ULTRA MEGA HYPER-VELOCITY ADVANCED EDITION
 	================================================================
@@ -29,7 +29,7 @@ LastSeenMessageID = "1552117304609738823",
 	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid", "infinite yield possible", "waitforchild"},
 	DisplayTime = 120,
 	MaxNotifications = 2000,
-	ConsoleMaxLines = 2500,
+ConsoleMaxLines = 600,
 	PriorityWindow = 0.121,
 	MaxPriorityQueue = 12,
 	ServerRefreshInterval = 15,
@@ -41,7 +41,7 @@ LastSeenMessageID = "1552117304609738823",
 		"skeleton horse",
 		"pegasus",
 	},
-	Version = "2.0.2 ULTRA"
+Version = "2.2.2"
 }
 
 local ACCESS_STATE_FILE = "AuraEggNotifier_Access.json"
@@ -68,6 +68,7 @@ local priorityVersion = 0
 local lastJoinServerId = nil
 local cachedPublicServerIds = {}
 local serverCacheRefreshing = false
+local lastSeenState
 local promotionState = {
 version = 1,
 url = "",
@@ -221,7 +222,7 @@ header.Name = "Header"
 header.Position = UDim2.new(0, 68, 0, 8)
 header.Size = UDim2.new(1, -230, 0, 24)
 header.BackgroundTransparency = 1
-header.Text = "AURA EGG NOTIFIER"
+header.Text = "AURA EGG NOTIFIER  //  v" .. CONFIG.Version
 header.TextColor3 = Color3.fromRGB(247, 242, 255)
 header.Font = Enum.Font.GothamBold
 header.TextSize = 18
@@ -232,7 +233,7 @@ local subtitle = Instance.new("TextLabel")
 subtitle.Position = UDim2.new(0, 70, 0, 36)
 subtitle.Size = UDim2.new(1, -230, 0, 16)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "DIVINE  >  ETERNAL  >  SECRET  //  121 MS WINDOW"
+subtitle.Text = "SYSTEM VERSION: " .. CONFIG.Version .. "  //  121 MS WINDOW"
 subtitle.TextColor3 = Color3.fromRGB(169, 148, 224)
 subtitle.Font = Enum.Font.Code
 subtitle.TextSize = 10
@@ -452,7 +453,7 @@ local navigation = Instance.new("ScrollingFrame")
 navigation.Name = "Navigation"
 navigation.Position = UDim2.new(0, 12, 0, 64)
 navigation.Size = UDim2.new(1, -24, 0, 28)
-navigation.CanvasSize = UDim2.new(0, 430, 0, 0)
+navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 navigation.ScrollingEnabled = false
 navigation.ScrollBarThickness = 0
 navigation.ScrollingDirection = Enum.ScrollingDirection.X
@@ -700,11 +701,51 @@ configUi.webhookTabCorner = Instance.new("UICorner")
 configUi.webhookTabCorner.CornerRadius = UDim.new(0, 6)
 configUi.webhookTabCorner.Parent = configUi.webhookTab
 
+configUi.shareTab = Instance.new("TextButton")
+configUi.shareTab.Name = "ShareTab"
+configUi.shareTab.Position = UDim2.new(0, 398, 0, 0)
+configUi.shareTab.Size = UDim2.new(0, 100, 1, 0)
+configUi.shareTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
+configUi.shareTab.BorderSizePixel = 0
+configUi.shareTab.Text = ""
+configUi.shareTab.TextColor3 = Color3.fromRGB(137, 160, 198)
+configUi.shareTab.Font = Enum.Font.Code
+configUi.shareTab.TextSize = 14
+configUi.shareTab.TextXAlignment = Enum.TextXAlignment.Center
+configUi.shareTab.TextYAlignment = Enum.TextYAlignment.Center
+configUi.shareTab.AutoButtonColor = false
+configUi.shareTab.Parent = navigation
+
+configUi.shareTabIcon = createCanvasIcon(
+configUi.shareTab,
+"copy",
+configUi.shareTab.TextColor3,
+UDim2.new(0, 16, 0, 16),
+UDim2.new(0, 15, 0.5, 0),
+"TabIcon"
+)
+configUi.shareTabLabel = Instance.new("TextLabel")
+configUi.shareTabLabel.Name = "TabLabel"
+configUi.shareTabLabel.Position = UDim2.new(0, 30, 0, 0)
+configUi.shareTabLabel.Size = UDim2.new(1, -34, 1, 0)
+configUi.shareTabLabel.BackgroundTransparency = 1
+configUi.shareTabLabel.Text = "BACKUP"
+configUi.shareTabLabel.TextColor3 = configUi.shareTab.TextColor3
+configUi.shareTabLabel.Font = Enum.Font.Code
+configUi.shareTabLabel.TextSize = 9
+configUi.shareTabLabel.TextXAlignment = Enum.TextXAlignment.Left
+configUi.shareTabLabel.TextYAlignment = Enum.TextYAlignment.Center
+configUi.shareTabLabel.Parent = configUi.shareTab
+
+configUi.shareTabCorner = Instance.new("UICorner")
+configUi.shareTabCorner.CornerRadius = UDim.new(0, 6)
+configUi.shareTabCorner.Parent = configUi.shareTab
+
 
 local consoleTab = Instance.new("TextButton")
 consoleTab.Name = "ConsoleTab"
-consoleTab.Position = UDim2.new(0, 398, 0, 0)
-consoleTab.Size = UDim2.new(0, 24, 1, 0)
+consoleTab.Position = UDim2.new(0, 504, 0, 0)
+consoleTab.Size = UDim2.new(0, 92, 1, 0)
 consoleTab.BackgroundColor3 = Color3.fromRGB(57, 34, 80)
 consoleTab.BorderSizePixel = 0
 consoleTab.Text = ""
@@ -717,7 +758,7 @@ local consoleTabIcon = createCanvasIcon(
 	"terminal",
 	consoleTab.TextColor3,
 	UDim2.new(0, 16, 0, 16),
-	UDim2.new(0.5, 0, 0.5, 0),
+UDim2.new(0, 15, 0.5, 0),
 	"TabIcon"
 )
 
@@ -737,6 +778,103 @@ consoleTabLabel.Parent = consoleTab
 local consoleTabCorner = Instance.new("UICorner")
 consoleTabCorner.CornerRadius = UDim.new(0, 6)
 consoleTabCorner.Parent = consoleTab
+
+configUi.sharePanel = Instance.new("Frame")
+configUi.sharePanel.Name = "PortableBackupPanel"
+configUi.sharePanel.Position = UDim2.new(0, 12, 0, 100)
+configUi.sharePanel.Size = UDim2.new(1, -24, 1, -150)
+configUi.sharePanel.BackgroundColor3 = Color3.fromRGB(9, 15, 32)
+configUi.sharePanel.BorderSizePixel = 0
+configUi.sharePanel.Visible = false
+configUi.sharePanel.Parent = panel
+
+configUi.sharePanelCorner = Instance.new("UICorner")
+configUi.sharePanelCorner.CornerRadius = UDim.new(0, 12)
+configUi.sharePanelCorner.Parent = configUi.sharePanel
+
+configUi.shareHeader = Instance.new("TextLabel")
+configUi.shareHeader.Position = UDim2.new(0, 36, 0, 12)
+configUi.shareHeader.Size = UDim2.new(1, -50, 0, 20)
+configUi.shareHeader.BackgroundTransparency = 1
+configUi.shareHeader.Text = "BACKUP  //  PORTABLE CONFIGURATION"
+configUi.shareHeader.TextColor3 = Color3.fromRGB(240, 225, 255)
+configUi.shareHeader.Font = Enum.Font.GothamBold
+configUi.shareHeader.TextSize = 12
+configUi.shareHeader.TextXAlignment = Enum.TextXAlignment.Left
+configUi.shareHeader.Parent = configUi.sharePanel
+
+configUi.shareHelp = Instance.new("TextLabel")
+configUi.shareHelp.Position = UDim2.new(0, 14, 0, 36)
+configUi.shareHelp.Size = UDim2.new(1, -28, 0, 30)
+configUi.shareHelp.BackgroundTransparency = 1
+configUi.shareHelp.Text = "SAFE BACKUP  //  PET DATABASE + LAST SEEN + PROMOTION  //  WEBHOOKS AND KEYS EXCLUDED"
+configUi.shareHelp.TextColor3 = Color3.fromRGB(151, 255, 204)
+configUi.shareHelp.Font = Enum.Font.Code
+configUi.shareHelp.TextSize = 8
+configUi.shareHelp.TextWrapped = true
+configUi.shareHelp.TextXAlignment = Enum.TextXAlignment.Left
+configUi.shareHelp.Parent = configUi.sharePanel
+
+configUi.shareInput = Instance.new("TextBox")
+configUi.shareInput.Name = "PortableBackupText"
+configUi.shareInput.Position = UDim2.new(0, 10, 0, 72)
+configUi.shareInput.Size = UDim2.new(1, -20, 0, 104)
+configUi.shareInput.BackgroundColor3 = Color3.fromRGB(15, 22, 40)
+configUi.shareInput.BorderSizePixel = 0
+configUi.shareInput.ClearTextOnFocus = false
+configUi.shareInput.MultiLine = true
+configUi.shareInput.PlaceholderText = "Exporta aquí tu backup seguro o pega un backup recibido..."
+configUi.shareInput.PlaceholderColor3 = Color3.fromRGB(139, 143, 167)
+configUi.shareInput.Text = ""
+configUi.shareInput.TextColor3 = Color3.fromRGB(245, 242, 255)
+configUi.shareInput.Font = Enum.Font.Code
+configUi.shareInput.TextSize = 8
+configUi.shareInput.TextWrapped = true
+configUi.shareInput.TextXAlignment = Enum.TextXAlignment.Left
+configUi.shareInput.TextYAlignment = Enum.TextYAlignment.Top
+configUi.shareInput.Parent = configUi.sharePanel
+
+configUi.shareStatus = Instance.new("TextLabel")
+configUi.shareStatus.Position = UDim2.new(0, 14, 0, 218)
+configUi.shareStatus.Size = UDim2.new(1, -28, 0, 28)
+configUi.shareStatus.BackgroundTransparency = 1
+configUi.shareStatus.Text = "STATUS // READY  //  NO WEBHOOKS IN BACKUP"
+configUi.shareStatus.TextColor3 = Color3.fromRGB(255, 193, 89)
+configUi.shareStatus.Font = Enum.Font.Code
+configUi.shareStatus.TextSize = 8
+configUi.shareStatus.TextWrapped = true
+configUi.shareStatus.TextXAlignment = Enum.TextXAlignment.Left
+configUi.shareStatus.Parent = configUi.sharePanel
+
+configUi.exportBackupButton = Instance.new("TextButton")
+configUi.exportBackupButton.Name = "ExportBackup"
+configUi.exportBackupButton.Position = UDim2.new(0, 10, 0, 184)
+configUi.exportBackupButton.Size = UDim2.new(0.5, -15, 0, 29)
+configUi.exportBackupButton.BackgroundColor3 = Color3.fromRGB(0, 132, 255)
+configUi.exportBackupButton.BorderSizePixel = 0
+configUi.exportBackupButton.Text = "EXPORT  //  COPY"
+configUi.exportBackupButton.TextColor3 = Color3.fromRGB(255, 245, 255)
+configUi.exportBackupButton.Font = Enum.Font.GothamBold
+configUi.exportBackupButton.TextSize = 9
+configUi.exportBackupButton.AutoButtonColor = false
+configUi.exportBackupButton.Parent = configUi.sharePanel
+
+configUi.importBackupButton = Instance.new("TextButton")
+configUi.importBackupButton.Name = "ImportBackup"
+configUi.importBackupButton.Position = UDim2.new(0.5, 5, 0, 184)
+configUi.importBackupButton.Size = UDim2.new(0.5, -15, 0, 29)
+configUi.importBackupButton.BackgroundColor3 = Color3.fromRGB(75, 62, 120)
+configUi.importBackupButton.BorderSizePixel = 0
+configUi.importBackupButton.Text = "IMPORT  //  APPLY"
+configUi.importBackupButton.TextColor3 = Color3.fromRGB(245, 235, 255)
+configUi.importBackupButton.Font = Enum.Font.GothamBold
+configUi.importBackupButton.TextSize = 9
+configUi.importBackupButton.AutoButtonColor = false
+configUi.importBackupButton.Parent = configUi.sharePanel
+
+configUi.shareInputCorner = Instance.new("UICorner")
+configUi.shareInputCorner.CornerRadius = UDim.new(0, 8)
+configUi.shareInputCorner.Parent = configUi.shareInput
 
 local announcementPanel = Instance.new("Frame")
 announcementPanel.Name = "AnnouncementBuilder"
@@ -1500,7 +1638,8 @@ local navigationItems = {
 	{button = announcerTab, label = announcerTabLabel, icon = announcerTabIcon, x = 138, width = 88, labelSize = 9},
 	{button = configUi.tab, label = configUi.tabLabel, icon = configUi.tabIcon, x = 230, width = 72, labelSize = 9},
 	{button = configUi.webhookTab, label = configUi.webhookTabLabel, icon = configUi.webhookTabIcon, x = 306, width = 88, labelSize = 8},
-	{button = consoleTab, label = consoleTabLabel, icon = consoleTabIcon, x = 398, width = 24, labelSize = 9, iconCentered = true}
+{button = configUi.shareTab, label = configUi.shareTabLabel, icon = configUi.shareTabIcon, x = 398, width = 100, labelSize = 9},
+{button = consoleTab, label = consoleTabLabel, icon = consoleTabIcon, x = 504, width = 92, labelSize = 9}
 }
 
 local contentPanels = {
@@ -1509,6 +1648,7 @@ local contentPanels = {
 	announcementPanel,
 	configUi.panel,
 	configUi.webhookPanel,
+configUi.sharePanel,
 	consolePanel
 }
 
@@ -1593,6 +1733,16 @@ stylePanelHeading(
 	52
 )
 stylePanelHeading(
+configUi.sharePanel,
+configUi.shareHeader,
+"copy",
+"Backup",
+Color3.fromRGB(151, 255, 204),
+12,
+68,
+52
+)
+stylePanelHeading(
 	consolePanel,
 	consoleHeader,
 	"terminal",
@@ -1615,6 +1765,8 @@ local function applyResponsiveLayout()
 	liveChip.Visible = not compact
 	header.Size = UDim2.new(1, compact and -126 or -230, 0, 24)
 	subtitle.Size = UDim2.new(1, compact and -128 or -230, 0, 16)
+header.TextSize = compact and 14 or 18
+subtitle.TextSize = compact and 8 or 10
 	if compact then
 		panel.Size = UDim2.fromOffset(
 			math.max(280, math.min(390, viewport.X - 24)),
@@ -1624,7 +1776,7 @@ local function applyResponsiveLayout()
 		topBar.Size = UDim2.new(1, 0, 0, 62)
 		navigation.Position = UDim2.new(0, 12, 0, 64)
 		navigation.Size = UDim2.new(1, -24, 0, 28)
-		navigation.CanvasSize = UDim2.new(0, 430, 0, 0)
+navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 		navigation.ScrollingDirection = Enum.ScrollingDirection.X
 		navigation.ScrollBarThickness = 0
 		navigationDivider.Visible = false
@@ -1781,6 +1933,7 @@ styleTab(promotionTab, false)
 styleTab(announcerTab, false)
 styleTab(configUi.tab, false)
 styleTab(configUi.webhookTab, false)
+styleTab(configUi.shareTab, false)
 styleTab(consoleTab, false)
 
 screenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyResponsiveLayout)
@@ -1996,7 +2149,7 @@ local accessEyebrow = Instance.new("TextLabel")
 accessEyebrow.Position = UDim2.new(0, 24, 0, 22)
 accessEyebrow.Size = UDim2.new(1, -48, 0, 16)
 accessEyebrow.BackgroundTransparency = 1
-accessEyebrow.Text = "AURA // DEVICE AUTHORIZATION"
+accessEyebrow.Text = "AURA // DEVICE AUTHORIZATION  //  v" .. CONFIG.Version
 accessEyebrow.TextColor3 = Color3.fromRGB(94, 205, 255)
 accessEyebrow.Font = Enum.Font.Code
 accessEyebrow.TextSize = 10
@@ -2179,7 +2332,7 @@ local localFileRead = readfile
 local localFileWrite = writefile
 local lastSeenSaveScheduled = false
 
-local lastSeenState = {
+lastSeenState = {
 version = 2,
 	messageId = nil,
 messageIds = {},
@@ -2456,6 +2609,180 @@ if configState.webhooks.main ~= "" or configState.webhooks.lastSeen ~= "" then
 	configUi.webhookStatus.Text = "STATUS // SAVED LOCALLY  //  READY"
 end
 
+function buildPortableBackup()
+local backup = {
+kind = "AURA_EGG_NOTIFIER_BACKUP",
+version = 1,
+systemVersion = CONFIG.Version,
+createdAt = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+excluded = {"webhooks", "accessKey", "authorization"},
+config = {
+entries = {}
+},
+promotion = {
+url = promotionState.url,
+label = promotionState.label,
+maxUses = promotionState.maxUses,
+used = promotionState.used,
+intervalMinutes = promotionState.intervalMinutes,
+nextAvailableAt = promotionState.nextAvailableAt,
+emoji = promotionState.emoji,
+rarity = promotionState.rarity
+},
+lastSeen = {
+entries = {}
+}
+}
+
+for _, entry in ipairs(configState.entries) do
+table.insert(backup.config.entries, {
+name = entry.name,
+key = entry.key,
+roleId = entry.roleId,
+emoji = entry.emoji,
+rarity = entry.rarity
+})
+end
+
+for key, timestamp in pairs(lastSeenState.entries or {}) do
+if type(key) == "string" and tonumber(timestamp) then
+backup.lastSeen.entries[key] = tonumber(timestamp)
+end
+end
+
+return backup
+end
+
+function setBackupStatus(text, color)
+configUi.shareStatus.Text = tostring(text or "")
+configUi.shareStatus.TextColor3 = color or Color3.fromRGB(151, 255, 204)
+end
+
+function getPortableClipboard()
+local getter = getclipboard or get_clipboard
+if type(getter) ~= "function" then return "" end
+local ok, value = pcall(getter)
+return ok and type(value) == "string" and value or ""
+end
+
+function importPortableBackup(raw)
+local decodeOk, decoded = pcall(function()
+return HttpService:JSONDecode(raw)
+end)
+if not decodeOk
+or type(decoded) ~= "table"
+or decoded.kind ~= "AURA_EGG_NOTIFIER_BACKUP"
+or tonumber(decoded.version) ~= 1 then
+setBackupStatus("STATUS // INVALID OR UNSUPPORTED BACKUP", Color3.fromRGB(255, 92, 133))
+updateStatus("BACKUP // INVALID FILE", Color3.fromRGB(255, 92, 133))
+return false
+end
+
+local importedEntries = {}
+local sourceEntries = type(decoded.config) == "table" and decoded.config.entries or {}
+if type(sourceEntries) ~= "table" then
+setBackupStatus("STATUS // PET DATABASE IS INVALID", Color3.fromRGB(255, 92, 133))
+return false
+end
+for _, value in pairs(sourceEntries) do
+local entry = normalizeConfiguredEntry(value)
+if entry then table.insert(importedEntries, entry) end
+end
+
+configState.entries = importedEntries
+table.sort(configState.entries, function(a, b)
+return a.rarity .. a.name < b.rarity .. b.name
+end)
+
+if type(decoded.promotion) == "table" then
+local importedPromotion = decoded.promotion
+if type(importedPromotion.url) == "string"
+and (importedPromotion.url == "" or importedPromotion.url:match("^https?://%S+$")) then
+promotionState.url = importedPromotion.url
+end
+if type(importedPromotion.label) == "string" then
+promotionState.label = importedPromotion.label:sub(1, 80)
+end
+if tonumber(importedPromotion.maxUses) then
+promotionState.maxUses = math.max(0, math.floor(tonumber(importedPromotion.maxUses)))
+end
+if tonumber(importedPromotion.used) then
+promotionState.used = math.max(0, math.floor(tonumber(importedPromotion.used)))
+end
+if tonumber(importedPromotion.intervalMinutes) then
+promotionState.intervalMinutes = math.max(0, tonumber(importedPromotion.intervalMinutes))
+end
+if tonumber(importedPromotion.nextAvailableAt) then
+promotionState.nextAvailableAt = math.max(0, tonumber(importedPromotion.nextAvailableAt))
+end
+if type(importedPromotion.emoji) == "string" then
+promotionState.emoji = importedPromotion.emoji:sub(1, 80)
+end
+if importedPromotion.rarity == ""
+or importedPromotion.rarity == "DIVINE"
+or importedPromotion.rarity == "ETERNAL"
+or importedPromotion.rarity == "SECRET" then
+promotionState.rarity = importedPromotion.rarity
+end
+end
+
+if type(decoded.lastSeen) == "table"
+and type(decoded.lastSeen.entries) == "table" then
+lastSeenState.entries = {}
+for key, timestamp in pairs(decoded.lastSeen.entries) do
+if type(key) == "string" and tonumber(timestamp) then
+lastSeenState.entries[key] = tonumber(timestamp)
+end
+end
+end
+
+saveConfigState()
+savePromotionState()
+saveLastSeenState()
+rebuildConfiguredCatalog()
+refreshConfiguredEmojiLookup()
+renderConfigList()
+clearConfigEditor()
+promotionUrlBox.Text = promotionState.url
+promotionLabelBox.Text = promotionState.label
+promotionEmojiBox.Text = promotionState.emoji
+promotionUsesBox.Text = tostring(promotionState.maxUses)
+promotionIntervalBox.Text = tostring(promotionState.intervalMinutes)
+updatePromotionControls()
+scheduleLastSeenUpdate()
+setBackupStatus("STATUS // IMPORTED  //  WEBHOOKS UNCHANGED", Color3.fromRGB(151, 255, 204))
+updateStatus("BACKUP // CONFIGURATION APPLIED", Color3.fromRGB(151, 255, 204))
+return true
+end
+
+configUi.exportBackupButton.MouseButton1Click:Connect(function()
+local encoded = HttpService:JSONEncode(buildPortableBackup())
+configUi.shareInput.Text = encoded
+local clipboard = setclipboard or toclipboard or set_clipboard
+if type(clipboard) == "function" then
+pcall(clipboard, encoded)
+setBackupStatus("STATUS // EXPORTED + COPIED  //  WEBHOOKS EXCLUDED")
+updateStatus("BACKUP // SAFE COPY READY", Color3.fromRGB(151, 255, 204))
+else
+setBackupStatus("STATUS // EXPORTED  //  COPY MANUALLY  //  WEBHOOKS EXCLUDED")
+updateStatus("BACKUP // COPY API UNAVAILABLE", Color3.fromRGB(255, 193, 89))
+end
+end)
+
+configUi.importBackupButton.MouseButton1Click:Connect(function()
+local raw = tostring(configUi.shareInput.Text or "")
+if raw:gsub("%s+", "") == "" then
+raw = getPortableClipboard()
+configUi.shareInput.Text = raw
+end
+if raw:gsub("%s+", "") == "" then
+setBackupStatus("STATUS // PASTE A BACKUP JSON FIRST", Color3.fromRGB(255, 193, 89))
+updateStatus("BACKUP // NO DATA TO IMPORT", Color3.fromRGB(255, 193, 89))
+return
+end
+importPortableBackup(raw)
+end)
+
 configUi.saveWebhookButton.MouseButton1Click:Connect(function()
 	local main = tostring(configUi.mainWebhookBox.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
 	local lastSeen = tostring(configUi.lastSeenWebhookBox.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
@@ -2573,6 +2900,8 @@ enhanceButton(configUi.newButton, Color3.fromRGB(75, 62, 120))
 enhanceButton(configUi.deleteButton, Color3.fromRGB(218, 35, 78))
 enhanceButton(configUi.saveWebhookButton, Color3.fromRGB(132, 77, 244))
 enhanceButton(configUi.clearWebhookButton, Color3.fromRGB(218, 35, 78))
+enhanceButton(configUi.exportBackupButton, Color3.fromRGB(0, 132, 255))
+enhanceButton(configUi.importBackupButton, Color3.fromRGB(75, 62, 120))
 enhanceButton(copyConsoleButton, Color3.fromRGB(132, 77, 244))
 enhanceButton(logJumpButton, Color3.fromRGB(132, 77, 244))
 enhanceButton(consoleJumpButton, Color3.fromRGB(132, 77, 244))
@@ -2609,7 +2938,7 @@ function escapeRichText(text)
 	return (tostring(text):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
 end
 
-local function updateStatus(text, color)
+function updateStatus(text, color)
 	local statusColor = color or Color3.fromRGB(99, 255, 154)
 	statusLabel.Text = string.format(
 		'<font color="#D6A5FF">SYSTEM</font><font color="#FF4D67">:</font> <font color="%s">%s</font>',
@@ -2620,6 +2949,7 @@ end
 
 local logEntries = {}
 local consoleEntries = {}
+local consoleEntryStart = 1
 local logRenderScheduled = false
 local consoleRenderScheduled = false
 
@@ -2669,7 +2999,11 @@ local function appendLogHistory(text, sequence, rarityName)
 end
 
 local function renderConsole()
-	consoleBody.Text = table.concat(consoleEntries, "\n")
+local visibleEntries = {}
+for index = consoleEntryStart, #consoleEntries do
+table.insert(visibleEntries, consoleEntries[index])
+end
+consoleBody.Text = table.concat(visibleEntries, "\n")
 	task.defer(function()
 		local height = math.max(consoleBody.AbsoluteSize.Y + 16, consoleScroll.AbsoluteWindowSize.Y + 1)
 		consoleScroll.CanvasSize = UDim2.new(0, 0, 0, height)
@@ -2708,15 +3042,28 @@ local function appendConsoleEntry(message, messageType, source)
 		string.format("[%s] [%s] [%s] %s", getClockTime(), severity, origin, cleanMessage)
 	)
 
-	while #consoleEntries > CONFIG.ConsoleMaxLines do
-		table.remove(consoleEntries, 1)
+while #consoleEntries - consoleEntryStart + 1 > CONFIG.ConsoleMaxLines do
+consoleEntryStart = consoleEntryStart + 1
+end
+
+if consoleEntryStart > 128 and consoleEntryStart > (#consoleEntries / 2) then
+local compactedEntries = {}
+for index = consoleEntryStart, #consoleEntries do
+table.insert(compactedEntries, consoleEntries[index])
+end
+consoleEntries = compactedEntries
+consoleEntryStart = 1
 	end
 
 	scheduleConsoleRender()
 end
 
 copyConsoleButton.MouseButton1Click:Connect(function()
-	local fullText = table.concat(consoleEntries, "\n")
+local visibleEntries = {}
+for index = consoleEntryStart, #consoleEntries do
+table.insert(visibleEntries, consoleEntries[index])
+end
+local fullText = table.concat(visibleEntries, "\n")
 	local clipboard = setclipboard or toclipboard or set_clipboard
 	if type(clipboard) == "function" then
 		local ok = pcall(function()
@@ -2883,11 +3230,13 @@ function setActiveSection(section)
 	local showPromotions = section == "PROMOTIONS"
 	local showConfig = section == "CONFIG"
 	local showWebhook = section == "WEBHOOK"
+local showBackup = section == "BACKUP"
 	logPanel.Visible = showLog
 	updateLogJumpVisibility()
 	promotionPanel.Visible = showPromotions
 	configUi.panel.Visible = showConfig
 	configUi.webhookPanel.Visible = showWebhook
+configUi.sharePanel.Visible = showBackup
 	announcementPanel.Visible = section == "ANNOUNCER"
 	consolePanel.Visible = section == "CONSOLE"
 	updateConsoleJumpVisibility()
@@ -2896,6 +3245,7 @@ function setActiveSection(section)
 	styleTab(announcerTab, section == "ANNOUNCER")
 	styleTab(configUi.tab, showConfig)
 	styleTab(configUi.webhookTab, showWebhook)
+styleTab(configUi.shareTab, showBackup)
 	styleTab(consoleTab, section == "CONSOLE")
 
 	if showLog then
@@ -2906,6 +3256,8 @@ function setActiveSection(section)
 		updateStatus("CONFIG // SAVED PETS READY", Color3.fromRGB(151, 255, 204))
 	elseif showWebhook then
 		updateStatus("WEBHOOK // LOCAL ROUTING READY", Color3.fromRGB(255, 193, 89))
+elseif showBackup then
+updateStatus("BACKUP // SAFE PORTABLE CONFIGURATION READY", Color3.fromRGB(151, 255, 204))
 	elseif section == "CONSOLE" then
 		updateStatus("CONSOLE // STREAM READY", Color3.fromRGB(255, 111, 151))
 	else
@@ -2931,6 +3283,10 @@ end)
 
 configUi.webhookTab.MouseButton1Click:Connect(function()
 	setActiveSection("WEBHOOK")
+end)
+
+configUi.shareTab.MouseButton1Click:Connect(function()
+setActiveSection("BACKUP")
 end)
 
 consoleTab.MouseButton1Click:Connect(function()

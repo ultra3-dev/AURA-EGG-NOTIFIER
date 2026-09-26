@@ -1,4 +1,4 @@
--- AURA EGG 2.0.2 ULTRA // LAST SEEN + CONFIG SERVICES
+-- AURA EGG 2.2.2 ULTRA // LAST SEEN + CONFIG SERVICES
 local function getHttpStatusCode(response)
 local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
 local statusCode = tonumber(rawStatus)
@@ -402,7 +402,7 @@ local lastSeenUpdateInFlight = false
 local lastSeenUpdateQueued = false
 local lastSeenRetryAfter = 0
 
-local function scheduleLastSeenUpdate()
+function scheduleLastSeenUpdate()
 if scriptStopped or not isLastSeenWebhookConfigured() then
 		return
 	end
@@ -486,9 +486,12 @@ scheduleLastSeenStateSave()
 end
 
 -- Envío individual y secuencial: cada huevo conserva su propio webhook.
-local function fireWebhookImmediate(description, onDone)
+local function fireWebhookImmediate(payload, onDone)
+local requestPayload = type(payload) == "table" and payload or {
+content = tostring(payload or "")
+}
 sendWebhookPayload(
-{content = description},
+requestPayload,
 "WEBHOOK RELEASE // SENT",
 		onDone
 	)
@@ -673,7 +676,7 @@ end
 
 configUi.rarityValue = "Secret"
 
-local function refreshConfiguredEmojiLookup()
+function refreshConfiguredEmojiLookup()
 	for key in pairs(EGG_EMOJI_BY_KEY) do
 		EGG_EMOJI_BY_KEY[key] = nil
 	end
@@ -684,7 +687,7 @@ local function refreshConfiguredEmojiLookup()
 	end
 end
 
-local function clearConfigEditor()
+function clearConfigEditor()
 	configSelectedKey = nil
 	configUi.nameBox.Text = ""
 	configUi.roleBox.Text = ""
@@ -704,7 +707,7 @@ local function selectConfigEntry(entry)
 	configUi.deleteButton.Text = "DELETE: " .. entry.name:upper()
 end
 
-local function renderConfigList()
+function renderConfigList()
 	for _, child in ipairs(configUi.listBody:GetChildren()) do
 		if child:IsA("GuiObject") then child:Destroy() end
 	end

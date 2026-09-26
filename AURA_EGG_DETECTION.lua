@@ -1,4 +1,4 @@
--- AURA EGG 2.0.2 ULTRA // DETECTION + CATALOG
+-- AURA EGG 2.2.2 ULTRA // DETECTION + CATALOG
 -- Rango de mayor a menor rareza. Los empates conservan el orden detectado.
 local function runNotifierRuntime()
 local RARITY_ORDER = {
@@ -134,7 +134,7 @@ for _, entry in ipairs(EGG_ROLE_MENTIONS) do
 	}
 end
 
-local function rebuildConfiguredCatalog()
+function rebuildConfiguredCatalog()
 	for rarity in pairs(LAST_SEEN_CATALOG) do
 		LAST_SEEN_CATALOG[rarity] = nil
 	end

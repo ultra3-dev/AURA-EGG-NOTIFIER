@@ -1,4 +1,4 @@
--- AURA EGG 2.0.2 ULTRA // DELIVERY + EVENT LOOP
+-- AURA EGG 2.2.2 ULTRA // DELIVERY + EVENT LOOP
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
 		local payload = {
@@ -78,9 +78,29 @@ sendAnnouncementButton.MouseButton1Click:Connect(function()
 	end)
 end)
 
--- ALERTA DE INICIO INMEDIATA
 task.spawn(function()
-	fireWebhookImmediate("**HELLO AURA FAMILY X, I'M READY;)**")
+local startupServerName = tostring(game.Name or "CURRENT SERVER")
+local startupPayload = {
+flags = 32768,
+components = {{
+type = 10,
+content = "## 🥚 AURA EGG NOTIFIER ACTIVATED\n"
+.. "> **HELLO AURA FAMILY X, I'M READY :)**\n\n"
+.. "**AURA EGG NOTIFIER IS READY TO SEND NOTIFICATIONS IN** `"
+.. startupServerName
+.. "`\n"
+.. "__SYSTEM VERSION:__ `"
+.. CONFIG.Version
+.. "`\n\n"
+.. "-# *Fast detection* • **clean delivery** • __local state__\n"
+.. "> `Markdown online`  ~~legacy boot text retired~~\n\n"
+.. "```js\n"
+.. "console.log(\"AURA EGG NOTIFIER ACTIVATED\");\n"
+.. "console.log(\"Ready to send notifications\");\n"
+.. "```"
+}}
+}
+fireWebhookImmediate(startupPayload)
 end)
 
 local function formatEggAlert(text, spawnedAt, count, joinUrl)
@@ -206,7 +226,9 @@ end
 local function getVisualMeta(text)
 	local lower = text:lower()
 
-	if lower:find("system online", 1, true) or lower:find("ultra-hyper", 1, true) then
+if lower:find("system online", 1, true)
+or lower:find("aura egg notifier activated", 1, true)
+or lower:find("ultra-hyper", 1, true) then
 		return "SYSTEM", "SYSTEM ONLINE // LISTENING", Color3.fromRGB(151, 255, 204), "system"
 	elseif lower:find("eternal", 1, true) then
 		return "ETERNAL", "GREAT NEWS // ETERNAL EGG", Color3.fromRGB(255, 204, 76), "spark"
@@ -280,11 +302,11 @@ TextChatService.MessageReceived:Connect(function(msg)
 	if msg.Text then processText(msg.Text, "chat") end
 end)
 
-createVisualCard("SYSTEM ONLINE\nListening to game logs // instant alerts enabled.")
-appendConsoleEntry("SYSTEM ONLINE // CONSOLE READY", "MessageInfo", "SCRIPT")
-updateStatus("Ready", Color3.fromRGB(99, 255, 154))
+createVisualCard("AURA EGG NOTIFIER ACTIVATED\nListening to game logs // instant alerts enabled.")
+appendConsoleEntry("AURA EGG NOTIFIER ACTIVATED", "MessageInfo", "SCRIPT")
+updateStatus("SYSTEM VERSION: " .. CONFIG.Version .. " // READY", Color3.fromRGB(99, 255, 154))
 scheduleLastSeenUpdate()
-print(":: EGG DETECTOR ULTRA-HYPER-VELOCITY READY ::")
+print("AURA EGG NOTIFIER ACTIVATED")
 end
 
 
