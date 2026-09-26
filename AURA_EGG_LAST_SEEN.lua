@@ -198,7 +198,7 @@ local function buildLastSeenContainer(rarity)
 			{
 				type = 10,
 				content = string.format(
-"# %s %s — Last Seen\n**%d registradas**",
+"# %s %s — Last Seen\n-# %d registradas",
 					style.emoji,
 					rarity,
 					registered
@@ -866,6 +866,12 @@ function renderConfigList()
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
 
+local function refreshConfigListCanvas()
+local contentHeight = math.max(30, configUi.listLayout.AbsoluteContentSize.Y + 8)
+configUi.listBody.Size = UDim2.new(1, -6, 0, contentHeight)
+configUi.list.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+end
+
 	local layoutOrder = 0
 	local totalEntries = 0
 	local function getRoleId(entryKey)
@@ -892,7 +898,7 @@ function renderConfigList()
 				or rarity == "Secret" and Color3.fromRGB(245, 248, 255)
 				or Color3.fromRGB(110, 180, 255)
 			separator.Font = Enum.Font.Code
-			separator.TextSize = 8
+separator.TextSize = 10
 			separator.TextXAlignment = Enum.TextXAlignment.Left
 			separator.Parent = configUi.listBody
 			local separatorPadding = Instance.new("UIPadding")
@@ -918,10 +924,18 @@ function renderConfigList()
 				and Color3.fromRGB(101, 51, 144)
 				or Color3.fromRGB(29, 21, 45)
 			row.BorderSizePixel = 0
-			row.Text = "◆  " .. entry.name .. "  //  " .. rarity
+row.RichText = true
+local displayRarity = escapeRichText(rarity)
+if rarity == "Divine" then
+displayRarity = '<font color="#FFD700">' .. displayRarity .. "</font>"
+end
+row.Text = "◆  "
+.. escapeRichText(entry.name)
+.. "  //  "
+.. displayRarity
 			row.TextColor3 = Color3.fromRGB(242, 235, 252)
 			row.Font = Enum.Font.Code
-			row.TextSize = 9
+row.TextSize = 11
 			row.TextXAlignment = Enum.TextXAlignment.Left
 			row.AutoButtonColor = false
 			row.Parent = configUi.listBody
@@ -946,18 +960,20 @@ function renderConfigList()
 		empty.Text = "NO PETS REGISTERED // ADD ONE BELOW"
 		empty.TextColor3 = Color3.fromRGB(160, 133, 185)
 		empty.Font = Enum.Font.Code
-		empty.TextSize = 9
+empty.TextSize = 11
 		empty.TextXAlignment = Enum.TextXAlignment.Left
 		empty.Parent = configUi.listBody
 	end
 
-	configUi.listBody.Size = UDim2.new(1, -8, 0, math.max(30, configUi.listLayout.AbsoluteContentSize.Y))
-	configUi.list.CanvasSize = UDim2.new(0, 0, 0, configUi.listLayout.AbsoluteContentSize.Y + 8)
+refreshConfigListCanvas()
 end
 
 configUi.listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-	configUi.listBody.Size = UDim2.new(1, -6, 0, configUi.listLayout.AbsoluteContentSize.Y)
-	configUi.list.CanvasSize = UDim2.new(0, 0, 0, configUi.listLayout.AbsoluteContentSize.Y + 5)
+task.defer(function()
+local contentHeight = math.max(30, configUi.listLayout.AbsoluteContentSize.Y + 8)
+configUi.listBody.Size = UDim2.new(1, -6, 0, contentHeight)
+configUi.list.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+end)
 end)
 
 local function saveConfigEditor()
