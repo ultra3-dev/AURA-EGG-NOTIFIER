@@ -24,8 +24,9 @@ local CONFIG = {
 	LastSeenWebhookURL = (type(getgenv) == "function" and getgenv().AURA_EGG_LAST_SEEN_WEBHOOK)
 		or "PASTE_A_LAST_SEEN_DISCORD_WEBHOOK_HERE",
 LastSeenMessageID = "1552117304609738823",
-	Keywords = {"egg", "huevo", "spawned", "appeared", "aparecido", "secret", "divine", "legendary", "mythical", "eternal", "cosmic"},
-	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid", "infinite yield possible"},
+	EggKeywords = {"egg", "huevo"},
+	SpawnKeywords = {"spawn", "appear", "aparecid", "hatch", "found"},
+	Blacklist = {"[debug]", "eggtooldisplay", "placedeggrenderer", "guard", "trace", "anticheat", "jobid", "infinite yield possible", "waitforchild"},
 	DisplayTime = 120,
 	MaxNotifications = 2000,
 	ConsoleMaxLines = 2500,
@@ -218,7 +219,7 @@ end
 local header = Instance.new("TextLabel")
 header.Name = "Header"
 header.Position = UDim2.new(0, 68, 0, 8)
-header.Size = UDim2.new(1, -126, 0, 24)
+header.Size = UDim2.new(1, -230, 0, 24)
 header.BackgroundTransparency = 1
 header.Text = "AURA EGG NOTIFIER"
 header.TextColor3 = Color3.fromRGB(247, 242, 255)
@@ -229,7 +230,7 @@ header.Parent = topBar
 
 local subtitle = Instance.new("TextLabel")
 subtitle.Position = UDim2.new(0, 70, 0, 36)
-subtitle.Size = UDim2.new(1, -128, 0, 16)
+subtitle.Size = UDim2.new(1, -230, 0, 16)
 subtitle.BackgroundTransparency = 1
 subtitle.Text = "DIVINE  >  ETERNAL  >  SECRET  //  121 MS WINDOW"
 subtitle.TextColor3 = Color3.fromRGB(169, 148, 224)
@@ -264,6 +265,60 @@ createCanvasIcon(
 local panelCloseCorner = Instance.new("UICorner")
 panelCloseCorner.CornerRadius = UDim.new(0, 8)
 panelCloseCorner.Parent = panelClose
+
+local liveChip = Instance.new("Frame")
+liveChip.Name = "SystemLiveChip"
+liveChip.AnchorPoint = Vector2.new(1, 0)
+liveChip.Position = UDim2.new(1, -54, 0, 11)
+liveChip.Size = UDim2.new(0, 62, 0, 22)
+liveChip.BackgroundColor3 = Color3.fromRGB(14, 38, 47)
+liveChip.BorderSizePixel = 0
+liveChip.Parent = topBar
+local liveChipCorner = Instance.new("UICorner")
+liveChipCorner.CornerRadius = UDim.new(1, 0)
+liveChipCorner.Parent = liveChip
+local liveChipStroke = Instance.new("UIStroke")
+liveChipStroke.Color = Color3.fromRGB(70, 222, 174)
+liveChipStroke.Thickness = 1
+liveChipStroke.Transparency = 0.45
+liveChipStroke.Parent = liveChip
+local liveChipDot = Instance.new("Frame")
+liveChipDot.Name = "LiveDot"
+liveChipDot.AnchorPoint = Vector2.new(0, 0.5)
+liveChipDot.Position = UDim2.new(0, 9, 0.5, 0)
+liveChipDot.Size = UDim2.new(0, 6, 0, 6)
+liveChipDot.BackgroundColor3 = Color3.fromRGB(88, 255, 184)
+liveChipDot.BorderSizePixel = 0
+liveChipDot.Parent = liveChip
+local liveChipDotCorner = Instance.new("UICorner")
+liveChipDotCorner.CornerRadius = UDim.new(1, 0)
+liveChipDotCorner.Parent = liveChipDot
+local liveChipLabel = Instance.new("TextLabel")
+liveChipLabel.Name = "LiveLabel"
+liveChipLabel.Position = UDim2.new(0, 20, 0, 0)
+liveChipLabel.Size = UDim2.new(1, -23, 1, 0)
+liveChipLabel.BackgroundTransparency = 1
+liveChipLabel.Text = "ONLINE"
+liveChipLabel.TextColor3 = Color3.fromRGB(160, 255, 217)
+liveChipLabel.Font = Enum.Font.GothamBold
+liveChipLabel.TextSize = 8
+liveChipLabel.TextXAlignment = Enum.TextXAlignment.Left
+liveChipLabel.Parent = liveChip
+
+local topBarGradient = Instance.new("UIGradient")
+topBarGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(17, 19, 47)),
+	ColorSequenceKeypoint.new(0.56, Color3.fromRGB(22, 20, 55)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 26, 49))
+})
+topBarGradient.Rotation = 0
+topBarGradient.Parent = topBar
+local topBarStroke = Instance.new("UIStroke")
+topBarStroke.Name = "HeaderStroke"
+topBarStroke.Color = Color3.fromRGB(67, 79, 131)
+topBarStroke.Thickness = 1
+topBarStroke.Transparency = 0.52
+topBarStroke.Parent = topBar
 
 local logPanel = Instance.new("ScrollingFrame")
 logPanel.Name = "Log"
@@ -327,7 +382,7 @@ UDim2.new(0.5, 0, 0.5, 0),
 
 local logBody = Instance.new("TextLabel")
 logBody.Name = "PersistentEggHistory"
-logBody.Position = UDim2.new(0, 10, 0, 10)
+logBody.Position = UDim2.new(0, 10, 0, 58)
 logBody.Size = UDim2.new(1, -20, 0, 0)
 logBody.AutomaticSize = Enum.AutomaticSize.Y
 logBody.BackgroundTransparency = 1
@@ -341,6 +396,39 @@ logBody.TextYAlignment = Enum.TextYAlignment.Top
 logBody.Parent = logPanel
 logLayout.Parent = nil
 
+local logHeader = Instance.new("TextLabel")
+logHeader.Name = "LogSectionHeader"
+logHeader.Position = UDim2.new(0, 38, 0, 8)
+logHeader.Size = UDim2.new(1, -52, 0, 18)
+logHeader.BackgroundTransparency = 1
+logHeader.Text = "LIVE EGG MONITOR"
+logHeader.TextColor3 = Color3.fromRGB(235, 240, 255)
+logHeader.Font = Enum.Font.GothamBold
+logHeader.TextSize = 11
+logHeader.TextXAlignment = Enum.TextXAlignment.Left
+logHeader.Parent = logPanel
+
+local logMeta = Instance.new("TextLabel")
+logMeta.Name = "LogSectionMeta"
+logMeta.Position = UDim2.new(0, 38, 0, 28)
+logMeta.Size = UDim2.new(1, -52, 0, 14)
+logMeta.BackgroundTransparency = 1
+logMeta.Text = "LATEST FIRST  //  DIVINE > ETERNAL > SECRET  //  121 MS"
+logMeta.TextColor3 = Color3.fromRGB(142, 171, 224)
+logMeta.Font = Enum.Font.Code
+logMeta.TextSize = 8
+logMeta.TextXAlignment = Enum.TextXAlignment.Left
+logMeta.Parent = logPanel
+
+local logHeaderDivider = Instance.new("Frame")
+logHeaderDivider.Name = "LogHeaderDivider"
+logHeaderDivider.Position = UDim2.new(0, 10, 0, 48)
+logHeaderDivider.Size = UDim2.new(1, -20, 0, 1)
+logHeaderDivider.BackgroundColor3 = Color3.fromRGB(64, 80, 124)
+logHeaderDivider.BackgroundTransparency = 0.45
+logHeaderDivider.BorderSizePixel = 0
+logHeaderDivider.Parent = logPanel
+
 local function updateLogJumpVisibility()
 	local maximum = math.max(0, logPanel.CanvasSize.Y.Offset - logPanel.AbsoluteWindowSize.Y)
 	local current = logPanel.CanvasPosition.Y
@@ -350,7 +438,7 @@ local function updateLogJumpVisibility()
 end
 
 local function refreshLogCanvas()
-	local contentHeight = math.max(logBody.AbsoluteSize.Y + 20, logPanel.AbsoluteWindowSize.Y + 1)
+	local contentHeight = math.max(logBody.AbsoluteSize.Y + 68, logPanel.AbsoluteWindowSize.Y + 1)
 	logPanel.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
 	updateLogJumpVisibility()
 end
@@ -374,11 +462,11 @@ navigation.Parent = panel
 
 local function styleTab(button, active)
 	button.BackgroundColor3 = active
-		and Color3.fromRGB(111, 57, 222)
-		or Color3.fromRGB(17, 22, 40)
+		and Color3.fromRGB(100, 63, 190)
+		or Color3.fromRGB(15, 20, 37)
 	button.TextColor3 = active
 		and Color3.fromRGB(255, 255, 255)
-		or Color3.fromRGB(160, 165, 190)
+		or Color3.fromRGB(157, 168, 198)
 
 	local label = button:FindFirstChild("TabLabel")
 	if label then
@@ -391,8 +479,15 @@ local function styleTab(button, active)
 	end
 
 	local gradient = button:FindFirstChild("TabGradient")
-	if gradient then gradient:Destroy() end
-	button.BackgroundColor3 = active and Color3.fromRGB(111, 57, 222) or Color3.fromRGB(17, 22, 40)
+	if not gradient then
+		gradient = Instance.new("UIGradient")
+		gradient.Name = "TabGradient"
+		gradient.Rotation = 90
+		gradient.Parent = button
+	end
+	gradient.Color = active
+		and ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(207, 220, 255))
+		or ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(192, 204, 232))
 
 	local stroke = button:FindFirstChild("TabStroke")
 	if not stroke then
@@ -403,6 +498,13 @@ local function styleTab(button, active)
 	stroke.Color = active and Color3.fromRGB(176, 137, 255) or Color3.fromRGB(43, 49, 72)
 	stroke.Thickness = active and 1.25 or 1
 	stroke.Transparency = active and 0.05 or 0.25
+
+	local corner = button:FindFirstChildOfClass("UICorner")
+	if not corner then
+		corner = Instance.new("UICorner")
+		corner.Parent = button
+	end
+	corner.CornerRadius = UDim.new(0, 8)
 end
 
 local logTab = Instance.new("TextButton")
@@ -1134,7 +1236,6 @@ configUi.webhookHeader.Font = Enum.Font.GothamBold
 configUi.webhookHeader.TextSize = 12
 configUi.webhookHeader.TextXAlignment = Enum.TextXAlignment.Left
 configUi.webhookHeader.Parent = configUi.webhookPanel
-createCanvasIcon(configUi.webhookPanel, "endpoint", Color3.fromRGB(0, 198, 255), UDim2.new(0, 18, 0, 18), UDim2.new(0, 20, 0, 22), "WebhookHeaderIcon")
 
 configUi.webhookHelp = Instance.new("TextLabel")
 configUi.webhookHelp.Position = UDim2.new(0, 14, 0, 36)
@@ -1411,6 +1512,97 @@ local contentPanels = {
 	consolePanel
 }
 
+local function stylePanelHeading(parent, label, iconKind, id, accent, yOffset, dividerY, rightInset)
+	label.Position = UDim2.new(0, 38, 0, yOffset)
+	label.Size = UDim2.new(1, -(rightInset or 52), 0, 18)
+	label.TextColor3 = Color3.fromRGB(235, 240, 255)
+	label.Font = Enum.Font.GothamBold
+	label.TextSize = 11
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextYAlignment = Enum.TextYAlignment.Center
+
+	createCanvasIcon(
+		parent,
+		iconKind,
+		accent,
+		UDim2.new(0, 16, 0, 16),
+		UDim2.new(0, 19, 0, yOffset + 9),
+		id .. "HeaderIcon"
+	)
+
+	if dividerY then
+		local divider = Instance.new("Frame")
+		divider.Name = id .. "HeaderDivider"
+		divider.Position = UDim2.new(0, 10, 0, dividerY)
+		divider.Size = UDim2.new(1, -20, 0, 1)
+		divider.BackgroundColor3 = Color3.fromRGB(64, 80, 124)
+		divider.BackgroundTransparency = 0.45
+		divider.BorderSizePixel = 0
+		divider.Parent = parent
+	end
+end
+
+stylePanelHeading(
+	logPanel,
+	logHeader,
+	"egg",
+	"Log",
+	Color3.fromRGB(81, 190, 255),
+	8,
+	nil,
+	52
+)
+stylePanelHeading(
+	promotionPanel,
+	promotionHeader,
+	"money",
+	"Promotion",
+	Color3.fromRGB(178, 123, 255),
+	8,
+	28,
+	52
+)
+stylePanelHeading(
+	announcementPanel,
+	announcementHeader,
+	"megaphone",
+	"Announcement",
+	Color3.fromRGB(123, 153, 255),
+	10,
+	31,
+	52
+)
+stylePanelHeading(
+	configUi.panel,
+	configUi.header,
+	"egg",
+	"Config",
+	Color3.fromRGB(100, 178, 255),
+	10,
+	46,
+	52
+)
+stylePanelHeading(
+	configUi.webhookPanel,
+	configUi.webhookHeader,
+	"endpoint",
+	"Webhook",
+	Color3.fromRGB(92, 201, 255),
+	12,
+	68,
+	52
+)
+stylePanelHeading(
+	consolePanel,
+	consoleHeader,
+	"terminal",
+	"Console",
+	Color3.fromRGB(176, 139, 255),
+	8,
+	31,
+	128
+)
+
 local function applyResponsiveLayout()
 	local viewport = screenGui.AbsoluteSize
 	if viewport.X <= 0 or viewport.Y <= 0 then
@@ -1419,7 +1611,10 @@ local function applyResponsiveLayout()
 	end
 	if viewport.X <= 0 or viewport.Y <= 0 then return end
 
-	local compact = viewport.X < 900 or viewport.Y < 600
+	local compact = viewport.X < 760
+	liveChip.Visible = not compact
+	header.Size = UDim2.new(1, compact and -126 or -230, 0, 24)
+	subtitle.Size = UDim2.new(1, compact and -128 or -230, 0, 16)
 	if compact then
 		panel.Size = UDim2.fromOffset(
 			math.max(280, math.min(390, viewport.X - 24)),
@@ -1490,9 +1685,9 @@ local function applyResponsiveLayout()
 	end
 end
 
-local sectionStrokeColor = Color3.fromRGB(49, 43, 75)
+local sectionStrokeColor = Color3.fromRGB(54, 72, 117)
 for _, section in ipairs(contentPanels) do
-	section.BackgroundColor3 = Color3.fromRGB(12, 16, 31)
+	section.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	section.BackgroundTransparency = 0.02
 	local stroke = section:FindFirstChild("SectionStroke")
 	if not stroke then
@@ -1502,20 +1697,82 @@ for _, section in ipairs(contentPanels) do
 	end
 	stroke.Color = sectionStrokeColor
 	stroke.Thickness = 1
-	stroke.Transparency = 0.28
+	stroke.Transparency = 0.38
+
+	local gradient = section:FindFirstChild("SectionGradient")
+	if not gradient then
+		gradient = Instance.new("UIGradient")
+		gradient.Name = "SectionGradient"
+		gradient.Parent = section
+	end
+	gradient.Color = ColorSequence.new(
+		Color3.fromRGB(12, 16, 32),
+		Color3.fromRGB(17, 18, 40)
+	)
+	gradient.Rotation = 38
+
+	local corner = section:FindFirstChildOfClass("UICorner")
+	if not corner then
+		corner = Instance.new("UICorner")
+		corner.Parent = section
+	end
+	corner.CornerRadius = UDim.new(0, 12)
 end
 
 for _, item in ipairs(panel:GetDescendants()) do
-	if item:IsA("TextBox") and item.BackgroundTransparency < 1 then
-		item.BackgroundColor3 = Color3.fromRGB(18, 23, 41)
+	if item:IsA("TextBox") then
 		item.TextColor3 = Color3.fromRGB(245, 242, 255)
 		item.PlaceholderColor3 = Color3.fromRGB(139, 143, 167)
-		local corner = item:FindFirstChildOfClass("UICorner")
-		if not corner then
-			corner = Instance.new("UICorner")
-			corner.Parent = item
+		if item.BackgroundTransparency < 1 then
+			item.BackgroundColor3 = Color3.fromRGB(15, 22, 40)
+			local corner = item:FindFirstChildOfClass("UICorner")
+			if not corner then
+				corner = Instance.new("UICorner")
+				corner.Parent = item
+			end
+			corner.CornerRadius = UDim.new(0, 8)
+
+			local inputStroke = item:FindFirstChild("AuraInputStroke")
+			if not inputStroke then
+				inputStroke = Instance.new("UIStroke")
+				inputStroke.Name = "AuraInputStroke"
+				inputStroke.Parent = item
+				item.Focused:Connect(function()
+					inputStroke.Color = Color3.fromRGB(102, 153, 255)
+					inputStroke.Transparency = 0.05
+				end)
+				item.FocusLost:Connect(function()
+					inputStroke.Color = Color3.fromRGB(61, 78, 119)
+					inputStroke.Transparency = 0.48
+				end)
+			end
+			inputStroke.Color = Color3.fromRGB(61, 78, 119)
+			inputStroke.Thickness = 1
+			inputStroke.Transparency = 0.48
+
+			local inputPadding = item:FindFirstChildOfClass("UIPadding")
+			if not inputPadding then
+				inputPadding = Instance.new("UIPadding")
+				inputPadding.Parent = item
+			end
+			inputPadding.PaddingLeft = UDim.new(0, 9)
+			inputPadding.PaddingRight = UDim.new(0, 9)
 		end
-		corner.CornerRadius = UDim.new(0, 7)
+	elseif item:IsA("Frame") and item.Name:match("Shell$") then
+		item.BackgroundColor3 = Color3.fromRGB(15, 22, 40)
+		local shellCorner = item:FindFirstChildOfClass("UICorner")
+		if shellCorner then
+			shellCorner.CornerRadius = UDim.new(0, 8)
+		end
+		local shellStroke = item:FindFirstChild("AuraShellStroke")
+		if not shellStroke then
+			shellStroke = Instance.new("UIStroke")
+			shellStroke.Name = "AuraShellStroke"
+			shellStroke.Parent = item
+		end
+		shellStroke.Color = Color3.fromRGB(61, 78, 119)
+		shellStroke.Thickness = 1
+		shellStroke.Transparency = 0.48
 	end
 end
 
@@ -1545,7 +1802,7 @@ toggleButton.ClipsDescendants = true
 toggleButton.ZIndex = 20
 toggleButton.Parent = screenGui
 
-local SCRIPT_ICON_URL = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/151cc038510f603b832be34568d8097a66048c1a/assets/aura-egg-script-icon.png"
+local SCRIPT_ICON_URL = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/main/assets/aura-egg-script-icon.png"
 local function resolveScriptIconAsset()
 local assetResolver = getsynasset or getcustomasset
 if type(assetResolver) ~= "function" or type(writefile) ~= "function" then
@@ -2267,19 +2524,49 @@ if oldIcon then oldIcon:Destroy() end
 local oldPadding = button:FindFirstChild("IconTextPadding")
 if oldPadding then oldPadding:Destroy() end
 
-	local function setPressed(pressed)
-		button.BackgroundTransparency = pressed and 0.16 or 0.04
-		stroke.Thickness = pressed and 2 or 1.25
-		stroke.Transparency = pressed and 0 or 0.08
+	local gradient = button:FindFirstChild("AuraButtonGradient")
+	if not gradient then
+		gradient = Instance.new("UIGradient")
+		gradient.Name = "AuraButtonGradient"
+		gradient.Parent = button
 	end
-	button.MouseButton1Down:Connect(function() setPressed(true) end)
-	button.MouseButton1Up:Connect(function() setPressed(false) end)
-	button.MouseLeave:Connect(function() setPressed(false) end)
+	gradient.Color = ColorSequence.new(
+		Color3.fromRGB(255, 255, 255),
+		Color3.fromRGB(210, 221, 255)
+	)
+	gradient.Rotation = 90
+
+	local hovered = false
+	local pressed = false
+	local function updateButtonState()
+		button.BackgroundTransparency = pressed and 0.16 or (hovered and 0.01 or 0.04)
+		stroke.Thickness = pressed and 2 or (hovered and 1.75 or 1.25)
+		stroke.Transparency = pressed and 0 or (hovered and 0.02 or 0.08)
+	end
+	button.MouseEnter:Connect(function()
+		hovered = true
+		updateButtonState()
+	end)
+	button.MouseLeave:Connect(function()
+		hovered = false
+		pressed = false
+		updateButtonState()
+	end)
+	button.MouseButton1Down:Connect(function()
+		pressed = true
+		updateButtonState()
+	end)
+	button.MouseButton1Up:Connect(function()
+		pressed = false
+		updateButtonState()
+	end)
 end
 
 enhanceButton(panelClose, Color3.fromRGB(255, 78, 128))
+enhanceButton(toggleButton, Color3.fromRGB(73, 91, 209))
 enhanceButton(sendAnnouncementButton, Color3.fromRGB(132, 77, 244))
 enhanceButton(savePromotionButton, Color3.fromRGB(132, 77, 244))
+enhanceButton(promotionRarityButton, Color3.fromRGB(111, 81, 205))
 enhanceButton(configUi.rarityButton, Color3.fromRGB(111, 81, 205))
 enhanceButton(configUi.saveButton, Color3.fromRGB(132, 77, 244))
 enhanceButton(configUi.newButton, Color3.fromRGB(75, 62, 120))
@@ -2688,62 +2975,62 @@ local function setPanelVisible(visible)
 	end
 end
 
-local draggingToggle = false
-local dragMoved = false
-local dragStart = nil
-local dragOrigin = nil
-local targetTogglePosition = toggleButton.Position
+auraRuntime.AURA_EGG_DRAGGING_TOGGLE = false
+auraRuntime.AURA_EGG_DRAG_MOVED = false
+auraRuntime.AURA_EGG_DRAG_START = nil
+auraRuntime.AURA_EGG_DRAG_ORIGIN = nil
+auraRuntime.AURA_EGG_TARGET_TOGGLE_POSITION = toggleButton.Position
 
 toggleButton.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1
 		or input.UserInputType == Enum.UserInputType.Touch then
-		draggingToggle = true
-		dragMoved = false
-		dragStart = input.Position
-		dragOrigin = toggleButton.Position
-		targetTogglePosition = toggleButton.Position
+		auraRuntime.AURA_EGG_DRAGGING_TOGGLE = true
+		auraRuntime.AURA_EGG_DRAG_MOVED = false
+		auraRuntime.AURA_EGG_DRAG_START = input.Position
+		auraRuntime.AURA_EGG_DRAG_ORIGIN = toggleButton.Position
+		auraRuntime.AURA_EGG_TARGET_TOGGLE_POSITION = toggleButton.Position
 	end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if not draggingToggle then return end
+	if not auraRuntime.AURA_EGG_DRAGGING_TOGGLE then return end
 	if input.UserInputType ~= Enum.UserInputType.MouseMovement
 		and input.UserInputType ~= Enum.UserInputType.Touch then
 		return
 	end
-	if not dragStart or not dragOrigin then return end
+	if not auraRuntime.AURA_EGG_DRAG_START or not auraRuntime.AURA_EGG_DRAG_ORIGIN then return end
 
-	local delta = input.Position - dragStart
+	local delta = input.Position - auraRuntime.AURA_EGG_DRAG_START
 	if math.abs(delta.X) > 5 or math.abs(delta.Y) > 5 then
-		dragMoved = true
+		auraRuntime.AURA_EGG_DRAG_MOVED = true
 	end
 
-	targetTogglePosition = UDim2.new(
-		dragOrigin.X.Scale,
-		dragOrigin.X.Offset + delta.X,
-		dragOrigin.Y.Scale,
-		dragOrigin.Y.Offset + delta.Y
+	auraRuntime.AURA_EGG_TARGET_TOGGLE_POSITION = UDim2.new(
+		auraRuntime.AURA_EGG_DRAG_ORIGIN.X.Scale,
+		auraRuntime.AURA_EGG_DRAG_ORIGIN.X.Offset + delta.X,
+		auraRuntime.AURA_EGG_DRAG_ORIGIN.Y.Scale,
+		auraRuntime.AURA_EGG_DRAG_ORIGIN.Y.Offset + delta.Y
 	)
 end)
 
-local dragRenderConnection
-dragRenderConnection = RunService.RenderStepped:Connect(function(deltaTime)
-	if not draggingToggle or not targetTogglePosition then return end
+auraRuntime.AURA_EGG_DRAG_RENDER_CONNECTION = RunService.RenderStepped:Connect(function(deltaTime)
+	if not auraRuntime.AURA_EGG_DRAGGING_TOGGLE
+		or not auraRuntime.AURA_EGG_TARGET_TOGGLE_POSITION then return end
 
 	local current = toggleButton.Position
 	local smoothing = math.min(1, deltaTime * 30)
 	toggleButton.Position = UDim2.new(
 		current.X.Scale,
-		current.X.Offset + (targetTogglePosition.X.Offset - current.X.Offset) * smoothing,
+		current.X.Offset + (auraRuntime.AURA_EGG_TARGET_TOGGLE_POSITION.X.Offset - current.X.Offset) * smoothing,
 		current.Y.Scale,
-		current.Y.Offset + (targetTogglePosition.Y.Offset - current.Y.Offset) * smoothing
+		current.Y.Offset + (auraRuntime.AURA_EGG_TARGET_TOGGLE_POSITION.Y.Offset - current.Y.Offset) * smoothing
 	)
 end)
 
 screenGui.Destroying:Connect(function()
-	if dragRenderConnection then
-		dragRenderConnection:Disconnect()
-		dragRenderConnection = nil
+	if auraRuntime.AURA_EGG_DRAG_RENDER_CONNECTION then
+		auraRuntime.AURA_EGG_DRAG_RENDER_CONNECTION:Disconnect()
+		auraRuntime.AURA_EGG_DRAG_RENDER_CONNECTION = nil
 	end
 end)
 
@@ -2752,17 +3039,17 @@ UserInputService.InputEnded:Connect(function(input)
 		and input.UserInputType ~= Enum.UserInputType.Touch then
 		return
 	end
-	if not draggingToggle then return end
+	if not auraRuntime.AURA_EGG_DRAGGING_TOGGLE then return end
 
-	draggingToggle = false
-	toggleButton.Position = targetTogglePosition
-	if dragMoved then
+	auraRuntime.AURA_EGG_DRAGGING_TOGGLE = false
+	toggleButton.Position = auraRuntime.AURA_EGG_TARGET_TOGGLE_POSITION
+	if auraRuntime.AURA_EGG_DRAG_MOVED then
 		saveTogglePosition()
 	else
 		setPanelVisible(not panelOpen)
 	end
-	dragStart = nil
-	dragOrigin = nil
+	auraRuntime.AURA_EGG_DRAG_START = nil
+	auraRuntime.AURA_EGG_DRAG_ORIGIN = nil
 end)
 
 panelClose.MouseButton1Click:Connect(function()
