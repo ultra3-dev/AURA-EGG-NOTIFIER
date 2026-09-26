@@ -1,4 +1,4 @@
--- AURA EGG 2.2.6 ULTRA // DELIVERY + EVENT LOOP
+-- AURA EGG 2.2.7 ULTRA // DELIVERY + EVENT LOOP
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
 		local payload = {
@@ -88,7 +88,7 @@ accent_color = 0x8B5CF6,
 components = {
 {
 type = 10,
-content = "## 🥚 AURA EGG NOTIFIER ACTIVATED"
+content = "## 🟢 AURA EGG NOTIFIER ACTIVATED"
 },
 {
 type = 10,

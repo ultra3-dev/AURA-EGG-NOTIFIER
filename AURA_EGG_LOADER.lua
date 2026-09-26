@@ -1,4 +1,4 @@
--- AURA EGG NOTIFIER // MODULAR LOADER 2.2.6
+-- AURA EGG NOTIFIER // MODULAR LOADER 2.2.7
 -- Mantén los webhooks solo localmente. No los publiques.
 
 local env = (type(getgenv) == "function" and getgenv()) or _G
@@ -15,7 +15,7 @@ local files = {
 
 local source = ""
 for _, fileName in ipairs(files) do
-	source = source .. "\n" .. game:HttpGet(base .. fileName .. "?v=20260926-2.2.6")
+	source = source .. "\n" .. game:HttpGet(base .. fileName .. "?v=20260926-2.2.7")
 end
 
 local compile = loadstring or load
