@@ -2745,20 +2745,20 @@ consoleJumpButton.MouseButton1Click:Connect(function()
 	scrollToLatest(consoleScroll)
 end)
 
-local PROMOTION_RARITIES = {"", "DIVINE", "ETERNAL", "SECRET"}
-local promotionDraftRarity = promotionState.rarity
+PROMOTION_RARITIES = {"", "DIVINE", "ETERNAL", "SECRET"}
+auraRuntime.AURA_EGG_PROMOTION_DRAFT_RARITY = promotionState.rarity
 
-local function getPromotionRarityLabel(rarity)
+function getPromotionRarityLabel(rarity)
 	if rarity == "DIVINE" then return "DIVINE" end
 	if rarity == "ETERNAL" then return "ETERNAL" end
 	if rarity == "SECRET" then return "SECRET" end
 	return "TODAS"
 end
 
-local function updatePromotionControls()
-	local rarityLabel = getPromotionRarityLabel(promotionDraftRarity)
+function updatePromotionControls()
+	local rarityLabel = getPromotionRarityLabel(auraRuntime.AURA_EGG_PROMOTION_DRAFT_RARITY)
 	promotionRarityButton.Text = "RAREZA: " .. rarityLabel
-	if promotionDraftRarity ~= "" then
+	if auraRuntime.AURA_EGG_PROMOTION_DRAFT_RARITY ~= "" then
 		promotionIntervalBox.TextEditable = false
 		promotionIntervalBox.Text = "0"
 		promotionIntervalBox.PlaceholderText = "DESACTIVADO // RAREZA"
@@ -2770,7 +2770,7 @@ local function updatePromotionControls()
 	end
 end
 
-local function parsePromotionEmoji(value)
+function parsePromotionEmoji(value)
 	local cleaned = cleanPromotionInput(value)
 	if cleaned == "" then return nil end
 
@@ -2802,14 +2802,14 @@ updatePromotionControls()
 promotionRarityButton.MouseButton1Click:Connect(function()
 	local currentIndex = 1
 	for index, rarity in ipairs(PROMOTION_RARITIES) do
-		if rarity == promotionDraftRarity then
+		if rarity == auraRuntime.AURA_EGG_PROMOTION_DRAFT_RARITY then
 			currentIndex = index
 			break
 		end
 	end
 
 	local nextIndex = currentIndex % #PROMOTION_RARITIES + 1
-	promotionDraftRarity = PROMOTION_RARITIES[nextIndex]
+	auraRuntime.AURA_EGG_PROMOTION_DRAFT_RARITY = PROMOTION_RARITIES[nextIndex]
 	updatePromotionControls()
 end)
 
@@ -2822,7 +2822,7 @@ local intervalText = cleanPromotionInput(promotionIntervalBox.Text)
 local maxUses = maxUsesText == "" and 0 or tonumber(maxUsesText)
 local intervalMinutes = intervalText == "" and 0 or tonumber(intervalText)
 local emoji = parsePromotionEmoji(emojiText)
-local selectedRarity = promotionDraftRarity
+	local selectedRarity = auraRuntime.AURA_EGG_PROMOTION_DRAFT_RARITY
 
 if url ~= "" and not url:match("^https?://%S+$") then
 updateStatus("PROMOTIONS // INVALID URL", Color3.fromRGB(255, 92, 133))
@@ -2875,10 +2875,10 @@ updateStatus("PROMOTIONS // BUTTON READY", Color3.fromRGB(151, 255, 204))
 end
 end)
 
-local activeSection = "LOG"
+auraRuntime.AURA_EGG_ACTIVE_SECTION = "LOG"
 
-local function setActiveSection(section)
-	activeSection = section
+function setActiveSection(section)
+	auraRuntime.AURA_EGG_ACTIVE_SECTION = section
 	local showLog = section == "LOG"
 	local showPromotions = section == "PROMOTIONS"
 	local showConfig = section == "CONFIG"
@@ -2937,7 +2937,7 @@ consoleTab.MouseButton1Click:Connect(function()
 	setActiveSection("CONSOLE")
 end)
 
-local function updateBadge()
+function updateBadge()
 	if unreadCount <= 0 then
 		badge.Visible = false
 		return
@@ -2947,7 +2947,7 @@ local function updateBadge()
 	badge.Text = unreadCount > 9 and "9+" or tostring(unreadCount)
 end
 
-local function setPanelVisible(visible)
+function setPanelVisible(visible)
 	panelOpen = visible
 	if visible then
 		panel.Visible = true
