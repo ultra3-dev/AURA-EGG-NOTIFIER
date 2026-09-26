@@ -127,7 +127,13 @@ end
 
 local function buildLastSeenSeparator(name)
 	if name == "aura" then
-		return {type = 10, content = "━━━━━━━━━━━━━━ ✦ AURA ✦ ━━━━━━━━━━━━━━"}
+		return {
+			type = 12,
+			items = {{
+				media = {url = getLastSeenAssetUrl("glacian")},
+				description = "AURA separator"
+			}}
+		}
 	end
 	if not name or name == "" then
 		return {type = 10, content = "━━━━━━━━━━━━━━━━━━━━━━━━"}
