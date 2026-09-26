@@ -221,10 +221,6 @@ local function buildLastSeenPayload(referenceTime)
 	end
 
 	local components = {
-{
-type = 10,
-content = "# 🥚 AURA — Last Seen"
-},
 		buildLastSeenSeparator("aura")
 	}
 
