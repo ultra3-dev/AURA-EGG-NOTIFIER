@@ -210,35 +210,35 @@ local LAST_SEEN_INITIAL_TIMES = {
 	unicorn = 1789980058,
 	archangel = 1789440624,
 
-	mosasaurus = 1790262603,
-	onitiger = 1790265003,
-	elmaja = 1790202602,
-	gorillaking = 1790237703,
-	eternallunardragon = 1790258402,
-	icedragon = 1790248503,
-	skeletonhorse = 1790262903,
-	lavadragon = 1790116272,
-	pegasus = 1790112971,
-	phoenix = 1790251504,
+	mosasaurus = 1790371303,
+	onitiger = 1790374284,
+	elmaja = 1790202668,
+	gorillaking = 1790298134,
+	eternallunardragon = 1790437810,
+	icedragon = 1790407443,
+	skeletonhorse = 1790371977,
+	lavadragon = 1790413250,
+	pegasus = 1790426196,
+	phoenix = 1790412937,
 
-	razorfang = 1790265302,
-	kraken = 1790260803,
-	tralaledon = 1790248503,
-	cosmicskeletonboss = 1790256903,
-	trex = 1790264103,
-	purejellyfish = 1790267404,
-	gargoyle = 1790264103,
-	centaur = 1790264703,
-	yeti = 1790267104,
-	cosmicdragon = 1790264103,
-	stag = 1790259903,
-	mutantshark = 1790264703,
-	cerberus = 1790265603,
-	kingsnake = 1790227502
+	razorfang = 1790416968,
+	kraken = 1790414758,
+	tralaledon = 1790425469,
+	cosmicskeletonboss = 1790437878,
+	trex = 1790436430,
+	purejellyfish = 1790436560,
+	gargoyle = 1790435548,
+	centaur = 1790369175,
+	yeti = 1790436443,
+	cosmicdragon = 1790409556,
+	stag = 1790429309,
+	mutantshark = 1790409393,
+	cerberus = 1790408702,
+	kingsnake = 1790325374
 }
 
 -- Baseline actualizado: solo se migra una vez a la versión 7.
-local LAST_SEEN_INITIAL_TIMES_VERSION = 7
+local LAST_SEEN_INITIAL_TIMES_VERSION = 8
 local LAST_SEEN_ACTIVE_WINDOW = 300
 
 function seedLastSeenState()
