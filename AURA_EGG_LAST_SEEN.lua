@@ -215,6 +215,11 @@ local function buildLastSeenContainer(rarity)
 end
 
 local function buildLastSeenPayload(referenceTime)
+	local updatedAt = tonumber(lastSeenState.lastUpdatedAt)
+	if not updatedAt or updatedAt <= 0 then
+		updatedAt = tonumber(referenceTime) or os.time()
+	end
+
 	local components = {
 		buildLastSeenSeparator("aura")
 	}
@@ -229,8 +234,8 @@ local function buildLastSeenPayload(referenceTime)
 		components,
 		{
 			type = 10,
-			content = "### Last Seen • AURA FAMILY X • Actualizado <t:"
-				.. tostring(math.floor(tonumber(referenceTime) or os.time()))
+			content = "-# Last Seen • AURA FAMILY X • Actualizado <t:"
+				.. tostring(math.floor(updatedAt))
 				.. ":R>"
 		}
 	)
@@ -484,6 +489,7 @@ local function recordLastSeenSpawn(text, spawnedAt)
 	if previous and previous >= timestamp then return end
 
 	lastSeenState.entries[entry.key] = timestamp
+	lastSeenState.lastUpdatedAt = math.max(tonumber(lastSeenState.lastUpdatedAt) or 0, timestamp)
 	-- Guardado inmediato: el historial no depende de que el scheduler alcance a ejecutarse.
 	saveLastSeenState()
 	scheduleLastSeenUpdate()
