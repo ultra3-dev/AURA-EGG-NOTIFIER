@@ -96,7 +96,7 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "EggDetectorStealth"
 screenGui.ResetOnSpawn = false
 screenGui.DisplayOrder = 9999
-screenGui.IgnoreGuiInset = true
+screenGui.IgnoreGuiInset = false
 screenGui.Parent = playerGui
 
 local panel = Instance.new("Frame")
@@ -112,6 +112,7 @@ panel.Parent = screenGui
 local panelScale = Instance.new("UIScale")
 panelScale.Scale = 1
 panelScale.Parent = panel
+local panelTargetScale = 1
 
 local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 14)
@@ -1771,10 +1772,11 @@ subtitle.TextSize = compact and 8 or 10
 		local compactWidth = 390
 		local compactHeight = 420
 		panel.Size = UDim2.fromOffset(compactWidth, compactHeight)
-		panelScale.Scale = math.max(0.72, math.min(1, math.min(
+		panelTargetScale = math.max(0.72, math.min(1, math.min(
 			(viewport.X - 24) / compactWidth,
 			(viewport.Y - 24) / compactHeight
 		)))
+		panelScale.Scale = panelTargetScale
 		topBar.Size = UDim2.new(1, 0, 0, 62)
 		navigation.Position = UDim2.new(0, 12, 0, 64)
 		navigation.Size = UDim2.new(1, -24, 0, 28)
@@ -1806,10 +1808,11 @@ navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 		local desktopWidth = 880
 		local desktopHeight = 540
 		panel.Size = UDim2.fromOffset(desktopWidth, desktopHeight)
-		panelScale.Scale = math.max(0.72, math.min(1, math.min(
+		panelTargetScale = math.max(0.72, math.min(1, math.min(
 			(viewport.X - 32) / desktopWidth,
 			(viewport.Y - 32) / desktopHeight
 		)))
+		panelScale.Scale = panelTargetScale
 		topBar.Size = UDim2.new(1, 0, 0, 72)
 		navigation.Position = UDim2.new(0, 12, 0, 84)
 		navigation.Size = UDim2.new(0, 142, 1, -146)
@@ -3311,20 +3314,22 @@ function setPanelVisible(visible)
 	panelOpen = visible
 	if visible then
 		panel.Visible = true
-		panelScale.Scale = 0.92
+		local targetScale = panelTargetScale
+		panelScale.Scale = targetScale * 0.92
 		TweenService:Create(
 			panelScale,
 			TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-			{Scale = 1}
+			{Scale = targetScale}
 		):Play()
 		unreadCount = 0
 		updateBadge()
 	else
 		local closingPanel = panel
+		local targetScale = panelTargetScale
 		local animation = TweenService:Create(
 			panelScale,
 			TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-			{Scale = 0.92}
+			{Scale = targetScale * 0.92}
 		)
 		animation:Play()
 		task.delay(0.15, function()
