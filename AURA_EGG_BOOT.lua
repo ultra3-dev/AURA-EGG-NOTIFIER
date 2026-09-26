@@ -1,4 +1,4 @@
--- AURA EGG 2.2.2 ULTRA // BOOT + UI
+-- AURA EGG 2.2.6 ULTRA // BOOT + UI
 --[[
 	🥚 EGG DETECTOR - ULTRA MEGA HYPER-VELOCITY ADVANCED EDITION
 	================================================================
@@ -41,7 +41,7 @@ ConsoleMaxLines = 600,
 		"skeleton horse",
 		"pegasus",
 	},
-Version = "2.2.2"
+Version = "2.2.6"
 }
 
 local ACCESS_STATE_FILE = "AuraEggNotifier_Access.json"
@@ -271,8 +271,8 @@ panelCloseCorner.Parent = panelClose
 local liveChip = Instance.new("Frame")
 liveChip.Name = "SystemLiveChip"
 liveChip.AnchorPoint = Vector2.new(1, 0)
-liveChip.Position = UDim2.new(1, -56, 0, 15)
-liveChip.Size = UDim2.new(0, 62, 0, 22)
+liveChip.Position = UDim2.new(1, -62, 0, 14)
+liveChip.Size = UDim2.new(0, 70, 0, 24)
 liveChip.BackgroundColor3 = Color3.fromRGB(14, 38, 47)
 liveChip.BorderSizePixel = 0
 liveChip.Parent = topBar
@@ -287,7 +287,7 @@ liveChipStroke.Parent = liveChip
 local liveChipDot = Instance.new("Frame")
 liveChipDot.Name = "LiveDot"
 liveChipDot.AnchorPoint = Vector2.new(0, 0.5)
-liveChipDot.Position = UDim2.new(0, 9, 0.5, 0)
+liveChipDot.Position = UDim2.new(0, 8, 0.5, 0)
 liveChipDot.Size = UDim2.new(0, 6, 0, 6)
 liveChipDot.BackgroundColor3 = Color3.fromRGB(88, 255, 184)
 liveChipDot.BorderSizePixel = 0
@@ -297,14 +297,15 @@ liveChipDotCorner.CornerRadius = UDim.new(1, 0)
 liveChipDotCorner.Parent = liveChipDot
 local liveChipLabel = Instance.new("TextLabel")
 liveChipLabel.Name = "LiveLabel"
-liveChipLabel.Position = UDim2.new(0, 20, 0, 0)
-liveChipLabel.Size = UDim2.new(1, -23, 1, 0)
+liveChipLabel.Position = UDim2.new(0, 17, 0, 0)
+liveChipLabel.Size = UDim2.new(1, -17, 1, 0)
 liveChipLabel.BackgroundTransparency = 1
 liveChipLabel.Text = "ONLINE"
 liveChipLabel.TextColor3 = Color3.fromRGB(160, 255, 217)
 liveChipLabel.Font = Enum.Font.GothamBold
-liveChipLabel.TextSize = 14
-liveChipLabel.TextXAlignment = Enum.TextXAlignment.Left
+liveChipLabel.TextSize = 15
+liveChipLabel.TextXAlignment = Enum.TextXAlignment.Center
+liveChipLabel.TextYAlignment = Enum.TextYAlignment.Center
 liveChipLabel.Parent = liveChip
 
 local topBarGradient = Instance.new("UIGradient")

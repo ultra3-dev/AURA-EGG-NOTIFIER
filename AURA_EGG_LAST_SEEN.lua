@@ -1,4 +1,4 @@
--- AURA EGG 2.2.2 ULTRA // LAST SEEN + CONFIG SERVICES
+-- AURA EGG 2.2.6 ULTRA // LAST SEEN + CONFIG SERVICES
 local function getHttpStatusCode(response)
 local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
 local statusCode = tonumber(rawStatus)
@@ -889,7 +889,7 @@ end
 			local separator = Instance.new("TextLabel")
 			local rarityColor = rarity == "Divine" and Color3.fromRGB(255, 215, 0)
 				or rarity == "Eternal" and Color3.fromRGB(171, 92, 255)
-				or rarity == "Secret" and Color3.fromRGB(245, 248, 255)
+				or rarity == "Secret" and Color3.fromRGB(214, 218, 228)
 				or Color3.fromRGB(110, 180, 255)
 			separator.Name = "RaritySeparator_" .. rarity
 			separator.LayoutOrder = layoutOrder
@@ -929,7 +929,7 @@ row.RichText = true
 local displayRarity = escapeRichText(rarity)
 			local rarityHex = rarity == "Divine" and "#FFD700"
 				or rarity == "Eternal" and "#AB5CFF"
-				or rarity == "Secret" and "#F5F8FF"
+				or rarity == "Secret" and "#D6DAE4"
 				or "#6EB4FF"
 			if rarity then
 				displayRarity = '<font color="' .. rarityHex .. '">' .. displayRarity .. "</font>"
