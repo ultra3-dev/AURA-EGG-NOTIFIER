@@ -149,6 +149,7 @@ end
 
 local lastSeenRefreshScheduler
 local lastSeenRefreshTimers = {}
+local lastSeenActiveState = nil
 
 local function formatLastSeenStatus(timestamp)
 	local parsed = tonumber(timestamp)
@@ -616,6 +617,34 @@ lastSeenRefreshScheduler = function(timestamp)
 		if not scriptStopped then scheduleLastSeenUpdate() end
 	end)
 end
+
+local function hasActiveLastSeenEntries(now)
+for _, rarity in ipairs(LAST_SEEN_RARITY_ORDER) do
+for _, entry in ipairs(LAST_SEEN_CATALOG[rarity] or {}) do
+local timestamp = tonumber(lastSeenState.entries[entry.key])
+if timestamp
+and timestamp > 0
+and timestamp >= now - LAST_SEEN_ACTIVE_WINDOW
+and timestamp <= now + LAST_SEEN_ACTIVE_WINDOW then
+return true
+end
+end
+end
+return false
+end
+
+task.spawn(function()
+while not scriptStopped do
+task.wait(15)
+if scriptStopped then return end
+
+local activeNow = hasActiveLastSeenEntries(os.time())
+if lastSeenActiveState == true and not activeNow then
+scheduleLastSeenUpdate()
+end
+lastSeenActiveState = activeNow
+end
+end)
 
 local function recordLastSeenSpawn(text, spawnedAt)
 	local rarity = getLastSeenRarity(text)
