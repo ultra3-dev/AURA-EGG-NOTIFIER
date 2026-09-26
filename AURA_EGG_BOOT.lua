@@ -1,4 +1,4 @@
--- AURA EGG 2.2.8 ULTRA // BOOT + UI
+-- AURA EGG 2.2.9 ULTRA // BOOT + UI
 --[[
 	🥚 EGG DETECTOR - ULTRA MEGA HYPER-VELOCITY ADVANCED EDITION
 	================================================================
@@ -41,7 +41,7 @@ ConsoleMaxLines = 600,
 		"skeleton horse",
 		"pegasus",
 	},
-Version = "2.2.8"
+Version = "2.2.9"
 }
 
 local ACCESS_STATE_FILE = "AuraEggNotifier_Access.json"
@@ -1757,46 +1757,63 @@ stylePanelHeading(
 )
 
 local function applyResponsiveLayout()
-	local viewport = screenGui.AbsoluteSize
-	if viewport.X <= 0 or viewport.Y <= 0 then
-		local camera = workspace.CurrentCamera
-		if camera then viewport = camera.ViewportSize end
+	local viewport
+	local camera = workspace.CurrentCamera
+	if camera and camera.ViewportSize.X > 0 and camera.ViewportSize.Y > 0 then
+		viewport = camera.ViewportSize
+	else
+		viewport = screenGui.AbsoluteSize
 	end
 	if viewport.X <= 0 or viewport.Y <= 0 then return end
 
-	local compact = viewport.X < 760
+	local compact = viewport.X < 760 or viewport.Y < 500
+	local compactPortrait = compact and viewport.Y > viewport.X
 	liveChip.Visible = not compact
 	header.Size = UDim2.new(1, compact and -126 or -230, 0, 24)
 	subtitle.Size = UDim2.new(1, compact and -128 or -230, 0, 16)
 header.TextSize = compact and 18 or 22
 subtitle.TextSize = compact and 12 or 14
 	if compact then
-		panel.Size = UDim2.fromOffset(390, 420)
-		panelScale.Scale = math.max(0.72, math.min(1, math.min(
-			(viewport.X - 24) / 390,
-			(viewport.Y - 24) / 420
-		)))
+		local compactWidth = compactPortrait and 390 or 620
+		local compactHeight = compactPortrait and 420 or 420
+		panel.Size = UDim2.fromOffset(compactWidth, compactHeight)
+		panelScale.Scale = math.min(
+			1,
+			math.max(0.4, (viewport.X - 24) / compactWidth),
+			math.max(0.4, (viewport.Y - 24) / compactHeight)
+		)
 		auraRuntime.AURA_EGG_PANEL_TARGET_SCALE = panelScale.Scale
 		panel.Position = UDim2.new(0.5, 0, 0.5, 0)
 		topBar.Size = UDim2.new(1, 0, 0, 62)
 		navigation.Position = UDim2.new(0, 12, 0, 64)
 		navigation.Size = UDim2.new(1, -24, 0, 28)
-navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 		navigation.ScrollingDirection = Enum.ScrollingDirection.X
 		navigation.ScrollBarThickness = 0
 		navigationDivider.Visible = false
 
-		for _, item in ipairs(navigationItems) do
-			item.button.Position = UDim2.new(0, item.x, 0, 0)
-			item.button.Size = UDim2.new(0, item.width, 1, 0)
-			item.icon.Position = item.iconCentered
-				and UDim2.new(0.5, 0, 0.5, 0)
-				or UDim2.new(0, 15, 0.5, 0)
-			item.label.Position = UDim2.new(0, 30, 0, 0)
-			item.label.Size = UDim2.new(1, -34, 1, 0)
-			item.label.Font = Enum.Font.Code
-			item.label.TextSize = item.labelSize
-			item.label.Visible = not item.iconCentered
+		if compactPortrait then
+			local iconTabWidth = 48
+			navigation.CanvasSize = UDim2.new(0, #navigationItems * iconTabWidth, 0, 0)
+			for index, item in ipairs(navigationItems) do
+				item.button.Position = UDim2.new(0, (index - 1) * iconTabWidth, 0, 0)
+				item.button.Size = UDim2.new(0, iconTabWidth, 1, 0)
+				item.icon.Position = UDim2.new(0.5, 0, 0.5, 0)
+				item.label.Visible = false
+			end
+		else
+			navigation.CanvasSize = UDim2.new(0, 596, 0, 0)
+			for _, item in ipairs(navigationItems) do
+				item.button.Position = UDim2.new(0, item.x, 0, 0)
+				item.button.Size = UDim2.new(0, item.width, 1, 0)
+				item.icon.Position = item.iconCentered
+					and UDim2.new(0.5, 0, 0.5, 0)
+					or UDim2.new(0, 15, 0.5, 0)
+				item.label.Position = UDim2.new(0, 30, 0, 0)
+				item.label.Size = UDim2.new(1, -34, 1, 0)
+				item.label.Font = Enum.Font.Code
+				item.label.TextSize = item.labelSize
+				item.label.Visible = not item.iconCentered
+			end
 		end
 
 		for _, section in ipairs(contentPanels) do
@@ -1807,10 +1824,10 @@ navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 		statusLabel.Size = UDim2.new(1, -24, 0, 38)
 	else
 		panel.Size = UDim2.fromOffset(880, 540)
-		panelScale.Scale = math.max(0.72, math.min(1, math.min(
+		panelScale.Scale = math.min(1, math.min(
 			(viewport.X - 32) / 880,
 			(viewport.Y - 32) / 540
-		)))
+		))
 		auraRuntime.AURA_EGG_PANEL_TARGET_SCALE = panelScale.Scale
 		panel.Position = UDim2.new(0.5, 0, 0.5, viewport.Y < 560 and 22 or 0)
 		topBar.Size = UDim2.new(1, 0, 0, 72)
@@ -1944,6 +1961,18 @@ styleTab(configUi.shareTab, false)
 styleTab(consoleTab, false)
 
 screenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyResponsiveLayout)
+local function bindCameraViewport()
+	local activeCamera = workspace.CurrentCamera
+	if activeCamera then
+		activeCamera:GetPropertyChangedSignal("ViewportSize"):Connect(applyResponsiveLayout)
+	end
+end
+workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+	bindCameraViewport()
+	task.defer(applyResponsiveLayout)
+end)
+bindCameraViewport()
+task.defer(applyResponsiveLayout)
 applyResponsiveLayout()
 
 local toggleButton = Instance.new("TextButton")
