@@ -1768,11 +1768,13 @@ local function applyResponsiveLayout()
 header.TextSize = compact and 14 or 18
 subtitle.TextSize = compact and 8 or 10
 	if compact then
-		panel.Size = UDim2.fromOffset(
-			math.max(280, math.min(390, viewport.X - 24)),
-			math.max(260, math.min(420, viewport.Y - 24))
-		)
-		panelScale.Scale = 1
+		local compactWidth = 390
+		local compactHeight = 420
+		panel.Size = UDim2.fromOffset(compactWidth, compactHeight)
+		panelScale.Scale = math.max(0.72, math.min(1, math.min(
+			(viewport.X - 24) / compactWidth,
+			(viewport.Y - 24) / compactHeight
+		)))
 		topBar.Size = UDim2.new(1, 0, 0, 62)
 		navigation.Position = UDim2.new(0, 12, 0, 64)
 		navigation.Size = UDim2.new(1, -24, 0, 28)
@@ -1801,11 +1803,13 @@ navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 		statusLabel.Position = UDim2.new(0, 12, 1, -50)
 		statusLabel.Size = UDim2.new(1, -24, 0, 38)
 	else
-		panel.Size = UDim2.fromOffset(
-			math.min(880, viewport.X - 32),
-			math.min(540, viewport.Y - 32)
-		)
-		panelScale.Scale = 1
+		local desktopWidth = 880
+		local desktopHeight = 540
+		panel.Size = UDim2.fromOffset(desktopWidth, desktopHeight)
+		panelScale.Scale = math.max(0.72, math.min(1, math.min(
+			(viewport.X - 32) / desktopWidth,
+			(viewport.Y - 32) / desktopHeight
+		)))
 		topBar.Size = UDim2.new(1, 0, 0, 72)
 		navigation.Position = UDim2.new(0, 12, 0, 84)
 		navigation.Size = UDim2.new(0, 142, 1, -146)
