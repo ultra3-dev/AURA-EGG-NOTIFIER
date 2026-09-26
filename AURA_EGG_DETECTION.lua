@@ -241,7 +241,7 @@ local LAST_SEEN_INITIAL_TIMES = {
 local LAST_SEEN_INITIAL_TIMES_VERSION = 7
 local LAST_SEEN_ACTIVE_WINDOW = 300
 
-local function seedLastSeenState()
+function seedLastSeenState()
 	local needsInitialTimeMigration =
 		tonumber(lastSeenState.seedVersion) ~= LAST_SEEN_INITIAL_TIMES_VERSION
 	if lastSeenState.seeded and not needsInitialTimeMigration then return end
@@ -267,8 +267,6 @@ local function seedLastSeenState()
 	lastSeenState.seedVersion = LAST_SEEN_INITIAL_TIMES_VERSION
 	saveLastSeenState()
 end
-
-seedLastSeenState()
 
 local RARITY_EMOJI_BY_KEY = {
  divine = "<:Divine:1551677739411574794>",
