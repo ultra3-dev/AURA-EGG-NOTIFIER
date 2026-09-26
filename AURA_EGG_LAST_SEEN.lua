@@ -887,16 +887,17 @@ end
 		if #catalog > 0 then
 			layoutOrder = layoutOrder + 1
 			local separator = Instance.new("TextLabel")
+			local rarityColor = rarity == "Divine" and Color3.fromRGB(255, 215, 0)
+				or rarity == "Eternal" and Color3.fromRGB(171, 92, 255)
+				or rarity == "Secret" and Color3.fromRGB(245, 248, 255)
+				or Color3.fromRGB(110, 180, 255)
 			separator.Name = "RaritySeparator_" .. rarity
 			separator.LayoutOrder = layoutOrder
 			separator.Size = UDim2.new(1, -6, 0, 20)
 			separator.BackgroundColor3 = Color3.fromRGB(38, 25, 61)
 			separator.BorderSizePixel = 0
 			separator.Text = "━━  " .. rarity:upper() .. "  //  " .. tostring(#catalog) .. " PETS  ━━"
-			separator.TextColor3 = rarity == "Divine" and Color3.fromRGB(0, 198, 255)
-				or rarity == "Eternal" and Color3.fromRGB(171, 92, 255)
-				or rarity == "Secret" and Color3.fromRGB(245, 248, 255)
-				or Color3.fromRGB(110, 180, 255)
+			separator.TextColor3 = rarityColor
 			separator.Font = Enum.Font.Code
 separator.TextSize = 10
 			separator.TextXAlignment = Enum.TextXAlignment.Left
@@ -926,8 +927,12 @@ separator.TextSize = 10
 			row.BorderSizePixel = 0
 row.RichText = true
 local displayRarity = escapeRichText(rarity)
-if rarity == "Divine" then
-displayRarity = '<font color="#FFD700">' .. displayRarity .. "</font>"
+			local rarityHex = rarity == "Divine" and "#FFD700"
+				or rarity == "Eternal" and "#AB5CFF"
+				or rarity == "Secret" and "#F5F8FF"
+				or "#6EB4FF"
+			if rarity then
+				displayRarity = '<font color="' .. rarityHex .. '">' .. displayRarity .. "</font>"
 end
 row.Text = "◆  "
 .. escapeRichText(entry.name)
@@ -935,7 +940,7 @@ row.Text = "◆  "
 .. displayRarity
 			row.TextColor3 = Color3.fromRGB(242, 235, 252)
 			row.Font = Enum.Font.Code
-row.TextSize = 11
+row.TextSize = 14
 			row.TextXAlignment = Enum.TextXAlignment.Left
 			row.AutoButtonColor = false
 			row.Parent = configUi.listBody
