@@ -1777,6 +1777,7 @@ subtitle.TextSize = compact and 8 or 10
 			(viewport.Y - 24) / compactHeight
 		)))
 		panelScale.Scale = panelTargetScale
+		panel.Position = UDim2.new(0.5, 0, 0.5, 0)
 		topBar.Size = UDim2.new(1, 0, 0, 62)
 		navigation.Position = UDim2.new(0, 12, 0, 64)
 		navigation.Size = UDim2.new(1, -24, 0, 28)
@@ -1813,6 +1814,7 @@ navigation.CanvasSize = UDim2.new(0, 598, 0, 0)
 			(viewport.Y - 32) / desktopHeight
 		)))
 		panelScale.Scale = panelTargetScale
+		panel.Position = UDim2.new(0.5, 0, 0.5, viewport.Y < 560 and 22 or 0)
 		topBar.Size = UDim2.new(1, 0, 0, 72)
 		navigation.Position = UDim2.new(0, 12, 0, 84)
 		navigation.Size = UDim2.new(0, 142, 1, -146)
