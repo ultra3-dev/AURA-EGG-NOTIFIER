@@ -214,12 +214,6 @@ local function getVisualMeta(text)
 		return "DIVINE", "GREAT NEWS // DIVINE EGG", Color3.fromRGB(255, 126, 226), "spark"
 	elseif lower:find("secret", 1, true) then
 		return "SECRET", "JACKPOT // SECRET EGG", Color3.fromRGB(192, 126, 255), "spark"
-	elseif lower:find("mythical", 1, true) or lower:find("mythic", 1, true) then
-		return "MYTHICAL", "AMAZING FIND // MYTHICAL EGG", Color3.fromRGB(102, 210, 255), "spark"
-	elseif lower:find("legendary", 1, true) then
-		return "LEGENDARY", "AMAZING FIND // LEGENDARY EGG", Color3.fromRGB(255, 159, 78), "spark"
-	elseif lower:find("cosmic", 1, true) then
-		return "COSMIC", "COSMIC FIND // EGG SPAWNED", Color3.fromRGB(131, 151, 255), "spark"
 	end
 
 	return "NORMAL", "GOOD NEWS // EGG SPAWNED", Color3.fromRGB(151, 255, 204), "egg"
@@ -242,12 +236,20 @@ if scriptStopped then return end
 		if lower:find(bad, 1, true) then return end
 	end
 
-	local hits = 0
-	for _, good in ipairs(CONFIG.Keywords) do
-		if lower:find(good, 1, true) then hits = hits + 1 end
+	local function containsAnyKeyword(keywords)
+		for _, keyword in ipairs(keywords) do
+			if lower:find(keyword, 1, true) then
+				return true
+			end
+		end
+		return false
 	end
-	
-	if hits >= 2 or (lower:find("egg") and lower:find("spawn")) then
+
+	local hasEgg = containsAnyKeyword(CONFIG.EggKeywords)
+	local hasSpawnEvent = containsAnyKeyword(CONFIG.SpawnKeywords)
+	local hasTrackedRarity = getRarityRank(lower) <= #RARITY_ORDER
+
+	if hasEgg and hasSpawnEvent and hasTrackedRarity then
 		local now = tick()
 		source = source or "unknown"
 		local otherSource = source == "log" and "chat" or "log"
