@@ -198,7 +198,7 @@ local function buildLastSeenContainer(rarity)
 			{
 				type = 10,
 				content = string.format(
-"# %s %s — Last Seen\n-# %d registradas",
+"# %s %s — Last Seen\n**%d registradas**",
 					style.emoji,
 					rarity,
 					registered
@@ -216,10 +216,6 @@ end
 
 local function buildLastSeenPayload(referenceTime)
 	local components = {
-		{
-			type = 10,
-			content = "### 🥚 AURA — Last Seen"
-		},
 		buildLastSeenSeparator("aura")
 	}
 
@@ -227,11 +223,13 @@ local function buildLastSeenPayload(referenceTime)
 		table.insert(components, buildLastSeenContainer(rarity))
 	end
 
+	table.insert(components, buildLastSeenSeparator("aura"))
+
 	table.insert(
 		components,
 		{
 			type = 10,
-			content = "-# Last Seen • AURA FAMILY X • Actualizado <t:"
+			content = "### Last Seen • AURA FAMILY X • Actualizado <t:"
 				.. tostring(math.floor(tonumber(referenceTime) or os.time()))
 				.. ":R>"
 		}
@@ -337,9 +335,9 @@ end
 	local baseUrl = getWebhookBaseUrl()
 local webhookKey = getLastSeenWebhookKey(baseUrl)
 local configuredMessageId = tostring(CONFIG.LastSeenMessageID or "")
-local messageId = (configuredMessageId ~= "" and configuredMessageId or nil)
-or lastSeenState.messageIds[webhookKey]
+local messageId = lastSeenState.messageIds[webhookKey]
 or lastSeenState.messageId
+or (configuredMessageId ~= "" and configuredMessageId or nil)
 
 	if messageId and messageId ~= "" then
 lastSeenState.messageId = tostring(messageId)
@@ -486,7 +484,8 @@ local function recordLastSeenSpawn(text, spawnedAt)
 	if previous and previous >= timestamp then return end
 
 	lastSeenState.entries[entry.key] = timestamp
-scheduleLastSeenStateSave()
+	-- Guardado inmediato: el historial no depende de que el scheduler alcance a ejecutarse.
+	saveLastSeenState()
 	scheduleLastSeenUpdate()
 	if lastSeenRefreshScheduler then lastSeenRefreshScheduler(timestamp) end
 end
