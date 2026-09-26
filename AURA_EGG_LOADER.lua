@@ -5,7 +5,7 @@ local env = (type(getgenv) == "function" and getgenv()) or _G
 env.AURA_EGG_WEBHOOK = env.AURA_EGG_WEBHOOK or "PASTE_MAIN_DISCORD_WEBHOOK_HERE"
 env.AURA_EGG_LAST_SEEN_WEBHOOK = env.AURA_EGG_LAST_SEEN_WEBHOOK or "PASTE_LAST_SEEN_DISCORD_WEBHOOK_HERE"
 
-local base = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/cd004677834541a0a36927c91a866a3f7cffbecd/"
+local base = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/1e3414da13529104f5eecfd047354b8e732f63c4/"
 local files = {
 	"AURA_EGG_BOOT.lua",
 	"AURA_EGG_DETECTION.lua",
