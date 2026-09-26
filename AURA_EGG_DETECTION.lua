@@ -72,7 +72,7 @@ emoji = "<:Divine:1551677739411574794>",
 }
 
 local LAST_SEEN_ASSET_BASE_URL =
-	"https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/main/assets/"
+	"https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/restaurar-0225220/assets/"
 
 local LAST_SEEN_CATALOG = {
 	Divine = {
