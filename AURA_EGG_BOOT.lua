@@ -1962,7 +1962,7 @@ toggleButton.ClipsDescendants = true
 toggleButton.ZIndex = 20
 toggleButton.Parent = screenGui
 
-local SCRIPT_ICON_URL = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/main/assets/aura-egg-script-icon.png"
+local SCRIPT_ICON_URL = "https://raw.githubusercontent.com/ultra3-dev/AURA-EGG-NOTIFIER/restaurar-0225220/assets/aura-egg-script-icon.png"
 local function resolveScriptIconAsset()
 local assetResolver = getsynasset or getcustomasset
 if type(assetResolver) ~= "function" or type(writefile) ~= "function" then
