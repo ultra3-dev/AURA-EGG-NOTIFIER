@@ -1,4 +1,4 @@
--- AURA EGG 2.2.8 ULTRA // BOOT + UI
+-- AURA EGG 3.0.0 ULTRA // BOOT + UI
 --[[
 	🥚 EGG DETECTOR - ULTRA MEGA HYPER-VELOCITY ADVANCED EDITION
 	================================================================
@@ -30,7 +30,7 @@ LastSeenMessageID = "1552117304609738823",
 	DisplayTime = 120,
 	MaxNotifications = 2000,
 ConsoleMaxLines = 600,
-	PriorityWindow = 0.075,
+	PriorityWindow = 0.055,
 	MaxPriorityQueue = 12,
 	ServerRefreshInterval = 15,
 	AccessKey = "#3003AURA-FAMILY-X333***#ULTRA",
@@ -41,7 +41,7 @@ ConsoleMaxLines = 600,
 		"skeleton horse",
 		"pegasus",
 	},
-Version = "2.2.8"
+Version = "3.0.0"
 }
 
 local ACCESS_STATE_FILE = "AuraEggNotifier_Access.json"

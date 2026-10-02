@@ -1,4 +1,4 @@
--- AURA EGG 2.2.8 ULTRA // LAST SEEN + CONFIG SERVICES
+-- AURA EGG 3.0.0 ULTRA // LAST SEEN + CONFIG SERVICES
 local function getHttpStatusCode(response)
 local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
 local statusCode = tonumber(rawStatus)
