@@ -359,7 +359,8 @@ local function replaceEggNameWithMention(text)
 	local matches = {}
 
 	for _, egg in ipairs(EGG_ROLE_MENTIONS) do
-		local startPos, endPos = lower:find(egg.name, 1, true)
+		local eggName = tostring(egg.name or ""):lower()
+		local startPos, endPos = lower:find(eggName, 1, true)
 		if startPos then
 			table.insert(matches, {
 				startPos = startPos,
@@ -390,11 +391,14 @@ end
 local function getEggDisplayData(text)
 local lower = tostring(text or ""):lower()
 local selected = nil
+local selectedLength = 0
 
 for _, egg in ipairs(EGG_ROLE_MENTIONS) do
-if lower:find(egg.name, 1, true)
-and (not selected or #egg.name > #selected.name) then
+local eggName = tostring(egg.name or ""):lower()
+if eggName ~= "" and lower:find(eggName, 1, true)
+and #eggName > selectedLength then
 selected = egg
+selectedLength = #eggName
 end
 end
 
