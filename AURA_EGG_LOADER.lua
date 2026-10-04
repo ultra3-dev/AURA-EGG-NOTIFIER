@@ -1,5 +1,5 @@
 -- AURA EGG NOTIFIER // MODULAR LOADER 3.0.0 (REGISTER-SAFE)
--- Mantén los webhooks solo localmente. No los publiques.
+-- MantÃ©n los webhooks solo localmente. No los publiques.
 
 local env = (type(getgenv) == "function" and getgenv()) or _G
 env.AURA_EGG_WEBHOOK = env.AURA_EGG_WEBHOOK or "PASTE_MAIN_DISCORD_WEBHOOK_HERE"
@@ -51,7 +51,9 @@ local output = {}
 local lineNumber = 0
 for line in (source .. "\n"):gmatch("([^\n]*)\n") do
 lineNumber = lineNumber + 1
-if linesToPromote[lineNumber] then
+local promoteEggDisplayHelper = fileName == "AURA_EGG_DETECTION.lua"
+and line:match("^(%s*)local%s+function%s+getEggDisplayData%(")
+if linesToPromote[lineNumber] or promoteEggDisplayHelper then
 local indentation, variableName = line:match("^(%s*)local%s+([%a_][%w_]*)%s*$")
 if indentation and variableName then
 line = indentation .. variableName .. " = nil"
