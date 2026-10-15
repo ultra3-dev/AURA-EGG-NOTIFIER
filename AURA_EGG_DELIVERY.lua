@@ -1,4 +1,4 @@
--- AURA EGG 3.0.0 ULTRA // DELIVERY + EVENT LOOP
+-- AURA EGG 3.0.3 ULTRA // DELIVERY + EVENT LOOP
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
 		local payload = {
@@ -168,11 +168,15 @@ end
 		joinLine = "\n-# Join Game: **[¡CLICK HERE!](" .. joinUrl .. ")**"
 	end
 
+	local detectedAt = tonumber(spawnedAt) or os.time()
+	local scheduledSpawnAt = math.floor((detectedAt + 150) / 300) * 300
+
 return string.format(
-		"> %s\n━━━━━━━━━━━━━━━━━━━━\n- %s **Spawned:** <t:%d:R>\n━━━━━━━━━━━━━━━━━━━━%s",
+		"> %s\n━━━━━━━━━━━━━━━━━━━━\n- %s **Spawned:** <t:%d:R> | <t:%d:t>\n━━━━━━━━━━━━━━━━━━━━%s",
 		headline,
 		rarityEmoji,
-		tonumber(spawnedAt) or os.time(),
+		detectedAt,
+		scheduledSpawnAt,
 		joinLine
 )
 end
