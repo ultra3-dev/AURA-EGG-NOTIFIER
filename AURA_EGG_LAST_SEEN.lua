@@ -1,4 +1,4 @@
--- AURA EGG 3.0.3 ULTRA // LAST SEEN + CONFIG SERVICES
+-- AURA EGG 3.0.5 ULTRA // LAST SEEN + CONFIG SERVICES
 local function getHttpStatusCode(response)
 local rawStatus = response and (response.StatusCode or response.statusCode or response.Status)
 local statusCode = tonumber(rawStatus)
@@ -156,9 +156,10 @@ local function formatLastSeenStatus(timestamp)
 		local now = os.time()
 		if parsed >= now - LAST_SEEN_ACTIVE_WINDOW and parsed <= now + LAST_SEEN_ACTIVE_WINDOW then
 			if lastSeenRefreshScheduler then lastSeenRefreshScheduler(parsed) end
-			return "**Active Now**"
 		end
-		return "<t:" .. tostring(math.floor(parsed)) .. ":R>"
+		local displayTimestamp = math.floor((parsed + 150) / 300) * 300
+		local displayValue = tostring(displayTimestamp)
+		return "<t:" .. displayValue .. ":R> • <t:" .. displayValue .. ":t>"
 	end
 	return "*No registrada*"
 end

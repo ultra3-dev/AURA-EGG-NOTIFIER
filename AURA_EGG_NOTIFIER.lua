@@ -1,4 +1,4 @@
--- AURA EGG NOTIFIER // MODULAR LOADER 3.0.3 (REGISTER-SAFE)
+-- AURA EGG NOTIFIER // MODULAR LOADER 3.0.5 (REGISTER-SAFE)
 -- Mantén los webhooks solo localmente. No los publiques.
 
 local env = (type(getgenv) == "function" and getgenv()) or _G
@@ -65,7 +65,7 @@ return table.concat(output, "\n")
 end
 
 for _, fileName in ipairs(files) do
-local source = game:HttpGet(base .. fileName .. "?v=20260926-3.0.3")
+local source = game:HttpGet(base .. fileName .. "?v=20260926-3.0.5")
 source = promoteModuleLocals(source, fileName)
 
 local chunk, compileError = compile(source, "@AURA_EGG/" .. fileName)

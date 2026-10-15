@@ -1,4 +1,4 @@
--- AURA EGG 3.0.3 ULTRA // BOOT + UI
+-- AURA EGG 3.0.5 ULTRA // BOOT + UI
 --[[
 	🥚 EGG DETECTOR - ULTRA MEGA HYPER-VELOCITY ADVANCED EDITION
 	================================================================
@@ -41,7 +41,7 @@ ConsoleMaxLines = 600,
 		"skeleton horse",
 		"pegasus",
 	},
-Version = "3.0.3"
+Version = "3.0.5"
 }
 
 local ACCESS_STATE_FILE = "AuraEggNotifier_Access.json"

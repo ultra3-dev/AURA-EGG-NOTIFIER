@@ -1,4 +1,4 @@
--- AURA EGG 3.0.3 ULTRA // DELIVERY + EVENT LOOP
+-- AURA EGG 3.0.5 ULTRA // DELIVERY + EVENT LOOP
 local function sendEggAlert(description, sourceText, onDone)
 	task.spawn(function()
 		local payload = {
@@ -175,7 +175,7 @@ return string.format(
 		"> %s\n━━━━━━━━━━━━━━━━━━━━\n- %s **Spawned:** <t:%d:R> | <t:%d:t>\n━━━━━━━━━━━━━━━━━━━━%s",
 		headline,
 		rarityEmoji,
-		detectedAt,
+		scheduledSpawnAt,
 		scheduledSpawnAt,
 		joinLine
 )
