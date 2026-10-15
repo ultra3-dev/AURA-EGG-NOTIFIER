@@ -67,7 +67,7 @@ return table.concat(output, "\n")
 end
 
 for _, fileName in ipairs(files) do
-local source = game:HttpGet(base .. fileName .. "?v=20260926-3.0.5-GOAT")
+local source = game:HttpGet(base .. fileName .. "?v=20261015-3.0.5-39ms-GOAT")
 source = promoteModuleLocals(source, fileName)
 
 local chunk, compileError = compile(source, "@AURA_EGG/" .. fileName)
