@@ -156,9 +156,9 @@ local function formatLastSeenStatus(timestamp)
 		local now = os.time()
 		if parsed >= now - LAST_SEEN_ACTIVE_WINDOW and parsed <= now + LAST_SEEN_ACTIVE_WINDOW then
 			if lastSeenRefreshScheduler then lastSeenRefreshScheduler(parsed) end
+			return "**Active Now**"
 		end
-		local displayTimestamp = math.floor((parsed + 150) / 300) * 300
-		local displayValue = tostring(displayTimestamp)
+		local displayValue = tostring(math.floor((parsed + 150) / 300) * 300)
 		return "<t:" .. displayValue .. ":R> • <t:" .. displayValue .. ":t>"
 	end
 	return "*No registrada*"
